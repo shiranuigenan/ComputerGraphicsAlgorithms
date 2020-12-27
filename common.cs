@@ -158,28 +158,97 @@ namespace ComputerGraphicsAlgorithms
 
             return destinationPixels;
         }
-public static byte[] BitmapToByteArray(Bitmap bitmap)
-{
+        public static byte[] BitmapToByteArray(Bitmap bitmap)
+        {
 
-    BitmapData bmpdata = null;
+            BitmapData bmpdata = null;
 
-    try
-    {
-        bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
-        int numbytes = bmpdata.Stride * bitmap.Height;
-        byte[] bytedata = new byte[numbytes];
-        IntPtr ptr = bmpdata.Scan0;
+            try
+            {
+                bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+                int numbytes = bmpdata.Stride * bitmap.Height;
+                byte[] bytedata = new byte[numbytes];
+                IntPtr ptr = bmpdata.Scan0;
 
-        Marshal.Copy(ptr, bytedata, 0, numbytes);
+                Marshal.Copy(ptr, bytedata, 0, numbytes);
 
-        return bytedata;
-    }
-    finally
-    {
-        if (bmpdata != null)
-            bitmap.UnlockBits(bmpdata);
-    }
+                return bytedata;
+            }
+            finally
+            {
+                if (bmpdata != null)
+                    bitmap.UnlockBits(bmpdata);
+            }
+        }
 
-}        
+        // scale 1/ratio
+        public static ushort[,] Scale(ushort[,] source, byte ratio)
+        {
+            var sourceWidth = source.GetLength(1);
+            var sourceHeight = source.GetLength(0);
+
+            var destinationWidth = sourceWidth / ratio;
+            var destinationHeight = sourceHeight / ratio;
+
+            var destination = new ushort[destinationHeight, destinationWidth];
+
+            Parallel.For(0, destinationWidth, i =>
+            {
+                var ii = i * ratio;
+                Parallel.For(0, destinationHeight, j =>
+                {
+                    var sum = 0;
+                    var jj = j * ratio;
+                    for (var x = 0; x < ratio; x++)
+                    {
+                        var iii = ii + x;
+                        for (var y = 0; y < ratio; y++)
+                        {
+                            var jjj = jj + y;
+                            sum += source[jjj, iii];
+                        }
+                    }
+                    destination[j, i] = (ushort)(sum / (ratio * ratio));
+                });
+            });
+
+
+            return destination;
+        }
+        public static void Dithering(ushort[,] target, Func<int, int> lambda)
+        {
+            var width = target.GetLength(1);
+            var height = target.GetLength(0);
+
+            var t = new int[height, width];
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    t[i, j] = target[i, j];
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                {
+                    var c = lambda(t[i, j]);
+                    var d = t[i, j] - c;
+                    t[i, j] = c;
+
+                    if (j + 1 < width)
+                    {
+                        t[i, j + 1] += d * 7 / 16;
+                        if (i + 1 < height)
+                            t[i + 1, j + 1] += d * 1 / 16;
+                    }
+                    if (i + 1 < height)
+                    {
+                        t[i + 1, j] += d * 5 / 16;
+                        if (j > 0)
+                            t[i + 1, j - 1] += d * 3 / 16;
+                    }
+                }
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    target[i, j] = (ushort)t[i, j];
+        }
     }
 }
