@@ -12,28 +12,31 @@ namespace ComputerGraphicsAlgorithms
     {
         public int width;
         public int height;
-        public ushort[,] r;
-        public ushort[,] g;
-        public ushort[,] b;
-        public ushort[,] a;
+
+        //renk doygunluğu 0-16777215(24bit) arası değişmektedir
+        public int[,] r;
+        public int[,] g;
+        public int[,] b;
+        public int[,] a;
         public channelBasedImage()
         {
             width = 1;
             height = 1;
-            r = new ushort[1, 1] { { 0xCFFF } };
-            g = new ushort[1, 1] { { 0xDFFF } };
-            b = new ushort[1, 1] { { 0xEFFF } };
-            a = new ushort[1, 1] { { 0xFFFF } };
+
+            r = new int[1, 1] { { 0xFEDCBA } };
+            g = new int[1, 1] { { 0xA98765 } };
+            b = new int[1, 1] { { 0x543210 } };
+            a = new int[1, 1] { { 0xFFFFFF } };
         }
         public channelBasedImage(Bitmap bitmap)
         {
             width = bitmap.Width;
             height = bitmap.Height;
 
-            r = new ushort[height, width];
-            g = new ushort[height, width];
-            b = new ushort[height, width];
-            a = new ushort[height, width];
+            r = new int[height, width];
+            g = new int[height, width];
+            b = new int[height, width];
+            a = new int[height, width];
 
             var bytes = common.BitmapToByteArray(bitmap);
 
@@ -44,10 +47,10 @@ namespace ComputerGraphicsAlgorithms
                 for (int i = 0; i < height; i++)
                     for (int j = 0; j < width; j++)
                     {
-                        b[i, j] = (ushort)(bytes[k++] * 257);
-                        g[i, j] = (ushort)(bytes[k++] * 257);
-                        r[i, j] = (ushort)(bytes[k++] * 257);
-                        a[i, j] = 65535;
+                        b[i, j] = bytes[k++] * 0x10101;
+                        g[i, j] = bytes[k++] * 0x10101;
+                        r[i, j] = bytes[k++] * 0x10101;
+                        a[i, j] = 0xFFFFFF;
                     }
             }
         }
@@ -62,10 +65,10 @@ namespace ComputerGraphicsAlgorithms
                 for (int i = 0; i < height; i++)
                     for (int j = 0; j < width; j++)
                     {
-                        pixels[k++] = b[i, j];
-                        pixels[k++] = g[i, j];
-                        pixels[k++] = r[i, j];
-                        pixels[k++] = a[i, j];
+                        pixels[k++] = (ushort)(b[i, j]>>8);
+                        pixels[k++] = (ushort)(g[i, j]>>8);
+                        pixels[k++] = (ushort)(r[i, j]>>8);
+                        pixels[k++] = (ushort)(a[i, j]>>8);
                     }
 
                 var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
@@ -111,7 +114,7 @@ namespace ComputerGraphicsAlgorithms
 
                 return bitmap;
             }
-            catch (System.Exception e) { }
+            catch (Exception) { }
             return null;
         }
     }

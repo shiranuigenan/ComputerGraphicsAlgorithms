@@ -182,7 +182,7 @@ namespace ComputerGraphicsAlgorithms
         }
 
         // scale 1/ratio
-        public static ushort[,] Scale(ushort[,] source, byte ratio)
+        public static int[,] Scale(int[,] source, byte ratio)
         {
             var sourceWidth = source.GetLength(1);
             var sourceHeight = source.GetLength(0);
@@ -190,14 +190,14 @@ namespace ComputerGraphicsAlgorithms
             var destinationWidth = sourceWidth / ratio;
             var destinationHeight = sourceHeight / ratio;
 
-            var destination = new ushort[destinationHeight, destinationWidth];
+            var destination = new int[destinationHeight, destinationWidth];
 
             Parallel.For(0, destinationWidth, i =>
             {
                 var ii = i * ratio;
                 Parallel.For(0, destinationHeight, j =>
                 {
-                    var sum = 0;
+                    var sum = 0L;
                     var jj = j * ratio;
                     for (var x = 0; x < ratio; x++)
                     {
@@ -208,47 +208,83 @@ namespace ComputerGraphicsAlgorithms
                             sum += source[jjj, iii];
                         }
                     }
-                    destination[j, i] = (ushort)(sum / (ratio * ratio));
+                    destination[j, i] = (int)(sum / (ratio * ratio));
                 });
             });
 
-
             return destination;
         }
-        public static void Dithering(ushort[,] target, Func<int, int> lambda)
+        public static void FloydSteinberg(int[,] target, Func<int, int> lambda)
         {
             var width = target.GetLength(1);
             var height = target.GetLength(0);
 
-            var t = new int[height, width];
             for (int i = 0; i < height; i++)
                 for (int j = 0; j < width; j++)
-                    t[i, j] = target[i, j];
+                {
+                    var c = lambda(target[i, j]);
+                    var d = target[i, j] - c;
+                    target[i, j] = c;
+
+                    if (j + 1 < width)
+                    {
+                        target[i, j + 1] += d * 7 / 16;
+                        if (i + 1 < height)
+                            target[i + 1, j + 1] += d * 1 / 16;
+                    }
+                    if (i + 1 < height)
+                    {
+                        target[i + 1, j] += d * 5 / 16;
+                        if (j > 0)
+                            target[i + 1, j - 1] += d * 3 / 16;
+                    }
+                }
+        }
+        public static void MinimizedAverageError(int[,] target, Func<int, int> lambda)
+        {
+            var width = target.GetLength(1);
+            var height = target.GetLength(0);
 
             for (int i = 0; i < height; i++)
                 for (int j = 0; j < width; j++)
                 {
-                    var c = lambda(t[i, j]);
-                    var d = t[i, j] - c;
-                    t[i, j] = c;
+                    var c = lambda(target[i, j]);
+                    var d = target[i, j] - c;
+                    target[i, j] = c;
 
                     if (j + 1 < width)
                     {
-                        t[i, j + 1] += d * 7 / 16;
+                        target[i, j + 1] += d * 7 / 48;
                         if (i + 1 < height)
-                            t[i + 1, j + 1] += d * 1 / 16;
+                            target[i + 1, j + 1] += d * 5 / 48;
+                        if (i + 2 < height)
+                            target[i + 2, j + 1] += d * 3 / 48;
+                    }
+                    if (j + 2 < width)
+                    {
+                        target[i, j + 2] += d * 5 / 48;
+                        if (i + 1 < height)
+                            target[i + 1, j + 2] += d * 3 / 48;
+                        if (i + 2 < height)
+                            target[i + 2, j + 2] += d * 1 / 48;
                     }
                     if (i + 1 < height)
                     {
-                        t[i + 1, j] += d * 5 / 16;
+                        target[i + 1, j] += d * 7 / 48;
                         if (j > 0)
-                            t[i + 1, j - 1] += d * 3 / 16;
+                            target[i + 1, j - 1] += d * 5 / 48;
+                        if (j > 1)
+                            target[i + 1, j - 2] += d * 3 / 48;
+                    }
+                    if (i + 2 < height)
+                    {
+                        target[i + 2, j] += d * 5 / 48;
+                        if (j > 0)
+                            target[i + 2, j - 1] += d * 3 / 48;
+                        if (j > 1)
+                            target[i + 2, j - 2] += d * 1 / 48;
                     }
                 }
-
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                    target[i, j] = (ushort)t[i, j];
         }
     }
 }
