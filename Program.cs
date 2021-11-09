@@ -1,33 +1,29 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System.Drawing.Imaging;
+using ComputerGraphicsAlgorithms;
+using static ComputerGraphicsAlgorithms.common;
 
-namespace ComputerGraphicsAlgorithms
-{
-    class Program
+var h = 1024;
+var w = h * 45;
+
+var a = new short[h, h];
+for (int i = 0; i < w; i++)
+    for (int j = 0; j < w; j++)
     {
-        static void Main(string[] args)
-        {
-            var a = new int[9, 9]={ };
-            for (int i = 0; i < 9; i++)
-                for (int j = 0; j < 9; j++)
-                    a[i, j] = 1000;
-
-            common.MinimizedAverageError(a, x => (x / 8388608) * 16777215);
-
-            //var bmp = new Bitmap("0.png");
-            //var c = new channelBasedImage(bmp);
-            //c.Scale(16);
-
-            //var b0 = c.convertBitmap();
-            //b0.Save("scaled.png", ImageFormat.Png);
-
-            //common.MinimizedAverageError(c.r, x => (x / 8388608) * 16777215);
-            //common.MinimizedAverageError(c.g, x => (x / 8388608) * 16777215);
-            //common.MinimizedAverageError(c.b, x => (x / 8388608) * 16777215);
-
-            //var b1 = c.convertBitmap24();
-            //b1.Save("MinimizedAverageError.png", ImageFormat.Png);
-        }
+        var x = i - (w - 1) / 2.0;
+        var y = j - (w - 1) / 2.0;
+        var z = (int)(36 + 72 * Math.Pow(Math.Atan(x / y) / Math.PI, 2));
+        var ii = i / 45;
+        var jj = j / 45;
+        a[ii, jj] += (short)(z % 2);
     }
-}
+
+var b = new Color32[h, h];
+for (int i = 0; i < h; i++)
+    for (int j = 0; j < h; j++)
+    {
+        b[i, j].r = b[i, j].g = b[i, j].b = (byte)(1 + (a[i, j] >> 3));
+        b[i, j].a = 255;
+    }
+
+var bitmap = common.pixelsToBitmap(b);
+bitmap.Save("a.png", ImageFormat.Png);
