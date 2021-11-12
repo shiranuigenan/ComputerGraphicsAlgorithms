@@ -2,7 +2,7 @@
 using ComputerGraphicsAlgorithms;
 using static ComputerGraphicsAlgorithms.common;
 
-var h = 1024;
+var h = 2048;
 var w = h * 45;
 
 var a = new short[h, h];
@@ -11,10 +11,8 @@ for (int i = 0; i < w; i++)
     {
         var x = i - (w - 1) / 2.0;
         var y = j - (w - 1) / 2.0;
-        var z = (int)(36 + 72 * Math.Pow(Math.Atan(x / y) / Math.PI, 2));
-        var ii = i / 45;
-        var jj = j / 45;
-        a[ii, jj] += (short)(z % 2);
+        var z = (int)(9 + 18 * Math.Atan(x / y) / Math.PI);
+        a[i / 45, j / 45] += (short)(z % 2);
     }
 
 var b = new Color32[h, h];
