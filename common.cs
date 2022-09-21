@@ -8,12 +8,24 @@ namespace ComputerGraphicsAlgorithms
 {
     public static class common
     {
+        public struct Color24
+        {
+            public byte b;
+            public byte g;
+            public byte r;
+        }
         public struct Color32
         {
             public byte b;
             public byte g;
             public byte r;
             public byte a;
+        }
+        public struct Color48
+        {
+            public ushort b;
+            public ushort g;
+            public ushort r;
         }
         public struct Color64
         {
@@ -22,20 +34,77 @@ namespace ComputerGraphicsAlgorithms
             public ushort r;
             public ushort a;
         }
-        public static readonly Color32[] ExtendedGrayTones = new Color32[1786];
-        static common()
+        public static Color32 PsuedoGrey(int g)
         {
-            for (int i = 0; i < 255; i++)
+            if (g < 1) return new Color32 { r = 0, g = 0, b = 0, a = 0 };
+            if (g > 1784) return new Color32 { r = 255, g = 255, b = 255, a = 255 };
+
+            var i = g / 7;
+            var j = g % 7;
+
+            var k = new byte[7, 3] { { 0, 0, 0 }, { 0, 0, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 1, 0 } };
+            return new Color32 { r = (byte)(i + k[j, 0]), g = (byte)(i + k[j, 1]), b = (byte)(i + k[j, 2]), a = 255 };
+        }
+        public static Color32 PsuedoGreyPlus(int x)
+        {
+            if (x < 1) return new Color32 { r = 0, g = 0, b = 0, a = 0 };
+            if (x > 4079) return new Color32 { r = 255, g = 255, b = 255, a = 255 };
+
+            var i = x / 16;
+            var j = x % 16;
+
+            var k = new byte[16, 3] { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 0, 2 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 0, 1 }, { 1, 0, 2 }, { 2, 0, 0 }, { 2, 0, 1 }, { 2, 0, 2 }, { 2, 0, 2 }, { 0, 1, 0 }, { 0, 1, 1 }, { 0, 1, 2 }, { 0, 1, 2 }, { 1, 1, 0 } };
+            var r = Math.Min(i + k[j, 0], 255);
+            var g = Math.Min(i + k[j, 1], 255);
+            var b = Math.Min(i + k[j, 2], 255);
+
+            return new Color32 { r = (byte)r, g = (byte)g, b = (byte)b, a = 255 };
+        }
+        public static Color24 PsuedoGreyPlus24(int x)
+        {
+            if (x < 1) return new Color24 { r = 0, g = 0, b = 0 };
+            if (x > 4079) return new Color24 { r = 255, g = 255, b = 255 };
+
+            var i = x / 16;
+            var j = x % 16;
+
+            var k = new byte[16, 3] { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 0, 2 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 0, 1 }, { 1, 0, 2 }, { 2, 0, 0 }, { 2, 0, 1 }, { 2, 0, 2 }, { 2, 0, 2 }, { 0, 1, 0 }, { 0, 1, 1 }, { 0, 1, 2 }, { 0, 1, 2 }, { 1, 1, 0 } };
+            var r = Math.Min(i + k[j, 0], 255);
+            var g = Math.Min(i + k[j, 1], 255);
+            var b = Math.Min(i + k[j, 2], 255);
+
+            return new Color24 { r = (byte)r, g = (byte)g, b = (byte)b };
+        }
+        public static Color48 PsuedoGreyPlus48(int x)
+        {
+            if (x < 1) return new Color48 { r = 0, g = 0, b = 0 };
+            if (x > 1048559) return new Color48 { r = 65535, g = 65535, b = 65535 };
+
+            var i = x / 16;
+            var j = x % 16;
+
+            var k = new byte[16, 3] { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 0, 2 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 0, 1 }, { 1, 0, 2 }, { 2, 0, 0 }, { 2, 0, 1 }, { 2, 0, 2 }, { 2, 0, 2 }, { 0, 1, 0 }, { 0, 1, 1 }, { 0, 1, 2 }, { 0, 1, 2 }, { 1, 1, 0 } };
+            var r = Math.Min(i + k[j, 0], 65535);
+            var g = Math.Min(i + k[j, 1], 65535);
+            var b = Math.Min(i + k[j, 2], 65535);
+
+            return new Color48 { r = (ushort)r, g = (ushort)g, b = (ushort)b };
+        }
+        public static Color24[,] bytesToPixels24(byte[] bytes, int width, int height)
+        {
+            try
             {
-                ExtendedGrayTones[7 * i + 0].r = (byte)(i + 0); ExtendedGrayTones[7 * i + 0].g = (byte)(i + 0); ExtendedGrayTones[7 * i + 0].b = (byte)(i + 0);
-                ExtendedGrayTones[7 * i + 1].r = (byte)(i + 0); ExtendedGrayTones[7 * i + 1].g = (byte)(i + 0); ExtendedGrayTones[7 * i + 1].b = (byte)(i + 1);
-                ExtendedGrayTones[7 * i + 2].r = (byte)(i + 1); ExtendedGrayTones[7 * i + 2].g = (byte)(i + 0); ExtendedGrayTones[7 * i + 2].b = (byte)(i + 0);
-                ExtendedGrayTones[7 * i + 3].r = (byte)(i + 1); ExtendedGrayTones[7 * i + 3].g = (byte)(i + 0); ExtendedGrayTones[7 * i + 3].b = (byte)(i + 1);
-                ExtendedGrayTones[7 * i + 4].r = (byte)(i + 0); ExtendedGrayTones[7 * i + 4].g = (byte)(i + 1); ExtendedGrayTones[7 * i + 4].b = (byte)(i + 0);
-                ExtendedGrayTones[7 * i + 5].r = (byte)(i + 0); ExtendedGrayTones[7 * i + 5].g = (byte)(i + 1); ExtendedGrayTones[7 * i + 5].b = (byte)(i + 1);
-                ExtendedGrayTones[7 * i + 6].r = (byte)(i + 1); ExtendedGrayTones[7 * i + 6].g = (byte)(i + 1); ExtendedGrayTones[7 * i + 6].b = (byte)(i + 0);
+                var byteCount = width * height * 3;
+                var pixels = new Color24[width, height];
+                var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+                var pointer = handle.AddrOfPinnedObject();
+                Marshal.Copy(bytes, 0, pointer, byteCount);
+                handle.Free();
+
+                return pixels;
             }
-            ExtendedGrayTones[1785].r = 255; ExtendedGrayTones[1785].g = 255; ExtendedGrayTones[1785].b = 255;
+            catch (System.Exception) { }
+            return null;
         }
         public static Color32[,] bytesToPixels(byte[] bytes, int width, int height)
         {
@@ -49,6 +118,36 @@ namespace ComputerGraphicsAlgorithms
                 handle.Free();
 
                 return pixels;
+            }
+            catch (System.Exception) { }
+            return null;
+        }
+        public static Color48[,] bytesToPixels48(byte[] bytes, int width, int height)
+        {
+            try
+            {
+                var byteCount = width * height * 6;
+                var pixels = new Color48[width, height];
+                var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+                var pointer = handle.AddrOfPinnedObject();
+                Marshal.Copy(bytes, 0, pointer, byteCount);
+                handle.Free();
+
+                return pixels;
+            }
+            catch (System.Exception) { }
+            return null;
+        }
+        public static Bitmap pixelsToBitmap(Color24[,] pixels)
+        {
+            try
+            {
+                var width = pixels.GetLength(1);
+                var height = pixels.GetLength(0);
+                var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+                var bitmap = new Bitmap(width, height, width * 3, PixelFormat.Format24bppRgb, handle.AddrOfPinnedObject());
+
+                return bitmap;
             }
             catch (System.Exception) { }
             return null;
@@ -67,6 +166,20 @@ namespace ComputerGraphicsAlgorithms
             catch (System.Exception) { }
             return null;
         }
+        public static Bitmap pixelsToBitmap(Color48[,] pixels)
+        {
+            try
+            {
+                var width = pixels.GetLength(1);
+                var height = pixels.GetLength(0);
+                var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+                var bitmap = new Bitmap(width, height, width * 6, PixelFormat.Format48bppRgb, handle.AddrOfPinnedObject());
+
+                return bitmap;
+            }
+            catch (System.Exception e) { }
+            return null;
+        }
         public static Bitmap pixelsToBitmap(Color64[,] pixels)
         {
             try
@@ -75,6 +188,18 @@ namespace ComputerGraphicsAlgorithms
                 var height = pixels.GetLength(0);
                 var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
                 var bitmap = new Bitmap(width, height, width * 8, PixelFormat.Format64bppArgb, handle.AddrOfPinnedObject());
+
+                return bitmap;
+            }
+            catch (System.Exception e) { }
+            return null;
+        }
+        public static Bitmap bitsToBitmap(byte[] bytes, int width, int height)
+        {
+            try
+            {
+                var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+                var bitmap = new Bitmap(width, height, width / 8, PixelFormat.Format1bppIndexed, handle.AddrOfPinnedObject());
 
                 return bitmap;
             }
@@ -118,6 +243,43 @@ namespace ComputerGraphicsAlgorithms
                 bitmap.Save(fileName, jpgEncoder, myEncoderParameters);
             }
             catch (System.Exception) { }
+        }
+        public static Color48[,] Scale16(Color24[,] sourcePixels)
+        {
+            var sourceWidth = sourcePixels.GetLength(1);
+            var sourceHeight = sourcePixels.GetLength(0);
+
+            var destinationWidth = (int)Math.Floor(sourceWidth / 16.0);
+            var destinationHeight = (int)Math.Floor(sourceHeight / 16.0);
+
+            var destinationPixels = new Color48[destinationHeight, destinationWidth];
+
+            Parallel.For(0, destinationWidth, i =>
+            {
+                var ii = i * 16;
+                Parallel.For(0, destinationHeight, j =>
+                {
+                    var sum = new int[4];
+                    var jj = j * 16;
+                    for (var x = 0; x < 16; x++)
+                    {
+                        var iii = ii + x;
+                        for (var y = 0; y < 16; y++)
+                        {
+                            var jjj = jj + y;
+                            sum[0] += sourcePixels[jjj, iii].r;
+                            sum[1] += sourcePixels[jjj, iii].g;
+                            sum[2] += sourcePixels[jjj, iii].b;
+                        }
+                    }
+                    destinationPixels[j, i].r = (ushort)(257 * sum[0] / 256);
+                    destinationPixels[j, i].g = (ushort)(257 * sum[1] / 256);
+                    destinationPixels[j, i].b = (ushort)(257 * sum[2] / 256);
+                });
+            });
+
+
+            return destinationPixels;
         }
         public static Color64[,] Scale16(Color32[,] sourcePixels)
         {
