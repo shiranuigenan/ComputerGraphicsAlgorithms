@@ -7,7 +7,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        imageGenerate.ZigZag();
+        imageGenerate.Exponential();
     }
 }
 

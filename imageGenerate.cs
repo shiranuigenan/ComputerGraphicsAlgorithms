@@ -187,6 +187,19 @@ namespace ComputerGraphicsAlgorithms
             }
             w.Close();
         }
+        public static void Exponential()
+        {
+            var w = new BinaryWriter(File.Create("a.raw"));
+            for (int i = 0; i < 300000; i++)
+            {
+                var f = Math.Pow(1.00004621098, i);
+                var d = common.PsuedoGreyPlus48((int)f);
+                w.Write(d.r);
+                w.Write(d.g);
+                w.Write(d.b);
+            }
+            w.Close();
+        }
         public static void ZigZag()
         {
             var n = 32;
