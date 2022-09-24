@@ -125,7 +125,7 @@ namespace ComputerGraphicsAlgorithms
                 for (var j = 0; j < 5120; j++)
                 {
                     var a = (i + 1) * (i + 1) + (j + 1) * (j + 1);
-                    pixels[5119-j, 5119-i] = common.PsuedoGreyPlus48(a / 50);
+                    pixels[5119 - j, 5119 - i] = common.PsuedoGreyPlus48(a / 50);
                 }
             });
 
@@ -159,18 +159,73 @@ namespace ComputerGraphicsAlgorithms
 
             return pixels;
         }
-        public static common.Color48[,] Arctangent()
+        public static void Arctangent()
         {
-            var pixels = new common.Color48[10240, 10240];
+            var w = new BinaryWriter(File.Create("a.raw"));
 
-            Parallel.For(0, 10240, i =>
+            var a = new byte[16384 * 6];
+            for (int i = 0; i < 16384; i++)
             {
-                for (var j = 0; j < 10240; j++)
-                    pixels[j, i] = common.PsuedoGreyPlus48(((i + 1) * (j + 1) - 1) / 25);
-            });
-
-            return pixels;
+                var ii = i - 8191.5;
+                Parallel.For(0, 16384, j =>
+                {
+                    var c = (Math.Atan(ii / (j - 8191.5)) + Math.PI / 2) / Math.PI;
+                    c = 1 - Math.Abs(2 * c - 1);
+                    c = 1 - Math.Abs(2 * c - 1);
+                    c = 1 - Math.Abs(2 * c - 1);
+                    c = 1 - Math.Abs(2 * c - 1);
+                    c = 1 - Math.Abs(2 * c - 1);
+                    var d = common.PsuedoGreyPlus48((int)(1048576 * c));
+                    a[6 * j + 0] = (byte)d.r;
+                    a[6 * j + 1] = (byte)(d.r >> 8);
+                    a[6 * j + 2] = (byte)d.g;
+                    a[6 * j + 3] = (byte)(d.g >> 8);
+                    a[6 * j + 4] = (byte)d.b;
+                    a[6 * j + 5] = (byte)(d.b >> 8);
+                });
+                w.Write(a);
+            }
+            w.Close();
         }
+        public static void ZigZag()
+        {
+            var n = 32;
 
+            var zigZag = new List<Tuple<int, int>>[2 * n - 1];
+            for (int i = 0; i < zigZag.Length; i++)
+                zigZag[i] = new List<Tuple<int, int>>();
+
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    zigZag[i + j].Add(Tuple.Create(i, j));
+
+            var result = new Bitmap((n * n + 1) * n, n, PixelFormat.Format24bppRgb);
+            var rg = Graphics.FromImage(result);
+            rg.Clear(Color.White);
+
+            var bitmap = new Bitmap(n, n, PixelFormat.Format24bppRgb);
+
+            using (var g = Graphics.FromImage(bitmap))
+                g.Clear(Color.White);
+
+            var t = 0;
+            for (int i = 0; i < zigZag.Length; i++)
+                for (int j = 0; j < zigZag[i].Count; j++)
+                {
+                    bitmap.SetPixel(n - 1 - zigZag[i][j].Item1, n - 1 - zigZag[i][j].Item2, Color.Black);
+                    t++;
+
+                    if (t % 2 == 1)
+                    {
+                        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                        rg.DrawImage(bitmap, t * n, 0);
+                        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                    }
+                    else
+                        rg.DrawImage(bitmap, t * n, 0);
+                }
+
+            result.Save("result.png");
+        }
     }
 }
