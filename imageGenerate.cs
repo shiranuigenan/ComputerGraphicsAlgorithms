@@ -98,6 +98,23 @@ namespace ComputerGraphicsAlgorithms
 
             return pixels;
         }
+        public static void PerfectBallQuarterVector()
+        {
+            var bb = -1;
+            for (var j = 0; j < 4081; j++)
+            {
+                var b = 0;
+                for (var k = 0; k < 4081; k++)
+                    if (j * j + k * k < 16646400)
+                        b++;
+                if (bb != b)
+                {
+                    bb = b;
+                    var c = common.PsuedoGreyPlus(b);
+                    Console.WriteLine(string.Format("<stop offset=\"{0:0.00}%\" style=\"stop-color:rgb({1},{2},{3})\" />", 100.0 * j / 4080.0, c.r, c.g, c.b));
+                }
+            }
+        }
         public static common.Color32[,] PerfectBallQuarter2()
         {
             var pixels = new common.Color32[4096, 4096];
@@ -158,6 +175,51 @@ namespace ComputerGraphicsAlgorithms
                 }
 
             return pixels;
+        }
+        public static void XModPlusYMod()
+        {
+            var a = new byte[10240 * 10240 * 3];
+            var k = 0;
+            for (int i = 0; i < 10240; i++)
+                for (int j = 0; j < 10240; j++)
+                {
+                    var d = common.PsuedoGreyPlus24(i % 2040 + j % 2040);
+                    a[k++] = d.r;
+                    a[k++] = d.g;
+                    a[k++] = d.b;
+                }
+            var b = common.bytesToBitmap24(a, 10240, 10240);
+            common.saveJpeg(b, 100, "100.jpg");
+        }
+        public static void XPlusYMod()
+        {
+            var a = new byte[10240 * 10240 * 3];
+            var k = 0;
+            for (int i = 0; i < 10240; i++)
+                for (int j = 0; j < 10240; j++)
+                {
+                    var d = common.PsuedoGreyPlus24((i + j) % 4080);
+                    a[k++] = d.r;
+                    a[k++] = d.g;
+                    a[k++] = d.b;
+                }
+            var b = common.bytesToBitmap24(a, 10240, 10240);
+            common.saveJpeg(b, 100, "100.jpg");
+        }
+        public static void PsuedoPerspective()
+        {
+            var a = new byte[25600 * 4096 * 3];
+            var k = 0;
+            for (int i = 0; i < 4096; i++)
+                for (int j = 0; j < 25600; j++)
+                {
+                    var d = common.PsuedoGreyPlus24(((j + 1) % (i + 1)) % 4080);
+                    a[k++] = d.r;
+                    a[k++] = d.g;
+                    a[k++] = d.b;
+                }
+            var b = common.bytesToBitmap24(a, 25600, 4096);
+            common.saveJpeg(b, 100, "100.jpg");
         }
         public static void Arctangent()
         {
@@ -239,6 +301,27 @@ namespace ComputerGraphicsAlgorithms
                 }
 
             result.Save("result.png");
+        }
+        public static void XPowerX()
+        {
+            var m = 0.6922;
+            var n = 15;
+            var a = 16384;
+            var an = a * n;
+            var b = new byte[a, a];
+            for (int i = 0; i < an; i++)
+            {
+                var c = 1.0 * i / an;
+                var d = (int)(an * (Math.Pow(c, c) - m));
+                for (int j = 0; j < d; j++)
+                    b[i / n, j / n]++;
+            }
+
+            var w = new BinaryWriter(File.Create("a.raw"));
+            for (int i = 0; i < a; i++)
+                for (int j = 0; j < a; j++)
+                    w.Write((byte)(17 * b[i, j] / 15));
+            w.Close();
         }
     }
 }
