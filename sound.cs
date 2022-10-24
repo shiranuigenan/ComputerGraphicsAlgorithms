@@ -26,6 +26,28 @@
             }
             return intTo24bit(pinkNoise);
         }
+        public static int[] pinkNoiseF()
+        {
+            var r = new Random();
+            int bit = 23;
+            var prn = new byte[2147483591];
+            r.NextBytes(prn);
+            var whiteNoise = new int[bit];
+            var sampleCount = 1 << bit;
+            var pinkNoise = new int[sampleCount];
+            for (int i = 0, j = 0, k = 0, sum = 0, diff = 0, key = sampleCount - 1; i < sampleCount; i++, key++, sum = 0)
+            {
+                diff = (key + 1) ^ key;
+                for (k = 0; k < bit; k++)
+                {
+                    if ((diff & (1 << k)) > 0)
+                        whiteNoise[k] = prn[j++];
+                    sum += whiteNoise[k];
+                }
+                pinkNoise[i] = (int)((sum - 77243565) / 13.114748f);
+            }
+            return pinkNoise;
+        }
         public static byte[] pinkNoiseFlac24bit2()
         {
             int bit = 23;
