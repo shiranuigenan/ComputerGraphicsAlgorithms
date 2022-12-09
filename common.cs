@@ -218,6 +218,18 @@ namespace ComputerGraphicsAlgorithms
             catch (System.Exception e) { }
             return null;
         }
+        public static Bitmap bytesToBitmap4bit(byte[] bytes, int width, int height)
+        {
+            try
+            {
+                var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+                var bitmap = new Bitmap(width, height, width / 2, PixelFormat.Format4bppIndexed, handle.AddrOfPinnedObject());
+
+                return bitmap;
+            }
+            catch (System.Exception e) { }
+            return null;
+        }
         public static byte[] randomBytes(int byteCount)
         {
             try

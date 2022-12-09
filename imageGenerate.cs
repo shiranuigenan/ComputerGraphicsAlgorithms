@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
@@ -657,6 +658,64 @@ namespace ComputerGraphicsAlgorithms
                 for (int j = 0; j < a; j++)
                     w.Write((byte)(17 * b[i, j] / 15));
             w.Close();
+        }
+        public static void Acceleration()
+        {
+            var b = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+            var w = 1044480;
+            var h = 1;
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 1.mp4";
+            var p = new Process
+            {
+                StartInfo =
+    {
+        FileName = "ffmpeg.exe",
+        Arguments = $"{inputArgs} {outputArgs}",
+        UseShellExecute = false,
+        CreateNoWindow = false,
+        RedirectStandardInput = true
+    }
+            };
+
+            p.Start();
+
+            var t = 0;
+            var a = new int[54000];
+            for (int i = 0; i < 27000; i++)
+            {
+                t += i;
+                a[i] = t;
+            }
+            for (int i = 0; i < 27000; i++)
+            {
+                t += 27000 - i;
+                a[i + 27000] = t;
+            }
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var Data = new byte[w * h * 3];
+            var r = new Random();
+            for (int i = 0; i < 54000; i++)
+            {
+                if (i % 5400 == 0)
+                    Console.WriteLine(i / 5400);
+
+                for (int j = 0; j < w * h; j++)
+                {
+                    var k = (a[i] + j) % 522240;
+                    var c = b[k / 128];
+                    Data[3 * j + 0] = c.r;
+                    Data[3 * j + 1] = c.g;
+                    Data[3 * j + 2] = c.b;
+                }
+
+                ffmpegIn.Write(Data);
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
         }
     }
 }
