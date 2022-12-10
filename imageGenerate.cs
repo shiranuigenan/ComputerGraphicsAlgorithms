@@ -696,7 +696,6 @@ namespace ComputerGraphicsAlgorithms
 
             var ffmpegIn = p.StandardInput.BaseStream;
             var Data = new byte[w * h * 3];
-            var r = new Random();
             for (int i = 0; i < 54000; i++)
             {
                 if (i % 5400 == 0)
@@ -712,6 +711,58 @@ namespace ComputerGraphicsAlgorithms
                 }
 
                 ffmpegIn.Write(Data);
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void AccelerationLine()
+        {
+            var w = 1044480;
+            var h = 1;
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 1.mp4";
+            var p = new Process
+            {
+                StartInfo =
+    {
+        FileName = "ffmpeg.exe",
+        Arguments = $"{inputArgs} {outputArgs}",
+        UseShellExecute = false,
+        CreateNoWindow = false,
+        RedirectStandardInput = true
+    }
+            };
+
+            p.Start();
+
+            var a = new byte[8400 * 3];
+            for (int i = 0; i < 4200; i++)
+            {
+                var b = PsuedoGreyPlus24(i);
+                a[3 * i + 0] = b.r;
+                a[3 * i + 1] = b.g;
+                a[3 * i + 2] = b.b;
+
+                a[3 * (8399 - i) + 0] = b.r;
+                a[3 * (8399 - i) + 1] = b.g;
+                a[3 * (8399 - i) + 2] = b.b;
+            }
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var Data = new byte[w * h * 3];
+            var k = 0;
+            for (int i = 0; i < 1440; i++)
+            {
+                k += i;
+                if (i % 145 == 0)
+                    Console.WriteLine(i / 145);
+
+                ffmpegIn.Write(Data, 0, k * 3);
+                ffmpegIn.Write(a);
+                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
                 ffmpegIn.Flush();
             }
             ffmpegIn.Close();
