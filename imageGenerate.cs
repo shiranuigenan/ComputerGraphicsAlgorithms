@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using static ComputerGraphicsAlgorithms.common;
 
@@ -719,10 +720,10 @@ namespace ComputerGraphicsAlgorithms
         public static void AccelerationLine()
         {
             var w = 1044480;
-            var h = 1;
+            var h = 4;
 
             var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
-            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 1.mp4";
+            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 2.mp4";
             var p = new Process
             {
                 StartInfo =
@@ -738,20 +739,22 @@ namespace ComputerGraphicsAlgorithms
             p.Start();
 
             var a = new byte[8400 * 3];
+            Array.Fill(a, (byte)255);
+            var c = new byte[8400 * 3];
             for (int i = 0; i < 4200; i++)
             {
                 var b = PsuedoGreyPlus24(i);
-                a[3 * i + 0] = b.r;
-                a[3 * i + 1] = b.g;
-                a[3 * i + 2] = b.b;
+                c[3 * i + 0] = b.r;
+                c[3 * i + 1] = b.g;
+                c[3 * i + 2] = b.b;
 
-                a[3 * (8399 - i) + 0] = b.r;
-                a[3 * (8399 - i) + 1] = b.g;
-                a[3 * (8399 - i) + 2] = b.b;
+                c[3 * (8399 - i) + 0] = b.r;
+                c[3 * (8399 - i) + 1] = b.g;
+                c[3 * (8399 - i) + 2] = b.b;
             }
 
             var ffmpegIn = p.StandardInput.BaseStream;
-            var Data = new byte[w * h * 3];
+            var Data = new byte[w * 3];
             var k = 0;
             for (int i = 0; i < 1440; i++)
             {
@@ -760,9 +763,249 @@ namespace ComputerGraphicsAlgorithms
                     Console.WriteLine(i / 145);
 
                 ffmpegIn.Write(Data, 0, k * 3);
+                ffmpegIn.Write(c);
+                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
+                ffmpegIn.Write(Data, 0, k * 3);
+                ffmpegIn.Write(c);
+                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
+                ffmpegIn.Write(Data, 0, k * 3);
                 ffmpegIn.Write(a);
                 ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
 
+                ffmpegIn.Write(Data, 0, k * 3);
+                ffmpegIn.Write(a);
+                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void LinearMovement144p()
+        {
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 1280x4 -r 60 -i -";
+            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=1280:720 5.mp4";
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var b = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var bos = new byte[1280 * 3];
+            var Data = new byte[1280 * 3];
+
+            for (int k = 0; k < 4; k++)
+                ffmpegIn.Write(Data);
+            ffmpegIn.Flush();
+
+            for (int i = 0; i < 1280; i++)
+            {
+                var k = 0;
+                for (int j = 6; j < 91; j++)
+                {
+                    k += j;
+                    var c = b[k];
+                    Data[3 * i + 0] = c.r;
+                    Data[3 * i + 1] = c.g;
+                    Data[3 * i + 2] = c.b;
+
+                    ffmpegIn.Write(bos);
+                    ffmpegIn.Write(Data);
+                    ffmpegIn.Write(Data);
+                    ffmpegIn.Write(bos);
+                    ffmpegIn.Flush();
+                }
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void AccelerationArea()
+        {
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 32x18 -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset veryslow -x265-params lossless=1 1.mp4";
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            var a = new byte[32 * 18 * 6];
+            var b = new byte[32 * 18 * 6];
+            var r = new Random();
+
+            for (int i = 0; i < 2592000; i++)
+            {
+                r.NextBytes(b);
+                for (int j = 0; j < a.Length; j++)
+                    a[j] += (byte)(b[j]>>7);
+
+                ffmpegIn.Write(a);
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void PinkNoise2()
+        {
+            var w = 524288;//524288
+            var h = 294912;//294912
+
+            var a = new List<List<byte[]>>();
+
+            var bit = 20;
+            var ww = w;
+            var hh = h;
+            for (int i = 1; i < bit; i++)
+            {
+                ww = (ww + 1) >> 1;
+                hh = (hh + 1) >> 1;
+
+                var b = new List<byte[]>();
+                for (int j = 0; j < hh; j++)
+                    b.Add(new byte[ww]);
+
+                a.Add(b);
+            }
+
+            var p = new List<long[]>();
+            for (int j = 0; j < h >> 4; j++)
+                p.Add(new long[w >> 4]);
+
+            var r = new Random();
+            a.ForEach(x => x.ForEach(y => r.NextBytes(y)));
+
+            for (int y = 0; y < h; y++)
+            {
+                if (y % 29492 == 0)
+                    Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + y / 29492);
+
+                for (int x = 0; x < w; x++)
+                {
+                    int sum = r.Next(256);
+                    for (int j = 1; j < bit; j++)
+                        sum += a[j - 1][y >> j][x >> j];
+                    p[y >> 4][x >> 4] += sum;
+                }
+            }
+
+            var max = long.MinValue;
+            var min = long.MaxValue;
+
+            for (int y = 0; y < h >> 4; y++)
+                for (int x = 0; x < w >> 4; x++)
+                {
+                    if (p[y][x] > max) max = p[y][x];
+                    if (p[y][x] < min) min = p[y][x];
+                }
+
+            for (int y = 0; y < h >> 4; y++)
+                for (int x = 0; x < w >> 4; x++)
+                    p[y][x] -= min;
+
+            for (int y = 0; y < h >> 4; y++)
+                for (int x = 0; x < w >> 4; x++)
+                    p[y][x] = (long)(4080 * p[y][x] / (0.0 + max - min));
+
+            var pixels = new Color24[h >> 4, w >> 4];
+            var t = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+            for (int y = 0; y < h >> 4; y++)
+                for (int x = 0; x < w >> 4; x++)
+                {
+                    pixels[y, x].r = t[p[y][x]].r;
+                    pixels[y, x].g = t[p[y][x]].g;
+                    pixels[y, x].b = t[p[y][x]].b;
+                }
+
+            var bm = pixelsToBitmap(pixels);
+
+            for (int i = 0; i < 99; i++)
+                saveJpeg(bm, i + 2, (i + 1).ToString("D2") + ".jpg");
+
+        }
+        public static void PinkNoiseAnimated()
+        {
+            var w = 16384;//524288
+            var h = 9216;//294912
+
+            var a = new List<List<byte[]>>();
+
+            var bit = 15;
+            var ww = w;
+            var hh = h;
+            for (int i = 1; i < bit; i++)
+            {
+                ww = (ww + 1) >> 1;
+                hh = (hh + 1) >> 1;
+
+                var b = new List<byte[]>();
+                for (int j = 0; j < hh; j++)
+                    b.Add(new byte[ww]);
+
+                a.Add(b);
+            }
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset veryslow -crf 0 4.mp4";
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var d = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+            var r = new Random();
+            var frameCount = 65536;
+            for (int i = 0, diff, k, x, y, sum; i < frameCount; i++)
+            {
+                diff = (i - 1) ^ i;
+                for (k = 1; k < bit; k++)
+                    if ((diff & (1 << k)) > 0)
+                        a[k - 1].ForEach(x => r.NextBytes(x));
+
+                for (y = 0; y < h; y++)
+                    for (x = 0; x < w; x++)
+                    {
+                        sum = r.Next(256);
+                        for (int j = 1; j < bit; j++)
+                            sum += a[j - 1][y >> j][x >> j];
+
+                        ffmpegIn.WriteByte(d[sum].r);
+                        ffmpegIn.WriteByte(d[sum].g);
+                        ffmpegIn.WriteByte(d[sum].b);
+                    }
                 ffmpegIn.Flush();
             }
             ffmpegIn.Close();

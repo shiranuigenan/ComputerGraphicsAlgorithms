@@ -9,6 +9,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        imageGenerate.AccelerationLine();
+        imageGenerate.AccelerationArea();
     }
 }
