@@ -783,10 +783,14 @@ namespace ComputerGraphicsAlgorithms
             ffmpegIn.Close();
             p.WaitForExit();
         }
-        public static void LinearMovement144p()
+        public static void LinearMovement24Hour()
         {
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 1280x4 -r 60 -i -";
-            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=1280:720 5.mp4";
+            //122880
+            //1044480
+            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 40800x1 -r 30 -i -";
+            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=640:360 libx265_crf0_360p24sa.mp4";
+            //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
+            //-sws_flags neighbor
             var p = new Process
             {
                 StartInfo =
@@ -801,41 +805,25 @@ namespace ComputerGraphicsAlgorithms
 
             p.Start();
 
-            var b = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
             var ffmpegIn = p.StandardInput.BaseStream;
-            var bos = new byte[1280 * 3];
-            var Data = new byte[1280 * 3];
+            var a = new byte[40800];
 
-            for (int k = 0; k < 4; k++)
-                ffmpegIn.Write(Data);
-            ffmpegIn.Flush();
-
-            for (int i = 0; i < 1280; i++)
+            for (int i = 0; i < 2592000; i++)
             {
-                var k = 0;
-                for (int j = 6; j < 91; j++)
-                {
-                    k += j;
-                    var c = b[k];
-                    Data[3 * i + 0] = c.r;
-                    Data[3 * i + 1] = c.g;
-                    Data[3 * i + 2] = c.b;
-
-                    ffmpegIn.Write(bos);
-                    ffmpegIn.Write(Data);
-                    ffmpegIn.Write(Data);
-                    ffmpegIn.Write(bos);
-                    ffmpegIn.Flush();
-                }
+                a[i / 64] = (byte)(4 * (1 + (i % 64)) - 1);
+                ffmpegIn.Write(a);
+                ffmpegIn.Flush();
             }
             ffmpegIn.Close();
             p.WaitForExit();
         }
-        public static void AccelerationArea()
+        public static void PerfectRandom48()
         {
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 32x18 -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset veryslow -x265-params lossless=1 1.mp4";
+            var w = 16;
+            var h = 9 * w / 16;
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=32:18 -x265-params lossless=1 -sws_flags neighbor a.mp4";
             var p = new Process
             {
                 StartInfo =
@@ -852,15 +840,161 @@ namespace ComputerGraphicsAlgorithms
 
             var ffmpegIn = p.StandardInput.BaseStream;
 
-            var a = new byte[32 * 18 * 6];
-            var b = new byte[32 * 18 * 6];
+            var a = new ushort[w * h * 3];
+            var b = new byte[w * h * 3];
             var r = new Random();
+
+            for (int i = 0; i < a.Length; i++)
+                a[i] = (ushort)r.Next(65536);
+
+            for (int i = 0; i < 2592; i++)
+            {
+                r.NextBytes(b);
+                for (int j = 0; j < a.Length; j++)
+                {
+                    a[j] += b[j];
+
+                    ffmpegIn.WriteByte((byte)a[j]);
+                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
+                }
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void PerfectRandom16Gray()
+        {
+            var w = 16;
+            var h = 9 * w / 16;
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt gray16le -s:v {w}x{h} -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=32:18 -x265-params lossless=1 n.mp4";
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            var a = new ushort[w * h];
+            var e = new ushort[w * h];
+            var b = new byte[w * h];
+            var c = new byte[w * h];
+            var r = new Random();
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                a[i] = (ushort)r.Next(65536);
+                e[i] = (ushort)r.Next(65536);
+            }
+
+            for (int i = 0; i < 25920; i++)
+            {
+                r.NextBytes(b);
+                r.NextBytes(c);
+                for (int j = 0; j < a.Length; j++)
+                {
+                    a[j] += b[j];
+                    e[j] -= c[j];
+
+                    ushort d = (ushort)((a[j] >> 1) + (e[j] >> 1));
+
+                    ffmpegIn.WriteByte((byte)d);
+                    ffmpegIn.WriteByte((byte)(d >> 8));
+                }
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void PerfectRandom8()
+        {
+            var w = 16;
+            var h = 9 * w / 16;
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+            //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=3840:2160 -crf 51 crf51_4k.mp4";
+            var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 31 crf31_8k.mp4";
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            var a = new int[w * h];
+            var b = new byte[w * h];
+            var r = new Random();
+
+            for (int j = 0; j < a.Length; j++)
+                a[j] = r.Next() % 16777216;
+
+            for (int i = 0; i < 5184; i++)
+            {
+                r.NextBytes(b);
+                for (int j = 0; j < a.Length; j++)
+                {
+                    a[j] = (a[j] + (b[j] >> 7)) % 16777216;
+                    ffmpegIn.WriteByte((byte)a[j]);
+                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
+                    ffmpegIn.WriteByte((byte)(a[j] >> 16));
+                }
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void PerfectRandom24()
+        {
+            var w = 16;
+            var h = 9 * w / 16;
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+            var outputArgs = $"-c:v libsvtav1 -crf 31 -vf scale=1920:1080 -sws_flags neighbor libsvtav1_1080p_crf31.mp4";
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            var a = new byte[w * h * 3];
+            var b = new byte[w * h * 3];
+            var r = new Random();
+            r.NextBytes(a);
 
             for (int i = 0; i < 2592000; i++)
             {
                 r.NextBytes(b);
                 for (int j = 0; j < a.Length; j++)
-                    a[j] += (byte)(b[j]>>7);
+                    a[j] += (byte)(b[j] >> 7);
 
                 ffmpegIn.Write(a);
                 ffmpegIn.Flush();
@@ -1011,5 +1145,6 @@ namespace ComputerGraphicsAlgorithms
             ffmpegIn.Close();
             p.WaitForExit();
         }
+
     }
 }
