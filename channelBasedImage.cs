@@ -90,7 +90,6 @@ namespace ComputerGraphicsAlgorithms
         }
         public Bitmap convertBitmap24()
         {
-            var a = new List<Tuple<byte, byte, byte>>();
             try
             {
                 //blue green red alpha
@@ -100,14 +99,10 @@ namespace ComputerGraphicsAlgorithms
                 for (int i = 0; i < height; i++)
                     for (int j = 0; j < width; j++)
                     {
-                        pixels[k++] = (byte)(b[i, j] >> 8);
-                        pixels[k++] = (byte)(g[i, j] >> 8);
-                        pixels[k++] = (byte)(r[i, j] >> 8);
-                        a.Add(Tuple.Create(pixels[k - 1], pixels[k - 2], pixels[k - 3]));
+                        pixels[k++] = (byte)(b[i, j] >> 16);
+                        pixels[k++] = (byte)(g[i, j] >> 16);
+                        pixels[k++] = (byte)(r[i, j] >> 16);
                     }
-
-                var aa=a.GroupBy(x => x).OrderByDescending(x=>x.Count()).Select(x => new { x.Key, Count = x.Count() }).ToList();
-                aa.ForEach(i => Console.WriteLine(i));
 
                 var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
                 var bitmap = new Bitmap(width, height, width * 3, PixelFormat.Format24bppRgb, handle.AddrOfPinnedObject());

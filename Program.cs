@@ -8,6 +8,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        imageGenerate.LinearMovement24Hour();
+        imageGenerate.PerfectRandom16Gray();
     }
 }
