@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AnimatedGif;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -83,19 +84,19 @@ namespace ComputerGraphicsAlgorithms
 
             return pixels;
         }
-        public static common.Color32[,] PerfectBallQuarter()
+        public static common.Color24[,] PerfectBallQuarter()
         {
-            var pixels = new common.Color32[1786, 1786];
-            Parallel.For(0, 1786, i =>
+            var pixels = new common.Color24[4080, 4080];
+            Parallel.For(0, 4080, i =>
             {
-                for (var j = 0; j < 1786; j++)
+                for (var j = 0; j < 4080; j++)
                 {
                     var b = 0;
-                    for (var k = 0; k < 1786; k++)
-                        if (i * i + j * j + k * k < 3186225)
+                    for (var k = 0; k < 4080; k++)
+                        if (i * i + j * j + k * k < 16638241)
                             b++;
 
-                    pixels[j, i] = common.PsuedoGrey(b);
+                    pixels[j, i] = common.PsuedoGreyPlus24(b);
                 }
             });
 
@@ -1180,6 +1181,165 @@ namespace ComputerGraphicsAlgorithms
             }
             ffmpegIn.Close();
             p.WaitForExit();
+        }
+        public static void LinearMovementVertical()
+        {
+            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 16384x9216 -r 60 -i -";
+            var outputArgs = "-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless_16k_ultrafast.mp4";
+
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var a = new byte[16384 * 9216];
+
+            for (int i = 0; i < 4859; i++)
+            {
+                var t = 0;
+                for (int j = 0; j < 9216; j++)
+                {
+                    var h = 16 * j;
+                    for (int k = 0; k < 16384; k++)
+                    {
+                        if (h + 9 * k < i * 60.7015)
+                            a[t++] = 255;
+                        else
+                            a[t++] = 0;
+                    }
+                }
+                ffmpegIn.Write(a);
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void GifMultiply()
+        {
+            using var gif = AnimatedGif.AnimatedGif.Create("multiply.gif", 20);
+
+            int width = 64;
+            int height = 64;
+            var pixels = new Color24[width, height];
+
+            for (int f = 0; f < 255; f++)
+            {
+                for (int i = 0; i < width / 2; i++)
+                    for (int j = 0; j < height / 2; j++)
+                    {
+                        var a = (byte)(((i + 1) * (j + 1) - 1) / 4 + f);
+
+                        pixels[i, j].r = a;
+                        pixels[i, j].g = a;
+                        pixels[i, j].b = a;
+
+                        pixels[width - i - 1, j].r = a;
+                        pixels[width - i - 1, j].g = a;
+                        pixels[width - i - 1, j].b = a;
+
+                        pixels[i, height - j - 1].r = a;
+                        pixels[i, height - j - 1].g = a;
+                        pixels[i, height - j - 1].b = a;
+
+                        pixels[width - i - 1, height - j - 1].r = a;
+                        pixels[width - i - 1, height - j - 1].g = a;
+                        pixels[width - i - 1, height - j - 1].b = a;
+                    }
+                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+            }
+        }
+        public static void GifPlus()
+        {
+            using var gif = AnimatedGif.AnimatedGif.Create("plus.gif", 20);
+
+            int width = 128;
+            int height = 128;
+            var pixels = new Color24[width, height];
+
+            for (int f = 0; f < 255; f++)
+            {
+                for (int i = 0; i < width; i++)
+                    for (int j = 0; j < height; j++)
+                    {
+                        var a = (byte)(i + j + f);
+
+                        pixels[i, j].r = a;
+                        pixels[i, j].g = a;
+                        pixels[i, j].b = a;
+                    }
+                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+            }
+        }
+        public static void GifPsuedo()
+        {
+            using var gif = AnimatedGif.AnimatedGif.Create("psuedo.gif", 20);
+
+            var p = new List<Color24>();
+
+            for (int i = 0; i < 315; i++)
+                p.Add(common.PsuedoGreyPlus24(i));
+
+            int width = 160;
+            int height = 160;
+            var pixels = new Color24[width, height];
+
+            for (int f = 0; f < 315; f++)
+            {
+                for (int i = 0; i < width; i++)
+                    for (int j = 0; j < height; j++)
+                    {
+                        var a = (i + j + f) % 315;
+
+                        pixels[i, j].r = p[a].r;
+                        pixels[i, j].g = p[a].g;
+                        pixels[i, j].b = p[a].b;
+                    }
+                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Default);
+            }
+        }
+        public static void GifDiagonal()
+        {
+            using var gif = AnimatedGif.AnimatedGif.Create("diagonal.gif", 20);
+
+            int width = 512;
+            int height = 512;
+            var pixels = new Color24[width, height];
+
+            for (int f = 0; f < 255; f++)
+            {
+                for (int i = 0; i < width / 2; i++)
+                    for (int j = 0; j < height / 2; j++)
+                    {
+                        var a = (byte)(i + j + f);
+
+                        pixels[i, j].r = a;
+                        pixels[i, j].g = a;
+                        pixels[i, j].b = a;
+
+                        pixels[width - i - 1, j].r = a;
+                        pixels[width - i - 1, j].g = a;
+                        pixels[width - i - 1, j].b = a;
+
+                        pixels[i, height - j - 1].r = a;
+                        pixels[i, height - j - 1].g = a;
+                        pixels[i, height - j - 1].b = a;
+
+                        pixels[width - i - 1, height - j - 1].r = a;
+                        pixels[width - i - 1, height - j - 1].g = a;
+                        pixels[width - i - 1, height - j - 1].b = a;
+                    }
+                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+            }
         }
 
     }
