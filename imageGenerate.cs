@@ -1,5 +1,4 @@
-﻿using AnimatedGif;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -1224,123 +1223,249 @@ namespace ComputerGraphicsAlgorithms
             ffmpegIn.Close();
             p.WaitForExit();
         }
-        public static void GifMultiply()
+        public static Bitmap TestRGB()
         {
-            using var gif = AnimatedGif.AnimatedGif.Create("multiply.gif", 20);
+            var file = "full-rgb-test.png";
 
-            int width = 64;
-            int height = 64;
-            var pixels = new Color24[width, height];
-
-            for (int f = 0; f < 255; f++)
+            if (File.Exists(file))
+                return new Bitmap(file);
+            else
             {
-                for (int i = 0; i < width / 2; i++)
-                    for (int j = 0; j < height / 2; j++)
+                var pixels = new byte[256 * 256 * 256 * 3];
+                var k = 0;
+
+                for (int i = 0; i < 4096; i++)
+                    for (int j = 0; j < 4096; j++)
                     {
-                        var a = (byte)(((i + 1) * (j + 1) - 1) / 4 + f);
-
-                        pixels[i, j].r = a;
-                        pixels[i, j].g = a;
-                        pixels[i, j].b = a;
-
-                        pixels[width - i - 1, j].r = a;
-                        pixels[width - i - 1, j].g = a;
-                        pixels[width - i - 1, j].b = a;
-
-                        pixels[i, height - j - 1].r = a;
-                        pixels[i, height - j - 1].g = a;
-                        pixels[i, height - j - 1].b = a;
-
-                        pixels[width - i - 1, height - j - 1].r = a;
-                        pixels[width - i - 1, height - j - 1].g = a;
-                        pixels[width - i - 1, height - j - 1].b = a;
+                        pixels[k++] = (byte)(16 * (i / 256) + j / 256);
+                        pixels[k++] = (byte)i;
+                        pixels[k++] = (byte)j;
                     }
-                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+                var bitmap = bytesToBitmap24(pixels, 4096, 4096);
+                bitmap.Save(file);
+                return bitmap;
             }
+        }
+        public static Bitmap Palette8BitToBitmap(byte[] palette)
+        {
+            var b = new Bitmap(16, 16, PixelFormat.Format24bppRgb);
+
+            var k = 0;
+            for (int i = 0; i < 16; i++)
+                for (int j = 0; j < 16; j++)
+                {
+                    b.SetPixel(j, i, Color.FromArgb(palette[k + 0], palette[k + 1], palette[k + 2]));
+                    k += 3;
+                }
+
+            return b;
+        }
+        public static byte[] Palette5173()
+        {
+            var file = "5173.pal";
+
+            if (File.Exists(file))
+                return File.ReadAllBytes(file);
+            else
+            {
+                var palette = new byte[768];
+
+                var ra = new byte[] { 0, 63, 127, 191, 255 };
+                var ga = new byte[] { 0, 15, 31, 47, 63, 79, 95, 111, 127, 143, 159, 175, 191, 207, 223, 239, 255 };
+                var ba = new byte[] { 0, 127, 255 };
+
+                int k = 0;
+                for (int r = 0; r < ra.Length; r++)
+                    for (int g = 0; g < ga.Length; g++)
+                        for (int b = 0; b < ba.Length; b++)
+                        {
+                            palette[k++] = ra[r];
+                            palette[k++] = ga[g];
+                            palette[k++] = ba[b];
+                        }
+                palette[k++] = 255;
+                palette[k++] = 255;
+                palette[k++] = 255;
+
+                File.WriteAllBytes(file, palette);
+
+                return palette;
+            }
+        }
+        public static byte Palette5173(byte r, byte g, byte b)
+        {
+            var ri = (10 * r + 5) / 512;
+            var gi = (34 * g + 17) / 512;
+            var bi = (6 * b + 3) / 512;
+
+            return (byte)(51 * ri + 3 * gi + bi);
+        }
+        public static byte[] Palette884()
+        {
+            var file = "884.pal";
+
+            if (File.Exists(file))
+                return File.ReadAllBytes(file);
+            else
+            {
+                var palette = new byte[768];
+
+                int k = 0;
+                for (int r = 0; r < 8; r++)
+                    for (int g = 0; g < 8; g++)
+                        for (int b = 0; b < 4; b++)
+                        {
+                            palette[k++] = (byte)(r * 255 / 7);
+                            palette[k++] = (byte)(g * 255 / 7);
+                            palette[k++] = (byte)(b * 255 / 3);
+                        }
+
+                File.WriteAllBytes(file, palette);
+
+                return palette;
+            }
+        }
+        public static byte Palette884(byte r, byte g, byte b)
+        {
+            var ri = (16 * r + 8) / 512;
+            var gi = (16 * g + 8) / 512;
+            var bi = (8 * b + 4) / 512;
+
+            return (byte)(32 * ri + 4 * gi + bi);
+        }
+        public static byte[] Palette666()
+        {
+            var file = "666.pal";
+
+            if (File.Exists(file))
+                return File.ReadAllBytes(file);
+            else
+            {
+                var palette = new byte[768];
+
+                int k = 0;
+                for (int r = 0; r < 6; r++)
+                    for (int g = 0; g < 6; g++)
+                        for (int b = 0; b < 6; b++)
+                        {
+                            palette[k++] = (byte)(r * 255 / 5);
+                            palette[k++] = (byte)(g * 255 / 5);
+                            palette[k++] = (byte)(b * 255 / 5);
+                        }
+
+                File.WriteAllBytes(file, palette);
+
+                return palette;
+            }
+        }
+        public static byte Palette666(byte r, byte g, byte b)
+        {
+            var ri = (12 * r + 6) / 512;
+            var gi = (12 * g + 6) / 512;
+            var bi = (12 * b + 6) / 512;
+
+            return (byte)(36 * ri + 6 * gi + bi);
         }
         public static void GifPlus()
         {
-            using var gif = AnimatedGif.AnimatedGif.Create("plus.gif", 20);
+            var palette = Palette5173();
 
-            int width = 128;
-            int height = 128;
-            var pixels = new Color24[width, height];
+            int width = 256;
+            int height = 256;
 
-            for (int f = 0; f < 255; f++)
+            using (var gif = new AnimatedGif("plus.gif", width, height, palette))
             {
-                for (int i = 0; i < width; i++)
-                    for (int j = 0; j < height; j++)
-                    {
-                        var a = (byte)(i + j + f);
+                var pixels = new byte[width * height];
 
-                        pixels[i, j].r = a;
-                        pixels[i, j].g = a;
-                        pixels[i, j].b = a;
-                    }
-                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+                for (int f = 0; f < 254; f++)
+                {
+                    var k = 0;
+                    for (int i = 0; i < height; i++)
+                        for (int j = 0; j < width; j++)
+                            pixels[k++] = (byte)((k + f - 1) % 255);
+                    gif.AddFrame(pixels);
+                }
             }
         }
         public static void GifPsuedo()
         {
-            using var gif = AnimatedGif.AnimatedGif.Create("psuedo.gif", 20);
-
-            var p = new List<Color24>();
-
+            var palette = new byte[768];
+            var psuedoPalette = new byte[315];
+            var k = 0;
             for (int i = 0; i < 315; i++)
-                p.Add(common.PsuedoGreyPlus24(i));
-
-            int width = 160;
-            int height = 160;
-            var pixels = new Color24[width, height];
-
-            for (int f = 0; f < 315; f++)
             {
-                for (int i = 0; i < width; i++)
-                    for (int j = 0; j < height; j++)
-                    {
-                        var a = (i + j + f) % 315;
+                var p = common.PsuedoGreyPlus24(i + 3766);
 
-                        pixels[i, j].r = p[a].r;
-                        pixels[i, j].g = p[a].g;
-                        pixels[i, j].b = p[a].b;
+                var newColor = true;
+                for (int j = 0; j < k; j++)
+                    if (p.r == palette[3 * j + 0] && p.g == palette[3 * j + 1] && p.b == palette[3 * j + 2])
+                    {
+                        newColor = false;
+                        break;
                     }
-                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Default);
+
+                if (newColor)
+                {
+                    palette[3 * k + 0] = p.r;
+                    palette[3 * k + 1] = p.g;
+                    palette[3 * k + 2] = p.b;
+                    k++;
+                }
+
+                psuedoPalette[i] = (byte)(k - 1);
             }
-        }
-        public static void GifDiagonal()
-        {
-            using var gif = AnimatedGif.AnimatedGif.Create("diagonal.gif", 20);
 
             int width = 512;
-            int height = 512;
-            var pixels = new Color24[width, height];
+            int height = 16;
 
-            for (int f = 0; f < 255; f++)
+            using (var gif = new AnimatedGif("psuedo.gif", width, height, palette))
             {
-                for (int i = 0; i < width / 2; i++)
-                    for (int j = 0; j < height / 2; j++)
-                    {
-                        var a = (byte)(i + j + f);
+                var pixels = new byte[width * height];
 
-                        pixels[i, j].r = a;
-                        pixels[i, j].g = a;
-                        pixels[i, j].b = a;
-
-                        pixels[width - i - 1, j].r = a;
-                        pixels[width - i - 1, j].g = a;
-                        pixels[width - i - 1, j].b = a;
-
-                        pixels[i, height - j - 1].r = a;
-                        pixels[i, height - j - 1].g = a;
-                        pixels[i, height - j - 1].b = a;
-
-                        pixels[width - i - 1, height - j - 1].r = a;
-                        pixels[width - i - 1, height - j - 1].g = a;
-                        pixels[width - i - 1, height - j - 1].b = a;
-                    }
-                gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+                for (int f = 0; f < 254; f++)
+                {
+                    k = 0;
+                    for (int i = 0; i < height; i++)
+                        for (int j = 0; j < width; j++)
+                            pixels[k++] = psuedoPalette[(i + j + f) % 315];
+                    gif.AddFrame(pixels);
+                }
             }
         }
+        //public static void GifDiagonal()
+        //{
+        //    using var gif = AnimatedGif.AnimatedGif.Create("diagonal.gif", 20);
+
+        //    int width = 512;
+        //    int height = 512;
+        //    var pixels = new Color24[width, height];
+
+        //    for (int f = 0; f < 255; f++)
+        //    {
+        //        for (int i = 0; i < width / 2; i++)
+        //            for (int j = 0; j < height / 2; j++)
+        //            {
+        //                var a = (byte)(i + j + f);
+
+        //                pixels[i, j].r = a;
+        //                pixels[i, j].g = a;
+        //                pixels[i, j].b = a;
+
+        //                pixels[width - i - 1, j].r = a;
+        //                pixels[width - i - 1, j].g = a;
+        //                pixels[width - i - 1, j].b = a;
+
+        //                pixels[i, height - j - 1].r = a;
+        //                pixels[i, height - j - 1].g = a;
+        //                pixels[i, height - j - 1].b = a;
+
+        //                pixels[width - i - 1, height - j - 1].r = a;
+        //                pixels[width - i - 1, height - j - 1].g = a;
+        //                pixels[width - i - 1, height - j - 1].b = a;
+        //            }
+        //        gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+        //    }
+        //}
 
     }
 }

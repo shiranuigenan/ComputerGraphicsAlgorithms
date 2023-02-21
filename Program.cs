@@ -1,8 +1,10 @@
-﻿namespace ComputerGraphicsAlgorithms;
+﻿using System.Drawing;
+
+namespace ComputerGraphicsAlgorithms;
 class Program
 {
     static void Main(string[] args)
     {
-        imageGenerate.GifDivide();
+        imageGenerate.GifPlus();
     }
 }
