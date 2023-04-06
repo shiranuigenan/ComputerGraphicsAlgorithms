@@ -1260,6 +1260,54 @@ namespace ComputerGraphicsAlgorithms
 
             return b;
         }
+        public static byte[] PalettePsuedoGray()
+        {
+            var file = "psuedo-gray.pal";
+
+            if (File.Exists(file))
+                return File.ReadAllBytes(file);
+            else
+            {
+                var palette = new byte[768];
+
+                int k = 0;
+                for (int i = 0; i < 256; i++)
+                {
+                    var t = PsuedoGrey(i);
+                    palette[k++] = t.r;
+                    palette[k++] = t.g;
+                    palette[k++] = t.b;
+                }
+
+                File.WriteAllBytes(file, palette);
+
+                return palette;
+            }
+        }
+        public static byte[] PaletteGray256()
+        {
+            var file = "gray256.pal";
+
+            if (File.Exists(file))
+                return File.ReadAllBytes(file);
+            else
+            {
+                var palette = new byte[768];
+
+                int k = 0;
+                for (int i = 0; i < 256; i++)
+                {
+                    var t = (byte)i;
+                    palette[k++] = t;
+                    palette[k++] = t;
+                    palette[k++] = t;
+                }
+
+                File.WriteAllBytes(file, palette);
+
+                return palette;
+            }
+        }
         public static byte[] Palette5173()
         {
             var file = "5173.pal";
@@ -1366,6 +1414,83 @@ namespace ComputerGraphicsAlgorithms
 
             return (byte)(36 * ri + 6 * gi + bi);
         }
+        public static byte[] Palette555()
+        {
+            var file = "555.pal";
+
+            if (File.Exists(file))
+                return File.ReadAllBytes(file);
+            else
+            {
+                var palette = new byte[384];
+
+                int k = 0;
+                for (int r = 0; r < 5; r++)
+                    for (int g = 0; g < 5; g++)
+                        for (int b = 0; b < 5; b++)
+                        {
+                            palette[k++] = (byte)(r * 255 / 4);
+                            palette[k++] = (byte)(g * 255 / 4);
+                            palette[k++] = (byte)(b * 255 / 4);
+                        }
+
+                File.WriteAllBytes(file, palette);
+
+                return palette;
+            }
+        }
+        public static void GifSinusoidal()
+        {
+            //pixabay max 1000 frame
+            var palette = PaletteGray256();
+
+            int width = 1024;
+            int height = 256;
+
+            using (var gif = new AnimatedGif("sinusoidal-gray.gif", width, height, palette))
+            {
+                var pixels = new byte[width * height];
+                var sins = new byte[width];
+                for (int f = 0; f < width / 4; f++)
+                {
+                    var k = 0;
+                    for (int j = 0; j < width; j++)
+                        sins[j] = (byte)(255 * (Math.Sin(Math.PI * (j + 8 * f) / width) / 2 + 0.5));
+
+                    for (int i = 0; i < height; i++)
+                        for (int j = 0; j < width; j++)
+                        {
+                            pixels[k++] = (byte)(sins[j] - i);
+                        }
+                    gif.AddFrame(pixels);
+                }
+            }
+        }
+        public static void GifAcceleration()
+        {
+            //pixabay max 1000 frame
+            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+            //for (int i = 0; i < 256; i++)
+            //{
+            //    palette[3 * i + 0] = (byte)i;
+            //    palette[3 * i + 1] = (byte)i;
+            //    palette[3 * i + 2] = (byte)i;
+            //}
+
+            int width = 1000;
+            int height = 64;
+
+            using (var gif = new AnimatedGif("acceleration.gif", width, height, palette, 2, 1))
+            {
+                var pixels = new byte[width * height];
+                for (int f = 0; f < 1000; f++)
+                {
+                    for (int i = 0; i < height; i++)
+                        pixels[i * width + f] = 1;
+                    gif.AddFrame(pixels);
+                }
+            }
+        }
         public static void GifPlus()
         {
             var palette = Palette5173();
@@ -1429,6 +1554,106 @@ namespace ComputerGraphicsAlgorithms
                         for (int j = 0; j < width; j++)
                             pixels[k++] = psuedoPalette[(i + j + f) % 315];
                     gif.AddFrame(pixels);
+                }
+            }
+        }
+        public static void GifFromFrames()
+        {
+            var palette = Palette555();
+
+            int width = 270;
+            int height = 480;
+
+            using (var gif = new AnimatedGif("1.gif", width, height, palette, 5, 7))
+            {
+                var pixels = new byte[width * height];
+                var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.png";
+                //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
+                for (int f = 1; f < 379; f++)
+                {
+                    using (var frame = new Bitmap(string.Format(path, 3 * f)))
+                    {
+                        var c = new channelBasedImage(frame);
+                        c.Scale(9);
+                        common.FloydSteinberg(c.r, x => x > 8388608 ? 16777215 : 0);
+                        common.FloydSteinberg(c.g, x => x > 8388608 ? 16777215 : 0);
+                        common.FloydSteinberg(c.b, x => x > 8388608 ? 16777215 : 0);
+
+                        var k = 0;
+                        for (int i = 0; i < height; i++)
+                            for (int j = 0; j < width; j++)
+                            {
+                                byte p = 0;
+
+                                if (c.b[2 * i + 0, 2 * j + 0] != 0) p++;
+                                if (c.b[2 * i + 0, 2 * j + 1] != 0) p++;
+                                if (c.b[2 * i + 1, 2 * j + 0] != 0) p++;
+                                if (c.b[2 * i + 1, 2 * j + 1] != 0) p++;
+
+                                if (c.g[2 * i + 0, 2 * j + 0] != 0) p += 5;
+                                if (c.g[2 * i + 0, 2 * j + 1] != 0) p += 5;
+                                if (c.g[2 * i + 1, 2 * j + 0] != 0) p += 5;
+                                if (c.g[2 * i + 1, 2 * j + 1] != 0) p += 5;
+
+                                if (c.r[2 * i + 0, 2 * j + 0] != 0) p += 25;
+                                if (c.r[2 * i + 0, 2 * j + 1] != 0) p += 25;
+                                if (c.r[2 * i + 1, 2 * j + 0] != 0) p += 25;
+                                if (c.r[2 * i + 1, 2 * j + 1] != 0) p += 25;
+
+                                pixels[k++] = p;
+                            }
+
+                        gif.AddFrame(pixels);
+                    }
+                }
+            }
+        }
+        public static void GifFromFrames2()
+        {
+            var palette = new byte[24] {
+                0,0,0,
+                0,0,255,
+                0,255,0,
+                0,255,255,
+                255,0,0,
+                255,0,255,
+                255,255,0,
+                255,255,255
+            };
+
+            int width = 512;
+            int height = 256;
+
+            using (var gif = new AnimatedGif("1.gif", width, height, palette, 2, 3))
+            {
+                var pixels = new byte[width * height];
+                var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.bmp";
+                //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
+                for (int f = 1; f < 501; f++)
+                {
+                    using (var frame = new Bitmap(string.Format(path, f)))
+                    {
+                        var c = new channelBasedImage(frame);
+                        //c.Scale(3);
+                        common.SimpleDither(c.r, x => x > 8388608 ? 16777215 : 0);
+                        common.SimpleDither(c.g, x => x > 8388608 ? 16777215 : 0);
+                        common.SimpleDither(c.b, x => x > 8388608 ? 16777215 : 0);
+
+                        var k = 0;
+                        for (int i = 0; i < height; i++)
+                            for (int j = 0; j < width; j++)
+                            {
+                                byte p = 0;
+
+                                if (c.b[i, j] != 0) p++;
+                                if (c.g[i, j] != 0) p += 2;
+                                if (c.r[i, j] != 0) p += 4;
+
+                                pixels[k++] = p;
+                            }
+
+                        gif.AddFrame(pixels);
+                    }
                 }
             }
         }

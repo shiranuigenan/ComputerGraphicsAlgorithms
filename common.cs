@@ -400,6 +400,28 @@ namespace ComputerGraphicsAlgorithms
 
             return destination;
         }
+        public static void SimpleDither(int[,] target, Func<int, int> lambda)
+        {
+            var width = target.GetLength(1);
+            var height = target.GetLength(0);
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                {
+                    var c = lambda(target[i, j]);
+                    var d = target[i, j] - c;
+                    target[i, j] = c;
+
+                    if (j + 1 < width)
+                    {
+                        target[i, j + 1] += d / 2;
+                    }
+                    if (i + 1 < height)
+                    {
+                        target[i + 1, j] += d / 2;
+                    }
+                }
+        }
         public static void FloydSteinberg(int[,] target, Func<int, int> lambda)
         {
             var width = target.GetLength(1);
@@ -471,6 +493,20 @@ namespace ComputerGraphicsAlgorithms
                             target[i + 2, j - 2] += d * 1 / 48;
                     }
                 }
+        }
+        public static byte[] ConvertPaletted(Color24[,] pixels)
+        {
+            var width = pixels.GetLength(1);
+            var height = pixels.GetLength(0);
+
+            var result = new byte[width * height];
+
+            int k = 0;
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < height; j++)
+                    result[k++] = imageGenerate.Palette666(pixels[i, j].r, pixels[i, j].g, pixels[i, j].b);
+
+            return result;
         }
     }
 }
