@@ -32,9 +32,8 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/ComputerGraphicsAlgorithms.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "--project",
+                "${workspaceFolder}/ComputerGraphicsAlgorithms.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
