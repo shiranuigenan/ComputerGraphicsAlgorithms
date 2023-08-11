@@ -1,3 +1,3 @@
 ﻿using ComputerGraphicsAlgorithms;
 
-VideoGenerate.Mp4RendererTest();
+VideoGenerate.W1044480H128();
