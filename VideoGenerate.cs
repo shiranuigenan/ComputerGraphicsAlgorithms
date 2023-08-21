@@ -29,28 +29,16 @@ namespace ComputerGraphicsAlgorithms
             };
             m.RenderToFile("2.mp4");
         }
-        public static void W1044480H128()
+        public static void Rgb8()
         {
-            var m = new Mp4Render(9, 5, 256, 60, 1920, 1080);
+            int k = 0;
+            var m = new Mp4Render(45, 80, 3600, 60, 4320, 7680, "rgb8", 1);
             m.OnFrameRender += (frameNumber, frameBuffer) =>
             {
-                var i = 0;
-                for (int h = 0; h < m.InHeight; h++)
-                    for (int w = 0; w < m.InWidth; w++)
-                    {
-                        var r = 65535 - w - h - 256 * frameNumber;
-                        var g = 45568 - w - h - 256 * frameNumber;
-                        var b = 25600 - w - h - 256 * frameNumber;
-
-                        frameBuffer[i++] = ((byte)r);
-                        frameBuffer[i++] = ((byte)(r >> 8));
-                        frameBuffer[i++] = ((byte)g);
-                        frameBuffer[i++] = ((byte)(g >> 8));
-                        frameBuffer[i++] = ((byte)b);
-                        frameBuffer[i++] = ((byte)(b >> 8));
-                    }
+                frameBuffer[frameNumber] = (byte)(k/14.058593805);
+                k++;
             };
-            m.RenderToFile("2.mp4");
+            m.RenderToFile("1.mp4");
         }
     }
 }

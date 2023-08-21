@@ -1,3 +1,3 @@
 ﻿using ComputerGraphicsAlgorithms;
 
-VideoGenerate.W1044480H128();
+VideoGenerate.Rgb8();
