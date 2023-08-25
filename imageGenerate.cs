@@ -1691,6 +1691,22 @@ namespace ComputerGraphicsAlgorithms
         //        gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
         //    }
         //}
+        public static common.Color24[,] W2560H1440()
+        {
+            var pixels = new common.Color24[1440, 2560];
+            Parallel.For(0, 2560, i =>
+            {
+                for (var j = 0; j < 1440; j++)
+                {
+                    var k = (byte)((9 * i + 16 * j) >> 9);
+                    pixels[j, i].r = k;
+                    pixels[j, i].g = k;
+                    pixels[j, i].b = k;
+                    //pixels[j, i] = common.PsuedoGreyPlus24((9*i + 16*j) / 32);
+                }
+            });
 
+            return pixels;
+        }
     }
 }
