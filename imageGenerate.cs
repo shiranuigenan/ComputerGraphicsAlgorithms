@@ -1708,5 +1708,77 @@ namespace ComputerGraphicsAlgorithms
 
             return pixels;
         }
+        public static void RealGradient()
+        {
+            int w = 34 * 2560, h = 34 * 1440;
+
+            var a = new int[h, w];
+
+            for (int i = 0; i < h; i++)
+                for (int j = 0; j < w; j++)
+                    a[i, j] = (i * 16 + j * 9) << 1;
+
+            common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+            var a2 = common.Scale(a, 34);
+
+            for (int i = 0; i < h; i++)
+                for (int j = 0; j < w; j++)
+                    a[i, j] = (i * 16 + j * 9) << 2;
+
+            common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+            var a3 = common.Scale(a, 34);
+
+            for (int i = 0; i < h; i++)
+                for (int j = 0; j < w; j++)
+                    a[i, j] = (i * 16 + j * 9) << 3;
+
+            common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+            var a4 = common.Scale(a, 34);
+
+            var c = new channelBasedImage96(w / 34, h / 34);
+
+            c.r = a2; c.g = a3; c.b = a4; var bgr = c.convertBitmap(); bgr.Save("bgr.png");//common.saveJpeg(bgr, 100, "bgr.jpg");
+            c.r = a2; c.g = a4; c.b = a3; var gbr = c.convertBitmap(); gbr.Save("gbr.png");//common.saveJpeg(gbr, 100, "gbr.jpg");
+            c.r = a3; c.g = a2; c.b = a4; var brg = c.convertBitmap(); brg.Save("brg.png");//common.saveJpeg(brg, 100, "brg.jpg");
+            c.r = a3; c.g = a4; c.b = a2; var grb = c.convertBitmap(); grb.Save("grb.png");//common.saveJpeg(grb, 100, "grb.jpg");
+            c.r = a4; c.g = a2; c.b = a3; var rbg = c.convertBitmap(); rbg.Save("rbg.png");//common.saveJpeg(rbg, 100, "rbg.jpg");
+            c.r = a4; c.g = a3; c.b = a2; var rgb = c.convertBitmap(); rgb.Save("rgb.png");//common.saveJpeg(rgb, 100, "rgb.jpg");
+        }
+        public static void Gigapixel17()
+        {
+            int w = 10922 * 16, h = 10922 * 9;
+            var a = new int[h, w];
+
+            for (int i = 0; i < h; i++)
+            {
+                if (i % 9830 == 0)
+                    Console.WriteLine(i / 9830);
+
+                for (int j = 0; j < w; j++)
+                    a[i, j] += i * 16 + j * 9;
+            }
+
+            var max = a[h - 1, w - 1];
+
+            common.MinimizedAverageError(a, x => x > (max >> 1) ? max : 0);
+            var w8 = w / 8;
+            var b = new byte[h * w8];
+            int k = 0, p = 0;
+            for (int i = 0; i < h; i++)
+                for (int j = 0; j < w; j++)
+                {
+                    if (a[i, j] != 0)
+                        b[k] += (byte)(1 << (7 - p));
+                    p++;
+                    if (p == 8)
+                    {
+                        p = 0;
+                        k++;
+                    }
+                }
+
+            var bitmap = common.bitsToBitmap(b, w, h);
+            bitmap.Save("3.tiff", ImageFormat.Tiff);
+        }
     }
 }

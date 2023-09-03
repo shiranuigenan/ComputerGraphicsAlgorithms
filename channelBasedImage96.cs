@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace ComputerGraphicsAlgorithms
 {
-    public class channelBasedImage
+    public class channelBasedImage96
     {
         public int width;
         public int height;
@@ -17,8 +17,7 @@ namespace ComputerGraphicsAlgorithms
         public int[,] r;
         public int[,] g;
         public int[,] b;
-        public int[,] a;
-        public channelBasedImage()
+        public channelBasedImage96()
         {
             width = 1;
             height = 1;
@@ -26,9 +25,8 @@ namespace ComputerGraphicsAlgorithms
             r = new int[1, 1] { { 0xFEDCBA } };
             g = new int[1, 1] { { 0xA98765 } };
             b = new int[1, 1] { { 0x543210 } };
-            a = new int[1, 1] { { 0xFFFFFF } };
         }
-        public channelBasedImage(int width, int height)
+        public channelBasedImage96(int width, int height)
         {
             this.width = width;
             this.height = height;
@@ -36,9 +34,8 @@ namespace ComputerGraphicsAlgorithms
             r = new int[height, width];
             g = new int[height, width];
             b = new int[height, width];
-            a = new int[height, width];
         }
-        public channelBasedImage(Bitmap bitmap)
+        public channelBasedImage96(Bitmap bitmap)
         {
             width = bitmap.Width;
             height = bitmap.Height;
@@ -46,7 +43,6 @@ namespace ComputerGraphicsAlgorithms
             r = new int[height, width];
             g = new int[height, width];
             b = new int[height, width];
-            a = new int[height, width];
 
             var bytes = common.BitmapToByteArray(bitmap);
 
@@ -60,34 +56,8 @@ namespace ComputerGraphicsAlgorithms
                         b[i, j] = bytes[k++] * 0x10101;
                         g[i, j] = bytes[k++] * 0x10101;
                         r[i, j] = bytes[k++] * 0x10101;
-                        a[i, j] = 0xFFFFFF;
                     }
             }
-        }
-        public Bitmap convertBitmap()
-        {
-            try
-            {
-                //blue green red alpha
-                var pixels = new ushort[height * width * 4];
-
-                int k = 0;
-                for (int i = 0; i < height; i++)
-                    for (int j = 0; j < width; j++)
-                    {
-                        pixels[k++] = (ushort)(b[i, j] >> 8);
-                        pixels[k++] = (ushort)(g[i, j] >> 8);
-                        pixels[k++] = (ushort)(r[i, j] >> 8);
-                        pixels[k++] = (ushort)(a[i, j] >> 8);
-                    }
-
-                var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
-                var bitmap = new Bitmap(width, height, width * 8, PixelFormat.Format64bppArgb, handle.AddrOfPinnedObject());
-
-                return bitmap;
-            }
-            catch (System.Exception e) { }
-            return null;
         }
         public void Scale(byte ratio)
         {
@@ -96,22 +66,21 @@ namespace ComputerGraphicsAlgorithms
             r = common.Scale(r, ratio);
             g = common.Scale(g, ratio);
             b = common.Scale(b, ratio);
-            a = common.Scale(a, ratio);
         }
-        public Bitmap convertBitmap24()
+        public Bitmap convertBitmap()
         {
             try
             {
-                //blue green red alpha
+                //blue green red
                 var pixels = new byte[height * width * 3];
 
                 int k = 0;
                 for (int i = 0; i < height; i++)
                     for (int j = 0; j < width; j++)
                     {
-                        pixels[k++] = (byte)(b[i, j] >> 16);
-                        pixels[k++] = (byte)(g[i, j] >> 16);
-                        pixels[k++] = (byte)(r[i, j] >> 16);
+                        pixels[k++] = (byte)b[i, j];
+                        pixels[k++] = (byte)g[i, j];
+                        pixels[k++] = (byte)r[i, j];
                     }
 
                 var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
