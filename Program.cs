@@ -7,6 +7,7 @@ var pixels = new common.Color24[17280, 30720];
 var k = 0;
 Parallel.For(0, 30720, i =>
 {
+
     for (var x = 0; x < 255; x++)
     {
         k = r.Next(17281);
