@@ -1,29 +1,27 @@
 ﻿using ComputerGraphicsAlgorithms;
-using System.Drawing;
-using System.Drawing.Imaging;
+using System.Collections;
+using System.Diagnostics;
 
+var a = new ushort[65538];
+var b = new byte[65538];
 var r = new Random();
-var pixels = new common.Color24[17280, 30720];
-var k = 0;
-Parallel.For(0, 30720, i =>
+
+for (int i = 0; i < a.Length; i++)
+    a[i] = (ushort)i;
+//r.NextBytes(a);
+
+using (var fs = new FileStream("1.raw", FileMode.Create, FileAccess.Write))
 {
-
-    for (var x = 0; x < 255; x++)
+    for (int i = 0; i < 45274; i++)
     {
-        k = r.Next(17281);
-        for (var j = 0; j < k; j++)
-            pixels[j, i].r++;
+        r.NextBytes(b);
 
-        k = r.Next(17281);
-        for (var j = 0; j < k; j++)
-            pixels[j, i].g++;
+        for (int j = 0; j < a.Length; j++)
+        {
+            fs.WriteByte((byte)a[j]);
+            fs.WriteByte((byte)(a[j] >> 8));
 
-        k = r.Next(17281);
-        for (var j = 0; j < k; j++)
-            pixels[j, i].b++;
+            a[j] += b[j];
+        }
     }
-});
-
-var bitmap = common.pixelsToBitmap(pixels);
-for (int i = 0; i < 10; i++)
-    common.saveJpeg(bitmap, 10 + i * 10, i + ".jpg");
+}

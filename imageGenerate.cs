@@ -867,11 +867,24 @@ namespace ComputerGraphicsAlgorithms
         }
         public static void PerfectRandom48()
         {
-            var w = 16;
-            var h = 9 * w / 16;
+            var w = 9;
+            var h = 5;
 
             var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=32:18 -x265-params lossless=1 -sws_flags neighbor a.mp4";
+            //var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags neighbor h.mp4";
+            var outputArgs = $"-c:v flashsv2 -vf scale=3840:2160 -sws_flags neighbor flashsv2.mkv";
+            //libx265
+/*
+ffmpeg -i <infile> \
+-c:a copy \
+-c:v libx265 \
+-tag:v hvc1 \
+-crf 22 \
+-pix_fmt yuv420p10le \
+-x265-params "colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc" \
+<outfile>.mkv
+*/            
+            
             var p = new Process
             {
                 StartInfo =
@@ -895,7 +908,7 @@ namespace ComputerGraphicsAlgorithms
             for (int i = 0; i < a.Length; i++)
                 a[i] = (ushort)r.Next(65536);
 
-            for (int i = 0; i < 2592; i++)
+            for (int i = 0; i < 360; i++)
             {
                 r.NextBytes(b);
                 for (int j = 0; j < a.Length; j++)
@@ -1000,11 +1013,11 @@ namespace ComputerGraphicsAlgorithms
         }
         public static void PerfectRandom24()
         {
-            var w = 16;
-            var h = 9 * w / 16;
+            var w = 9;
+            var h = 5;
 
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 -vf scale=32:18 1.mp4";
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 9x5 -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 -sws_flags neighbor -vf scale=240:135 1.mp4";
             var p = new Process
             {
                 StartInfo =
@@ -1026,7 +1039,7 @@ namespace ComputerGraphicsAlgorithms
             var r = new Random();
             r.NextBytes(a);
 
-            for (int i = 0; i < 4859; i++)
+            for (int i = 0; i < 3600; i++)
             {
                 r.NextBytes(b);
                 for (int j = 0; j < a.Length; j++)
