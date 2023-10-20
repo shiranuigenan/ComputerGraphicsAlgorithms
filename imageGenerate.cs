@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using static ComputerGraphicsAlgorithms.common;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ComputerGraphicsAlgorithms
 {
@@ -874,17 +876,17 @@ namespace ComputerGraphicsAlgorithms
             //var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags neighbor h.mp4";
             var outputArgs = $"-c:v flashsv2 -vf scale=3840:2160 -sws_flags neighbor flashsv2.mkv";
             //libx265
-/*
-ffmpeg -i <infile> \
--c:a copy \
--c:v libx265 \
--tag:v hvc1 \
--crf 22 \
--pix_fmt yuv420p10le \
--x265-params "colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc" \
-<outfile>.mkv
-*/            
-            
+            /*
+            ffmpeg -i <infile> \
+            -c:a copy \
+            -c:v libx265 \
+            -tag:v hvc1 \
+            -crf 22 \
+            -pix_fmt yuv420p10le \
+            -x265-params "colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc" \
+            <outfile>.mkv
+            */
+
             var p = new Process
             {
                 StartInfo =
@@ -1792,6 +1794,161 @@ ffmpeg -i <infile> \
 
             var bitmap = common.bitsToBitmap(b, w, h);
             bitmap.Save("3.tiff", ImageFormat.Tiff);
+        }
+        public static void MultiLevel()
+        {
+            var n = 7;
+            var w = 747;
+            var h = 420;
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
+            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 crf0.mp4";
+            var p = new Process
+            {
+                StartInfo =
+    {
+        FileName = "ffmpeg.exe",
+        Arguments = $"{inputArgs} {outputArgs}",
+        UseShellExecute = false,
+        CreateNoWindow = false,
+        RedirectStandardInput = true
+    }
+            };
+
+            p.Start();
+
+            var rnd = new Random();
+            var a = new List<ushort[,,]>();
+
+            for (int i = 0; i < n; i++)
+            {
+                var x = (int)Math.Ceiling(1.0 * w / (h / (i + 1)));
+                var y = (int)Math.Ceiling(1.0 * h / (h / (i + 1)));
+
+                var u = new ushort[y, x, 3];
+
+                for (int j = 0; j < u.GetLength(0); j++)
+                    for (int k = 0; k < u.GetLength(1); k++)
+                    {
+                        u[j, k, 0] = (ushort)rnd.Next(65536);
+                        u[j, k, 1] = (ushort)rnd.Next(65536);
+                        u[j, k, 2] = (ushort)rnd.Next(65536);
+                    }
+
+                a.Add(u);
+            }
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            for (int i = 1; i < n + 1; i++)
+            {
+                for (int j = 0; j < 180; j++)
+                {
+                    for (int s = 0; s < i; s++)
+                    {
+                        var e = 0;
+                        var b = new byte[a[s].GetLength(0) * a[s].GetLength(1) * 3];
+                        rnd.NextBytes(b);
+                        for (int t = 0; t < a[s].GetLength(0); t++)
+                            for (int k = 0; k < a[s].GetLength(1); k++)
+                            {
+                                a[s][t, k, 0] += b[e++];
+                                a[s][t, k, 1] += b[e++];
+                                a[s][t, k, 2] += b[e++];
+                            }
+                    }
+
+                    for (int y = 0; y < h; y++)
+                        for (int x = 0; x < w; x++)
+                        {
+                            int r = 0, g = 0, b = 0;
+                            for (int k = 0; k < i; k++)
+                            {
+                                var xx = x / (h / (k + 1));
+                                var yy = y / (h / (k + 1));
+
+                                r += a[k][yy, xx, 0];
+                                g += a[k][yy, xx, 1];
+                                b += a[k][yy, xx, 2];
+                            }
+                            var ur = r / i;
+                            var ug = g / i;
+                            var ub = b / i;
+
+                            ffmpegIn.WriteByte((byte)ur); ffmpegIn.WriteByte((byte)(ur >> 8));
+                            ffmpegIn.WriteByte((byte)ug); ffmpegIn.WriteByte((byte)(ug >> 8));
+                            ffmpegIn.WriteByte((byte)ub); ffmpegIn.WriteByte((byte)(ub >> 8));
+                        }
+                    ffmpegIn.Flush();
+                }
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void MultiLevelLine()
+        {
+            var w = 1044480;
+            var h = 1;
+            var inputArgs = $"-y -f rawvideo -pix_fmt gray16 -s:v {w}x1 -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset veryfast -x265-params lossless=1 -vf scale=16384:9216 vertfast_lossless.mp4";
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            for (int i = 0; i < 65537; i++)
+            {
+                for (int j = 0; j < w; j++)
+                {
+                    var g = (ushort)(i + j / 16);
+                    ffmpegIn.WriteByte((byte)g);
+                    ffmpegIn.WriteByte((byte)(g >> 8));
+                }
+
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+
+        }
+        public static void Izgara()
+        {
+            int w = 512;
+            int h = 512;
+            var width = 8192;
+            var height = 4608;
+            var pixels = new Color24[height, width];
+            var pix = new Color24[1 + height / h, 1 + width / w];
+
+            var r = new Random();
+
+            for (int y = 0; y < 1 + height / h; y++)
+                for (int x = 0; x < 1 + width / w; x++)
+                {
+                    pix[y, x].r = (byte)(r.Next(86) * 3);
+                    pix[y, x].g = (byte)(r.Next(86) * 3);
+                    pix[y, x].b = (byte)(r.Next(86) * 3);
+                }
+
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    pixels[y, x] = pix[y / h, x / w];
+
+            var b = pixelsToBitmap(pixels);
+
+            for (int i = 0; i < 101; i += 5)
+                saveJpeg(b, i, i.ToString("D3") + ".jpg");
         }
     }
 }
