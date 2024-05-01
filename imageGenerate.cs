@@ -12,6 +12,36 @@ namespace ComputerGraphicsAlgorithms
 {
     public static class imageGenerate
     {
+        public static common.Color24[,] XPowerY()
+        {
+            var pixels = new common.Color24[26752, 26752];
+            //var max = double.MinValue;
+            //var min = double.MaxValue;
+
+            for (int i = 0; i < 26752; i++)
+                for (int j = 0; j < 26752; j++)
+                {
+                    var kij = 0.0;
+                    kij += Math.Pow((i + 1) / 26753.0, (j + 1) / 26753.0);
+                    kij += Math.Pow((26752 - i) / 26753.0, (j + 1) / 26753.0);
+                    kij += Math.Pow((i + 1) / 26753.0, (26752 - j) / 26753.0);
+                    kij += Math.Pow((26752 - i) / 26753.0, (26752 - j) / 26753.0);
+
+                    var kji = 0.0;
+                    kji += Math.Pow((j + 1) / 26753.0, (i + 1) / 26753.0);
+                    kji += Math.Pow((26752 - j) / 26753.0, (i + 1) / 26753.0);
+                    kji += Math.Pow((j + 1) / 26753.0, (26752 - i) / 26753.0);
+                    kji += Math.Pow((26752 - j) / 26753.0, (26752 - i) / 26753.0);
+
+                    var k = (byte)(259 * (kij + kji - 5.0121643839212435));
+                    //if (k > max) max = k;
+                    //if (k < min) min = k;
+                    pixels[j, i].r = pixels[j, i].g = pixels[j, i].b = k;
+                }
+            //Console.WriteLine(min);
+            //Console.WriteLine(max);
+            return pixels;
+        }
         public static common.Color24[,] EPowerXSquare(int width)
         {
             int height = 9 * width / 16;
