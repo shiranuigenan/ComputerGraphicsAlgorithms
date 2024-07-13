@@ -12,6 +12,162 @@ namespace ComputerGraphicsAlgorithms
 {
     public static class imageGenerate
     {
+        public static common.Color24[,] Boundary4080()
+        {
+            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+            var w = 30720;
+            var h = 17280;
+
+            var r = new Random();
+
+            var pixels = new common.Color24[h, w];
+
+            Parallel.For(0, w, j =>
+            {
+                var grey = new short[h];
+
+                for (int i = 0; i < 4080; i++)
+                {
+                    var hh = r.Next(h);
+                    for (int k = 0; k < hh; k++)
+                        grey[k]++;
+                }
+
+                for (int n = 0; n < h; n++)
+                {
+                    pixels[n, j].r += p[grey[n]].r;
+                    pixels[n, j].g += p[grey[n]].g;
+                    pixels[n, j].b += p[grey[n]].b;
+                }
+            });
+
+            //for (int j = 0; j < w; j++)
+            //{
+            //    var grey = new short[h];
+
+            //    for (int i = 0; i < 4080; i++)
+            //    {
+            //        var hh = r.Next(h);
+            //        for (int k = 0; k < hh; k++)
+            //            grey[k]++;
+            //    }
+
+            //    for (int n = 0; n < h; n++)
+            //    {
+            //        pixels[n, j].r += p[grey[n]].r;
+            //        pixels[n, j].g += p[grey[n]].g;
+            //        pixels[n, j].b += p[grey[n]].b;
+            //    }
+            //}
+
+            return pixels;
+        }
+        public static common.Color24[,] Boundary(byte a, int w, int h)
+        {
+            //var w = 2560;
+            //var h = 1440;
+
+            var b = 255 / a;
+            var r = new Random();
+
+            var pixels = new common.Color24[h, w];
+
+            for (int j = 0; j < w; j++)
+            {
+                for (int i = 0; i < b; i++)
+                {
+                    var hh = r.Next(h);
+                    for (int k = 0; k < hh; k++)
+                    {
+                        pixels[k, j].r += a;
+                        pixels[k, j].g += a;
+                        pixels[k, j].b += a;
+                    }
+                }
+            }
+
+            return pixels;
+        }
+        public static common.Color24[,] BoundaryColored(byte a, int w, int h)
+        {
+            //var w = 2560;
+            //var h = 1440;
+
+            var b = 255 / a;
+            var r = new Random();
+
+            var pixels = new common.Color24[h, w];
+
+            for (int j = 0; j < w; j++)
+            {
+                for (int i = 0; i < b; i++)
+                {
+                    var hh = r.Next(h);
+                    for (int k = 0; k < hh; k++)
+                        pixels[k, j].r += a;
+
+                    hh = r.Next(h);
+                    for (int k = 0; k < hh; k++)
+                        pixels[k, j].g += a;
+
+                    hh = r.Next(h);
+                    for (int k = 0; k < hh; k++)
+                        pixels[k, j].b += a;
+                }
+            }
+
+            return pixels;
+        }
+        public static common.Color24[,] XPowerY_PLUS_YPowerX()
+        {
+            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+            var w = 7680;
+            var h = 4320;
+
+            var pixels = new common.Color24[h, w];
+
+            for (int j = 0; j < h; j++)
+                for (int i = 0; i < w; i++)
+                    pixels[j, i] = p[4080 - (((9 * i + 16 * j) / 25) % 4081)];
+
+            return pixels;
+        }
+        public static void GradientBorder()
+        {
+            int a = 46340;
+            var b = new byte[a, a];
+            for (int i = 0; i < a; i++)
+                for (int j = 0; j < a; j++)
+                    b[i, j] = 255;
+
+            for (int j = 0; j < 256; j++)
+            {
+                var k = (byte)j;
+                for (int i = j; i < a - j; i++)
+                {
+                    b[i, j] = k;
+                    b[j, i] = k;
+                    b[i, a - 1 - j] = k;
+                    b[a - 1 - j, i] = k;
+                }
+            }
+
+            var c = pixelsToBitmap(b);
+
+
+            ColorPalette _palette = c.Palette;
+            Color[] _entries = _palette.Entries;
+            for (int i = 0; i < 256; i++)
+            {
+                Color p = new Color();
+                p = Color.FromArgb((byte)i, (byte)i, (byte)i);
+                _entries[i] = p;
+            }
+            c.Palette = _palette;
+
+            c.Save("1.png");
+        }
         public static common.Color24[,] XPowerY()
         {
             var pixels = new common.Color24[26752, 26752];
@@ -75,7 +231,7 @@ namespace ComputerGraphicsAlgorithms
 
             var genislik = 3 * yukseklik / 2;
 
-            var n = 2; //super resolution katsayısı
+            var n = 8; //super resolution katsayısı
             var Y = yukseklik * n;
             var A = Y / 2;
             var B = Y / 4;
@@ -86,8 +242,6 @@ namespace ComputerGraphicsAlgorithms
             var L = 3 * Y / 2;
             var YILDIZ = 33 * Y / 40;
 
-
-            var rnd = new Random();
             var alan = new int[yukseklik, genislik];
             for (int i = 0; i < Y; i++)
                 for (int j = 0; j < L; j++)
@@ -117,6 +271,8 @@ namespace ComputerGraphicsAlgorithms
         }
         public static common.Color24[,] PerfectBallQuarter()
         {
+            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
             var pixels = new common.Color24[4080, 4080];
             Parallel.For(0, 4080, i =>
             {
@@ -127,7 +283,7 @@ namespace ComputerGraphicsAlgorithms
                         if (i * i + j * j + k * k < 16638241)
                             b++;
 
-                    pixels[j, i] = common.PsuedoGreyPlus24(b);
+                    pixels[j, i] = p[b]; //common.PsuedoGreyPlus24(b);
                 }
             });
 
@@ -1979,6 +2135,51 @@ namespace ComputerGraphicsAlgorithms
 
             for (int i = 0; i < 101; i += 5)
                 saveJpeg(b, i, i.ToString("D3") + ".jpg");
+        }
+        public static void Bound()
+        {
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
+            //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=1280:720 -sws_flags gauss -crf 0 9.mp4";
+            var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
+
+            //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
+            //-sws_flags neighbor
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var a = new ushort[135];
+            var b = new byte[135];
+            var r = new Random();
+
+            for (int i = 0; i < 135; i++)
+                a[i] = (ushort)r.Next(65536);
+
+            for (int i = 0; i < 1530; i++)
+            {
+                r.NextBytes(b);
+                for (var j = 0; j < 135; j++)
+                {
+                    a[j] += (byte)(b[j] % (2 + i / 60));
+                    ffmpegIn.WriteByte((byte)a[j]);
+                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
+                }
+
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
         }
     }
 }

@@ -138,6 +138,20 @@ namespace ComputerGraphicsAlgorithms
             catch (System.Exception) { }
             return null;
         }
+        public static Bitmap pixelsToBitmap(byte[,] pixels)
+        {
+            try
+            {
+                var width = pixels.GetLength(1);
+                var height = pixels.GetLength(0);
+                var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+                var bitmap = new Bitmap(width, height, width, PixelFormat.Format8bppIndexed, handle.AddrOfPinnedObject());
+
+                return bitmap;
+            }
+            catch (System.Exception) { }
+            return null;
+        }
         public static Bitmap pixelsToBitmap(Color24[,] pixels)
         {
             try
