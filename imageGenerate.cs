@@ -2181,5 +2181,142 @@ namespace ComputerGraphicsAlgorithms
             ffmpegIn.Close();
             p.WaitForExit();
         }
+        public static byte[,] Checker(byte[,] a)
+        {
+            var b = a.GetLength(0);
+            var c = b * 2;
+            var d = new byte[c, c];
+
+            for (var i = 0; i < c; i++)
+                for (var j = 0; j < c; j++)
+                    d[i, j] = a[i / 2, j / 2];
+
+            for (var i = 0; i < c; i++)
+                d[i, i] = (byte)(255 - d[i, i]);
+
+            return d;
+        }
+        public static byte[,] Checker169(byte[,] a)
+        {
+            var b = a.GetLength(0);
+            var c = b * 2;
+            var d = new byte[c, c];
+
+            for (var i = 0; i < c; i++)
+                for (var j = 0; j < c; j++)
+                    d[i, j] = a[i / 2, j / 2];
+
+            for (var i = 0; i < c; i++)
+                d[i, i]++;
+
+            return d;
+        }
+        public static void CheckerVideo()
+        {
+            var n = 14;
+            var a = 1 << n;
+            var b = new byte[1, 1] { { 0 } };
+
+            for (int i = 0; i < n; i++)
+                b = Checker(b);
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 4608x8192 -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 1.mp4";
+
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            for (int f = 0; f < 3600; f++)
+            {
+                for (int i = 0; i < 9216; i++)
+                    for (int j = 0; j < 16384; j++)
+                        ffmpegIn.WriteByte(b[(i + f) % 16384, (j + f) % 16384]);
+
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+        public static void CheckerVideo169()
+        {
+            var n = 7;
+            var a = 1 << n;
+            var b = new byte[1, 1] { { 0 } };
+
+            for (int i = 0; i < n; i++)
+                b = Checker169(b);
+
+            var r = new byte[8, 3] {
+                { 0, 0, 0 },
+                { 0, 0, 255 },
+                { 0, 255, 0 },
+                { 0, 255, 255 },
+                { 255, 0, 0 },
+                { 255, 0, 255 },
+                { 255, 255, 0 },
+                { 255, 255, 255 }
+            };
+
+            var c = new byte[16384, 16384, 3];
+            for (int i = 0; i < 16384; i++)
+                for (int j = 0; j < 16384; j++)
+                {
+                    var k = b[i / 128, j / 128];
+                    c[i, j, 0] = r[k % 8, 0];
+                    c[i, j, 1] = r[k % 8, 1];
+                    c[i, j, 2] = r[k % 8, 2];
+                }
+
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 16384x9216 -r 60 -i -";
+            var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless.mp4";
+
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+
+            for (int f = 0; f < 60; f++)
+            {
+                for (int i = 0; i < 9216; i++)
+                    for (int j = 0; j < 16384; j++)
+                    {
+                        var ii = (i + f) % 16384;
+                        var jj = (j + f) % 16384;
+
+                        ffmpegIn.WriteByte(c[ii, jj, 2]);
+                        ffmpegIn.WriteByte(c[ii, jj, 1]);
+                        ffmpegIn.WriteByte(c[ii, jj, 0]);
+                    }
+
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+
     }
 }
