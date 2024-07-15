@@ -2270,17 +2270,17 @@ namespace ComputerGraphicsAlgorithms
                 { 255, 255, 255 }
             };
 
-            var c = new byte[16384, 16384, 3];
-            for (int i = 0; i < 16384; i++)
-                for (int j = 0; j < 16384; j++)
+            var c = new byte[8192, 8192, 3];
+            for (int i = 0; i < 8192; i++)
+                for (int j = 0; j < 8192; j++)
                 {
-                    var k = b[i / 128, j / 128];
+                    var k = b[i / 64, j / 64];
                     c[i, j, 0] = r[k % 8, 0];
                     c[i, j, 1] = r[k % 8, 1];
                     c[i, j, 2] = r[k % 8, 2];
                 }
 
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 16384x9216 -r 60 -i -";
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 8192x4608 -r 60 -i -";
             var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless.mp4";
 
             var p = new Process
@@ -2299,13 +2299,13 @@ namespace ComputerGraphicsAlgorithms
 
             var ffmpegIn = p.StandardInput.BaseStream;
 
-            for (int f = 0; f < 60; f++)
+            for (int f = 0; f < 4096; f++)
             {
-                for (int i = 0; i < 9216; i++)
-                    for (int j = 0; j < 16384; j++)
+                for (int i = 0; i < 4608; i++)
+                    for (int j = 0; j < 8192; j++)
                     {
-                        var ii = (i + f) % 16384;
-                        var jj = (j + f) % 16384;
+                        var ii = (i + f) % 8192;
+                        var jj = (j + f) % 8192;
 
                         ffmpegIn.WriteByte(c[ii, jj, 2]);
                         ffmpegIn.WriteByte(c[ii, jj, 1]);
