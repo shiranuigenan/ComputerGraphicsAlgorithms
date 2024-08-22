@@ -2317,6 +2317,20 @@ namespace ComputerGraphicsAlgorithms
             ffmpegIn.Close();
             p.WaitForExit();
         }
+        public static common.Color24[,] ViewfinityS9()
+        {
+            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+            var w = 30720;
+            var h = 17280;
+
+            var pixels = new common.Color24[h, w];
+
+            for (int j = 0; j < h; j++)
+                for (int i = 0; i < w; i++)
+                    pixels[j, i] = p[(17 * (j * 16 + i * 9) / 1152) % 4081];
+
+            return pixels;
+        }
 
     }
 }
