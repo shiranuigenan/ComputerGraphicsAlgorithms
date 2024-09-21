@@ -2320,17 +2320,97 @@ namespace ComputerGraphicsAlgorithms
         public static common.Color24[,] ViewfinityS9()
         {
             var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-            var w = 30720;
-            var h = 17280;
+            var w = 5120;
+            var h = 2880;
+            var n = 8;
+            var a = new short[h * n, w * n];
+
+            for (int j = 0; j < h * n; j++)
+                for (int i = 0; i < w * n; i++)
+                    a[j, i] = (short)((j * 16 + i * 9) / 90.34);
 
             var pixels = new common.Color24[h, w];
 
             for (int j = 0; j < h; j++)
+            {
+                var jj = j * 8;
                 for (int i = 0; i < w; i++)
-                    pixels[j, i] = p[(17 * (j * 16 + i * 9) / 1152) % 4081];
-
+                {
+                    var ii = i * 8;
+                    int r = 0, g = 0, b = 0;
+                    for (int x = 0; x < 8; x++)
+                        for (int y = 0; y < 8; y++)
+                        {
+                            var k = a[jj + x, ii + y] % 4081;
+                            r += p[k].r;
+                            g += p[k].g;
+                            b += p[k].b;
+                        }
+                    pixels[j, i].r = (byte)(r / 64);
+                    pixels[j, i].g = (byte)(g / 64);
+                    pixels[j, i].b = (byte)(b / 64);
+                }
+            }
             return pixels;
         }
+        public static common.Color24[,] ViewfinityS9Simple()
+        {
+            var n = 13;
+            var w = 5120;
+            var h = 2880;
+            var a = new int[h, w];
 
+            var c = 1 + ((h * n - 1) * 16 + (w * n - 1) * 9) / 2;
+            var d = c / 4;
+
+            for (int j = 0; j < h * n; j++)
+                for (int i = 0; i < w * n; i++)
+                    a[j / n, i / n] += ((j * 16 + i * 9) / d) % 4;
+
+            var pixels = new common.Color24[h, w];
+
+            for (int j = 0; j < h; j++)
+            {
+                for (int i = 0; i < w; i++)
+                {
+                    var k = (byte)(1 + (a[j, i] >> 1));
+
+                    pixels[j, i].r = k;
+                    pixels[j, i].g = k;
+                    pixels[j, i].b = k;
+                }
+            }
+            return pixels;
+        }
+        public static common.Color24[,] ViewfinityS9Simple2()
+        {
+            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+            var n = 14;
+            var w = 35664;
+            var h = 20061;
+            var a = new int[h, w];
+
+            for (int j = 0; j < h; j++)
+                for (int i = 0; i < w; i++)
+                    a[j, i] = n * n * n * (j * 16 + i * 9) + 25 * (n * n * n - n * n) / 2;
+
+            var k = (int)Math.Ceiling(a[h - 1, w - 1] / 4081.0);
+
+            var pixels = new common.Color24[h, w];
+
+            for (int j = 0; j < h; j++)
+            {
+                for (int i = 0; i < w; i++)
+                {
+                    var r = a[j, i] / k;
+
+                    pixels[j, i].r = p[r].r;
+                    pixels[j, i].g = p[r].g;
+                    pixels[j, i].b = p[r].b;
+                }
+            }
+            return pixels;
+        }
     }
 }
