@@ -2412,5 +2412,51 @@ namespace ComputerGraphicsAlgorithms
             }
             return pixels;
         }
+        public static void BrownianMotion()
+        {
+            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 36x64 -r 60 -i -";
+            var outputArgs = "-c:v libx265 -sws_flags neighbor -preset ultrafast -vf scale=4320:7680 -x265-params lossless=1 1.mp4";
+            //neighbor
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var a = new byte[2304];
+            var x = 18;
+            var y = 32;
+            var r = new Random();
+            for (int i = 0; i < 3600; i++)
+            {
+                var z = y * 36 + x;
+                a[z] += 51;
+                x += (r.Next() % 3) - 1;
+                y += (r.Next() % 5) - 2;
+
+                if (x < 0) x += 36;
+                if (x > 35) x -= 36;
+                if (y < 0) y += 64;
+                if (y > 63) y -= 64;
+
+                //z = y * 256 + x;
+                //a[z] = 255;
+
+                ffmpegIn.Write(a);
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
+
     }
 }
