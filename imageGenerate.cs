@@ -2457,6 +2457,98 @@ namespace ComputerGraphicsAlgorithms
             ffmpegIn.Close();
             p.WaitForExit();
         }
+        public static common.Color24[,] RandomGradient24(int n = 26752)
+        {
+            var r = new Random();
+            var m = n / 256.0;
+            var k = 0;
+            var a = new byte[n * n * 3];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                {
+                    var p = i + j;
+                    if (p < n)
+                    {
+                        a[k++] = (byte)r.Next((int)(p / m));
+                        a[k++] = (byte)r.Next((int)(p / m));
+                        a[k++] = (byte)r.Next((int)(p / m));
+                    }
+                    else
+                    {
+                        a[k++] = (byte)r.Next((int)((p - n) / m), 256);
+                        a[k++] = (byte)r.Next((int)((p - n) / m), 256);
+                        a[k++] = (byte)r.Next((int)((p - n) / m), 256);
+                    }
+                }
 
+            return common.bytesToPixels24(a, n, n);
+        }
+        public static common.Color48[,] RandomGradient48(int n = 12800)
+        {
+            var r = new Random();
+            var m = n / 65536.0;
+            var a = new common.Color48[n, n];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                {
+                    var p = i + j;
+                    if (p < n)
+                    {
+                        a[i, j].r = (ushort)r.Next((int)(p / m));
+                        a[i, j].g = (ushort)r.Next((int)(p / m));
+                        a[i, j].b = (ushort)r.Next((int)(p / m));
+                    }
+                    else
+                    {
+                        a[i, j].r = (ushort)r.Next((int)((p - n) / m), 65536);
+                        a[i, j].g = (ushort)r.Next((int)((p - n) / m), 65536);
+                        a[i, j].b = (ushort)r.Next((int)((p - n) / m), 65536);
+                    }
+                }
+
+            return a;
+        }
+        public static void ColorRainHDR()
+        {
+            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
+            var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=144:80 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
+
+            var p = new Process
+            {
+                StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+            };
+
+            p.Start();
+
+            var ffmpegIn = p.StandardInput.BaseStream;
+            var a = new ushort[135];
+            var b = new byte[135];
+            var r = new Random();
+
+            for (int i = 0; i < 135; i++)
+                a[i] = (ushort)r.Next(65536);
+
+            for (int i = 0; i < 4859; i++)
+            {
+                r.NextBytes(b);
+                for (var j = 0; j < 135; j++)
+                {
+                    a[j] += b[j];
+                    ffmpegIn.WriteByte((byte)a[j]);
+                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
+                }
+
+                ffmpegIn.Flush();
+            }
+            ffmpegIn.Close();
+            p.WaitForExit();
+        }
     }
 }
