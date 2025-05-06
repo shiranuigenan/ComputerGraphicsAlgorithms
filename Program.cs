@@ -2,4 +2,6 @@
 {
     Console.WriteLine("Merhaba" + i);
     System.Threading.Thread.Sleep(500);
+
+    Console.WriteLine("iyidir");
 }
