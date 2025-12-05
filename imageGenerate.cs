@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using static ComputerGraphicsAlgorithms.common;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ComputerGraphicsAlgorithms
 {
@@ -286,6 +281,37 @@ namespace ComputerGraphicsAlgorithms
                     pixels[j, i] = p[b]; //common.PsuedoGreyPlus24(b);
                 }
             });
+
+            return pixels;
+        }
+        public static common.Color24[,] PerfectBall()
+        {
+            var pixels = new common.Color24[8192, 8192];
+
+            var quarter = PerfectBallQuarter();
+
+            for (int i = 0; i < 4080; i++)
+                for (int j = 0; j < 4080; j++)
+                {
+                    var c = quarter[i, j];
+                    pixels[4095 - i, 4095 - j].r = c.r;
+                    pixels[4095 - i, 4095 - j].g = c.g;
+                    pixels[4095 - i, 4095 - j].b = c.b;
+
+                    pixels[4095 - i, 4096 + j].r = c.r;
+                    pixels[4095 - i, 4096 + j].g = c.g;
+                    pixels[4095 - i, 4096 + j].b = c.b;
+
+                    pixels[4096 + i, 4095 - j].r = c.r;
+                    pixels[4096 + i, 4095 - j].g = c.g;
+                    pixels[4096 + i, 4095 - j].b = c.b;
+
+                    pixels[4096 + i, 4096 + j].r = c.r;
+                    pixels[4096 + i, 4096 + j].g = c.g;
+                    pixels[4096 + i, 4096 + j].b = c.b;
+
+                }
+
 
             return pixels;
         }

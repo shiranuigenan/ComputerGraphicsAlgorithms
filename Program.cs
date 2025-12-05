@@ -1,8 +1,5 @@
-﻿for (int i = 0; i < 1000; i++)
-{
-    Console.WriteLine("Merhaba" + i);
-    Console.WriteLine("Nasilsin" + i);
-    System.Threading.Thread.Sleep(500);
+﻿using ComputerGraphicsAlgorithms;
 
-    Console.WriteLine("iyidir");
-}
+var pixels = common.Scale16(imageGenerate.PerfectBall());
+var bitmap=common.pixelsToBitmap(pixels);
+bitmap.Save("1.png");
