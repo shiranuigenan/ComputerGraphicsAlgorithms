@@ -2412,16 +2412,8 @@ namespace ComputerGraphicsAlgorithms
         {
             var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
 
-            var n = 14;
-            var w = 35664;
-            var h = 20061;
-            var a = new int[h, w];
-
-            for (int j = 0; j < h; j++)
-                for (int i = 0; i < w; i++)
-                    a[j, i] = n * n * n * (j * 16 + i * 9) + 25 * (n * n * n - n * n) / 2;
-
-            var k = (int)Math.Ceiling(a[h - 1, w - 1] / 4081.0);
+            var w = 5120;
+            var h = 2880;
 
             var pixels = new common.Color24[h, w];
 
@@ -2429,11 +2421,11 @@ namespace ComputerGraphicsAlgorithms
             {
                 for (int i = 0; i < w; i++)
                 {
-                    var r = a[j, i] / k;
+                    var a = (j * 16 + i * 9) / 25;
 
-                    pixels[j, i].r = p[r].r;
-                    pixels[j, i].g = p[r].g;
-                    pixels[j, i].b = p[r].b;
+                    pixels[j, i].r = p[a].r;
+                    pixels[j, i].g = p[a].g;
+                    pixels[j, i].b = p[a].b;
                 }
             }
             return pixels;
@@ -2575,6 +2567,32 @@ namespace ComputerGraphicsAlgorithms
             }
             ffmpegIn.Close();
             p.WaitForExit();
+        }
+        public static common.Color24[,] Hat()
+        {
+            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+            var w = 5248;
+            var h = 2880;
+
+            var pixels = new common.Color24[h, w];
+
+            var k = 0;
+            for (int i = 0; i < 100; i++)
+            {
+                var a = 4079 / (i + 1.0);
+                var b = 1.0;
+                for (int j = 0; j < i + 2; j++)
+                {
+                    pixels[i, k].r = p[(int)b].r;
+                    pixels[i, k].g = p[(int)b].g;
+                    pixels[i, k].b = p[(int)b].b;
+                    k++;
+                    b += a;
+                }
+            }
+
+            return pixels;
         }
     }
 }

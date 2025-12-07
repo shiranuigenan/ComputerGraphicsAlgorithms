@@ -1,5 +1,5 @@
 ﻿using ComputerGraphicsAlgorithms;
 
-var pixels = common.Scale16(imageGenerate.PerfectBall());
+var pixels = imageGenerate.Hat();
 var bitmap=common.pixelsToBitmap(pixels);
 bitmap.Save("1.png");
