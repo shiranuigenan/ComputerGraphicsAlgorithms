@@ -7,7 +7,7 @@ public static class ImageGenerate
 {
     public static Color24[,] Boundary4080()
     {
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         var w = 30720;
         var h = 17280;
@@ -93,7 +93,7 @@ public static class ImageGenerate
     }
     public static Color24[,] XPowerY_PLUS_YPowerX()
     {
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
         var w = 7680;
         var h = 4320;
 
@@ -217,7 +217,7 @@ public static class ImageGenerate
     }
     public static Color24[,] PerfectBallQuarter()
     {
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         var pixels = new Color24[4080, 4080];
         Parallel.For(0, 4080, i =>
@@ -277,7 +277,7 @@ public static class ImageGenerate
             if (bb != b)
             {
                 bb = b;
-                var c = PsuedoGreyPlus(b);
+                var c = PseudoGreyPlus(b);
                 Console.WriteLine(string.Format("<stop offset=\"{0:0.00}%\" style=\"stop-color:rgb({1},{2},{3})\" />", 100.0 * j / 4080.0, c.r, c.g, c.b));
             }
         }
@@ -294,7 +294,7 @@ public static class ImageGenerate
                     if (i * i + j * j + k * k < 16638241)
                         b++;
 
-                pixels[j, i] = PsuedoGreyPlus(b);
+                pixels[j, i] = PseudoGreyPlus(b);
             }
         });
 
@@ -309,7 +309,7 @@ public static class ImageGenerate
             for (var j = 0; j < 5120; j++)
             {
                 var a = (i + 1) * (i + 1) + (j + 1) * (j + 1);
-                pixels[5119 - j, 5119 - i] = PsuedoGreyPlus48(a / 50);
+                pixels[5119 - j, 5119 - i] = PseudoGreyPlus48(a / 50);
             }
         });
 
@@ -330,7 +330,7 @@ public static class ImageGenerate
         Parallel.For(0, 5120, i =>
         {
             for (var j = 0; j < 5120; j++)
-                pixels[j, i] = PsuedoGreyPlus48(((i + 1) * (j + 1) - 1) / 25);
+                pixels[j, i] = PseudoGreyPlus48(((i + 1) * (j + 1) - 1) / 25);
         });
 
         for (var i = 0; i < 5120; i++)
@@ -350,7 +350,7 @@ public static class ImageGenerate
         for (int i = 0; i < 10240; i++)
             for (int j = 0; j < 10240; j++)
             {
-                var d = PsuedoGreyPlus24(i % 2040 + j % 2040);
+                var d = PseudoGreyPlus24(i % 2040 + j % 2040);
                 a[k++] = d.r;
                 a[k++] = d.g;
                 a[k++] = d.b;
@@ -365,7 +365,7 @@ public static class ImageGenerate
         for (int i = 0; i < 10240; i++)
             for (int j = 0; j < 10240; j++)
             {
-                var d = PsuedoGreyPlus24((i + j) % 4080);
+                var d = PseudoGreyPlus24((i + j) % 4080);
                 a[k++] = d.r;
                 a[k++] = d.g;
                 a[k++] = d.b;
@@ -373,14 +373,14 @@ public static class ImageGenerate
         var b = BytesToBitmap24(a, 10240, 10240);
         SaveNetPBM(b, "100.pm");
     }
-    public static void PsuedoPerspective()
+    public static void PseudoPerspective()
     {
         var a = new byte[25600 * 4096 * 3];
         var k = 0;
         for (int i = 0; i < 4096; i++)
             for (int j = 0; j < 25600; j++)
             {
-                var d = PsuedoGreyPlus24(((j + 1) % (i + 1)) % 4080);
+                var d = PseudoGreyPlus24(((j + 1) % (i + 1)) % 4080);
                 a[k++] = d.r;
                 a[k++] = d.g;
                 a[k++] = d.b;
@@ -404,7 +404,7 @@ public static class ImageGenerate
                 c = 1 - Math.Abs(2 * c - 1);
                 c = 1 - Math.Abs(2 * c - 1);
                 c = 1 - Math.Abs(2 * c - 1);
-                var d = PsuedoGreyPlus48((int)(1048576 * c));
+                var d = PseudoGreyPlus48((int)(1048576 * c));
                 a[6 * j + 0] = (byte)d.r;
                 a[6 * j + 1] = (byte)(d.r >> 8);
                 a[6 * j + 2] = (byte)d.g;
@@ -422,7 +422,7 @@ public static class ImageGenerate
         for (int i = 0; i < 300000; i++)
         {
             var f = Math.Pow(1.00004621098, i);
-            var d = PsuedoGreyPlus48((int)f);
+            var d = PseudoGreyPlus48((int)f);
             w.Write(d.r);
             w.Write(d.g);
             w.Write(d.b);
@@ -550,7 +550,7 @@ public static class ImageGenerate
             for (int j = 0; j < w; j++)
                 a15[i, j] = (byte)(r.Next() % 256);
 
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         for (int i = 0; i < height; i++)
             for (int j = 0; j < width; j++)
@@ -704,7 +704,7 @@ public static class ImageGenerate
             for (int j = 0; j < w; j++)
                 a15[i, j] = (byte)(r.Next() % 256);
 
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         var k = new int[4081];
 
@@ -823,7 +823,7 @@ public static class ImageGenerate
     }
     public static void Acceleration()
     {
-        var b = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var b = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
         var w = 1044480;
         var h = 1;
 
@@ -904,7 +904,7 @@ public static class ImageGenerate
         var c = new byte[8400 * 3];
         for (int i = 0; i < 4200; i++)
         {
-            var b = PsuedoGreyPlus24(i);
+            var b = PseudoGreyPlus24(i);
             c[3 * i + 0] = b.r;
             c[3 * i + 1] = b.g;
             c[3 * i + 2] = b.b;
@@ -1253,7 +1253,7 @@ public static class ImageGenerate
                 p[y][x] = (long)(4080 * p[y][x] / (0.0 + max - min));
 
         var pixels = new Color24[h >> 4, w >> 4];
-        var t = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var t = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         for (int y = 0; y < h >> 4; y++)
             for (int x = 0; x < w >> 4; x++)
@@ -1307,7 +1307,7 @@ public static class ImageGenerate
         p.Start();
 
         var ffmpegIn = p.StandardInput.BaseStream;
-        var d = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var d = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         var r = new Random();
         var frameCount = 65536;
@@ -1377,9 +1377,9 @@ public static class ImageGenerate
         p.WaitForExit();
     }
 
-    public static byte[] PalettePsuedoGray()
+    public static byte[] PalettePseudoGray()
     {
-        var file = "psuedo-gray.pal";
+        var file = "pseudo-gray.pal";
 
         if (File.Exists(file))
             return File.ReadAllBytes(file);
@@ -1390,7 +1390,7 @@ public static class ImageGenerate
             int k = 0;
             for (int i = 0; i < 256; i++)
             {
-                var t = PsuedoGrey(i);
+                var t = PseudoGrey(i);
                 palette[k++] = t.r;
                 palette[k++] = t.g;
                 palette[k++] = t.b;
@@ -2601,14 +2601,14 @@ public static class ImageGenerate
 
         }
     }
-    public static void GifPsuedo()
+    public static void GifPseudo()
     {
         var palette = new byte[768];
-        var psuedoPalette = new byte[315];
+        var pseudoPalette = new byte[315];
         var k = 0;
         for (int i = 0; i < 315; i++)
         {
-            var p = PsuedoGreyPlus24(i + 3766);
+            var p = PseudoGreyPlus24(i + 3766);
 
             var newColor = true;
             for (int j = 0; j < k; j++)
@@ -2626,13 +2626,13 @@ public static class ImageGenerate
                 k++;
             }
 
-            psuedoPalette[i] = (byte)(k - 1);
+            pseudoPalette[i] = (byte)(k - 1);
         }
 
         int width = 512;
         int height = 16;
 
-        using var gif = new AnimatedGif("psuedo.gif", width, height, palette);
+        using var gif = new AnimatedGif("pseudo.gif", width, height, palette);
         var pixels = new byte[width * height];
 
         for (int f = 0; f < 254; f++)
@@ -2640,7 +2640,7 @@ public static class ImageGenerate
             k = 0;
             for (int i = 0; i < height; i++)
                 for (int j = 0; j < width; j++)
-                    pixels[k++] = psuedoPalette[(i + j + f) % 315];
+                    pixels[k++] = pseudoPalette[(i + j + f) % 315];
             gif.AddFrame(pixels);
 
         }
@@ -3166,7 +3166,7 @@ public static class ImageGenerate
     }
     public static Color24[,] ViewfinityS9()
     {
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
         var w = 5120;
         var h = 2880;
         var n = 8;
@@ -3231,7 +3231,7 @@ public static class ImageGenerate
     }
     public static Color24[,] ViewfinityS9Simple2()
     {
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         var w = 5120;
         var h = 2880;
@@ -3387,7 +3387,7 @@ public static class ImageGenerate
     }
     public static Color24[,] Hat()
     {
-        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var p = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
 
         var w = 5248;
         var h = 2880;

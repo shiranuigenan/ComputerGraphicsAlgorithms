@@ -30,7 +30,7 @@ public static class Common
         public ushort r;
         public ushort a;
     }
-    public static Color32 PsuedoGrey(int g)
+    public static Color32 PseudoGrey(int g)
     {
         if (g < 1) return new Color32 { r = 0, g = 0, b = 0, a = 0 };
         if (g > 1784) return new Color32 { r = 255, g = 255, b = 255, a = 255 };
@@ -41,7 +41,7 @@ public static class Common
         var k = new byte[7, 3] { { 0, 0, 0 }, { 0, 0, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 1, 0 } };
         return new Color32 { r = (byte)(i + k[j, 0]), g = (byte)(i + k[j, 1]), b = (byte)(i + k[j, 2]), a = 255 };
     }
-    public static Color32 PsuedoGreyPlus(int x)
+    public static Color32 PseudoGreyPlus(int x)
     {
         if (x < 1) return new Color32 { r = 0, g = 0, b = 0, a = 0 };
         if (x > 4079) return new Color32 { r = 255, g = 255, b = 255, a = 255 };
@@ -56,7 +56,7 @@ public static class Common
 
         return new Color32 { r = (byte)r, g = (byte)g, b = (byte)b, a = 255 };
     }
-    public static Color24 PsuedoGreyPlus24(int x)
+    public static Color24 PseudoGreyPlus24(int x)
     {
         if (x < 1) return new Color24 { r = 0, g = 0, b = 0 };
         if (x > 4079) return new Color24 { r = 255, g = 255, b = 255 };
@@ -71,7 +71,7 @@ public static class Common
 
         return new Color24 { r = (byte)r, g = (byte)g, b = (byte)b };
     }
-    public static Color48 PsuedoGreyPlus48(int x)
+    public static Color48 PseudoGreyPlus48(int x)
     {
         if (x < 1) return new Color48 { r = 0, g = 0, b = 0 };
         if (x > 1048559) return new Color48 { r = 65535, g = 65535, b = 65535 };
