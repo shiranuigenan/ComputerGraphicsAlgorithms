@@ -1,6 +1,6 @@
 ﻿namespace ComputerGraphicsAlgorithms;
 
-public class channelBasedImage96
+public class ChannelBasedImage96
 {
     public int width;
     public int height;
@@ -8,7 +8,7 @@ public class channelBasedImage96
     public int[,] r;
     public int[,] g;
     public int[,] b;
-    public channelBasedImage96()
+    public ChannelBasedImage96()
     {
         width = 1;
         height = 1;
@@ -17,7 +17,7 @@ public class channelBasedImage96
         g = new int[1, 1] { { 0xA98765 } };
         b = new int[1, 1] { { 0x543210 } };
     }
-    public channelBasedImage96(int width, int height)
+    public ChannelBasedImage96(int width, int height)
     {
         this.width = width;
         this.height = height;
@@ -26,7 +26,7 @@ public class channelBasedImage96
         g = new int[height, width];
         b = new int[height, width];
     }
-    public channelBasedImage96(NetPBM netPBM)
+    public ChannelBasedImage96(NetPBM netPBM)
     {
         width = netPBM.Width;
         height = netPBM.Height;
@@ -57,7 +57,7 @@ public class channelBasedImage96
         g = Common.Scale(g, ratio);
         b = Common.Scale(b, ratio);
     }
-    public NetPBM convertBitmap()
+    public NetPBM ConvertBitmap()
     {
         var pixels = new byte[height * width * 3];
 

@@ -1,3 +1,3 @@
 ﻿using ComputerGraphicsAlgorithms;
 
-imageGenerate.GifDot2R();
+ImageGenerate.GifDot2R();

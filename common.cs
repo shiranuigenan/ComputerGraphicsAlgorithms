@@ -86,7 +86,7 @@ public static class Common
 
         return new Color48 { r = (ushort)r, g = (ushort)g, b = (ushort)b };
     }
-    public static Color24[,]? bytesToPixels24(byte[] bytes, int width, int height)
+    public static Color24[,]? BytesToPixels24(byte[] bytes, int width, int height)
     {
         try
         {
@@ -99,10 +99,10 @@ public static class Common
 
             return pixels;
         }
-        catch (System.Exception) { }
+        catch (Exception) { }
         return null;
     }
-    public static Color32[,]? bytesToPixels(byte[] bytes, int width, int height)
+    public static Color32[,]? BytesToPixels(byte[] bytes, int width, int height)
     {
         try
         {
@@ -115,10 +115,10 @@ public static class Common
 
             return pixels;
         }
-        catch (System.Exception) { }
+        catch (Exception) { }
         return null;
     }
-    public static Color48[,]? bytesToPixels48(byte[] bytes, int width, int height)
+    public static Color48[,]? BytesToPixels48(byte[] bytes, int width, int height)
     {
         try
         {
@@ -131,38 +131,38 @@ public static class Common
 
             return pixels;
         }
-        catch (System.Exception) { }
+        catch (Exception) { }
         return null;
     }
-    public static NetPBM pixelsToBitmap(byte[,] pixels)
+    public static NetPBM PixelsToBitmap(byte[,] pixels)
     {
         return new NetPBM(pixels);
     }
-    public static NetPBM pixelsToBitmap(Color24[,] pixels)
+    public static NetPBM PixelsToBitmap(Color24[,] pixels)
     {
         return new NetPBM(pixels);
     }
-    public static NetPBM pixelsToBitmap(Color32[,] pixels)
+    public static NetPBM PixelsToBitmap(Color32[,] pixels)
     {
         return new NetPBM(pixels);
     }
-    public static NetPBM pixelsToBitmap(Color48[,] pixels)
+    public static NetPBM PixelsToBitmap(Color48[,] pixels)
     {
         return new NetPBM(pixels);
     }
-    public static NetPBM pixelsToBitmap(Color64[,] pixels)
+    public static NetPBM PixelsToBitmap(Color64[,] pixels)
     {
         return new NetPBM(pixels);
     }
-    public static NetPBM bitsToBitmap(byte[] bytes, int width, int height)
+    public static NetPBM BitsToBitmap(byte[] bytes, int width, int height)
     {
         return new NetPBM(NetPBMFormat.PBM, bytes, width, height);
     }
-    public static NetPBM bytesToBitmap24(byte[] bytes, int width, int height)
+    public static NetPBM BytesToBitmap24(byte[] bytes, int width, int height)
     {
         return new NetPBM(NetPBMFormat.PM, bytes, width, height);
     }
-    public static NetPBM bytesToBitmap4bit(byte[] bytes, int width, int height)
+    public static NetPBM BytesToBitmap4bit(byte[] bytes, int width, int height)
     {
         var pixels = new byte[bytes.Length * 2];
         for (int i = 0; i < bytes.Length; i++)
@@ -172,7 +172,7 @@ public static class Common
         }
         return new NetPBM(NetPBMFormat.PGM, pixels, width, height);
     }
-    public static byte[]? randomBytes(int byteCount)
+    public static byte[]? RandomBytes(int byteCount)
     {
         try
         {
@@ -182,10 +182,10 @@ public static class Common
 
             return bytes;
         }
-        catch (System.Exception) { }
+        catch (Exception) { }
         return null;
     }
-    public static void saveNetPBM(NetPBM netPBM, string fileName)
+    public static void SaveNetPBM(NetPBM netPBM, string fileName)
     {
         netPBM.Save(fileName);
     }
@@ -221,8 +221,7 @@ public static class Common
                 destinationPixels[j, i].g = (ushort)(257 * sum[1] / 256);
                 destinationPixels[j, i].b = (ushort)(257 * sum[2] / 256);
             });
-        });
-
+        }); 
 
         return destinationPixels;
     }
@@ -260,12 +259,10 @@ public static class Common
                 destinationPixels[j, i].b = (ushort)(257 * sum[2] / 256);
                 destinationPixels[j, i].a = (ushort)(257 * sum[3] / 256);
             });
-        });
-
+        }); 
 
         return destinationPixels;
-    }
-
+    } 
 
     public static int[,] Scale(int[,] source, byte ratio)
     {
@@ -403,7 +400,7 @@ public static class Common
         int k = 0;
         for (int i = 0; i < height; i++)
             for (int j = 0; j < height; j++)
-                result[k++] = imageGenerate.Palette666(pixels[i, j].r, pixels[i, j].g, pixels[i, j].b);
+                result[k++] = ImageGenerate.Palette666(pixels[i, j].r, pixels[i, j].g, pixels[i, j].b);
 
         return result;
     }
@@ -431,10 +428,8 @@ public static class Common
                 a[k++] = (byte)(r > 127.5 ? 1 : 0);
             }
 
-        using (var gif = new AnimatedGif("8.gif", 128, 128, palette, 2, 1))
-        {
-            gif.AddFrame(a);
-        }
+        using var gif = new AnimatedGif("8.gif", 128, 128, palette, 2, 1);
+        gif.AddFrame(a);
     }
     public static void RenkliTest()
     {
@@ -449,7 +444,7 @@ public static class Common
         var p8 = PreCalculatedBayerMatrix(m8);
 
         var a = new byte[256 * 256];
-        var palette = imageGenerate.Palette666();
+        var palette = ImageGenerate.Palette666();
 
         for (int f = 0; f < 256; f++)
         {
@@ -469,14 +464,11 @@ public static class Common
                     g = (byte)Math.Clamp(g + f * p8[i % 16, j % 16], 0, 255);
                     b = (byte)Math.Clamp(b + f * p8[i % 16, j % 16], 0, 255);
 
-                    a[k++] = imageGenerate.Palette666(r, g, b);
-                }
+                    a[k++] = ImageGenerate.Palette666(r, g, b);
+                } 
 
-
-            using (var gif = new AnimatedGif(f.ToString("D3") + ".gif", 256, 256, palette, 2, 8))
-            {
-                gif.AddFrame(a);
-            }
+            using var gif = new AnimatedGif(f.ToString("D3") + ".gif", 256, 256, palette, 2, 8);
+            gif.AddFrame(a);
         }
     }
     static int[,] BayerMatrix(int[,] m)

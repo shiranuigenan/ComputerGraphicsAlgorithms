@@ -1,14 +1,15 @@
 using System.Text;
+using static ComputerGraphicsAlgorithms.Common;
 
 namespace ComputerGraphicsAlgorithms;
 
 public enum NetPBMFormat
 {
-    PBM,    
-    PGM,    
-    PM,     
-    PGM32,  
-    PM32    
+    PBM,
+    PGM,
+    PM,
+    PGM32,
+    PM32
 }
 
 public class NetPBM
@@ -38,15 +39,15 @@ public class NetPBM
 
     static int PixelDataSize(NetPBMFormat format, int width, int height)
     {
-        switch (format)
+        return format switch
         {
-            case NetPBMFormat.PBM: return width * height / 8;
-            case NetPBMFormat.PGM: return width * height;
-            case NetPBMFormat.PM: return width * height * 3;
-            case NetPBMFormat.PGM32: return width * height * 2;
-            case NetPBMFormat.PM32: return width * height * 3;
-        }
-        return 0;
+            NetPBMFormat.PBM => width * height / 8,
+            NetPBMFormat.PGM => width * height,
+            NetPBMFormat.PM => width * height * 3,
+            NetPBMFormat.PGM32 => width * height * 2,
+            NetPBMFormat.PM32 => width * height * 3,
+            _ => 0,
+        };
     }
 
     public NetPBM(NetPBMFormat format, byte[] pixels, int width, int height, byte[]? palette = null)
@@ -72,7 +73,7 @@ public class NetPBM
                 Pixels[k++] = pixels[i, j];
     }
 
-    public NetPBM(Common.Color24[,] pixels)
+    public NetPBM(Color24[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);
@@ -89,7 +90,7 @@ public class NetPBM
             }
     }
 
-    public NetPBM(Common.Color32[,] pixels)
+    public NetPBM(Color32[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);
@@ -106,7 +107,7 @@ public class NetPBM
             }
     }
 
-    public NetPBM(Common.Color48[,] pixels)
+    public NetPBM(Color48[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);
@@ -126,7 +127,7 @@ public class NetPBM
             }
     }
 
-    public NetPBM(Common.Color64[,] pixels)
+    public NetPBM(Color64[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);

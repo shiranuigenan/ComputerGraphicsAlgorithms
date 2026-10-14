@@ -15,12 +15,12 @@ public static class VideoGenerate
                     var g = 45568 - w - h - 256 * frameNumber;
                     var b = 25600 - w - h - 256 * frameNumber;
 
-                    frameBuffer[i++] = ((byte)r);
-                    frameBuffer[i++] = ((byte)(r >> 8));
-                    frameBuffer[i++] = ((byte)g);
-                    frameBuffer[i++] = ((byte)(g >> 8));
-                    frameBuffer[i++] = ((byte)b);
-                    frameBuffer[i++] = ((byte)(b >> 8));
+                    frameBuffer[i++] = (byte)r;
+                    frameBuffer[i++] = (byte)(r >> 8);
+                    frameBuffer[i++] = (byte)g;
+                    frameBuffer[i++] = (byte)(g >> 8);
+                    frameBuffer[i++] = (byte)b;
+                    frameBuffer[i++] = (byte)(b >> 8);
                 }
         };
         m.RenderToFile("2.mp4");

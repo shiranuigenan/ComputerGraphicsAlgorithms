@@ -413,8 +413,7 @@ FodyWeavers.xsd
 
 ##
 ## Visual studio for Mac
-##
-
+## 
 
 # globs
 Makefile.in
@@ -436,8 +435,7 @@ test-results/
 .LSOverride
 
 # Icon must end with two \r
-Icon
-
+Icon 
 
 # Thumbnails
 ._*

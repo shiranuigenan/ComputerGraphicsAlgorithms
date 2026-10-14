@@ -2,7 +2,6 @@ namespace ComputerGraphicsAlgorithms;
 
 public class LZWEncoder
 {
-
     private static readonly int EOF = -1;
 
     private int imgW, imgH;
@@ -13,19 +12,19 @@ public class LZWEncoder
 
     static readonly int BITS = 12;
 
-    static readonly int HSIZE = 5003; 
+    static readonly int HSIZE = 5003;
 
-    int n_bits; 
-    int maxbits = BITS; 
-    int maxcode; 
-    int maxmaxcode = 1 << BITS; 
+    int n_bits;
+    int maxbits = BITS;
+    int maxcode;
+    int maxmaxcode = 1 << BITS;
 
     int[] htab = new int[HSIZE];
     int[] codetab = new int[HSIZE];
 
-    int hsize = HSIZE; 
+    int hsize = HSIZE;
 
-    int free_ent = 0; 
+    int free_ent = 0;
 
     bool clear_flg = false;
 
@@ -94,7 +93,7 @@ public class LZWEncoder
     void Compress(int init_bits, Stream outs)
     {
         int fcode;
-        int i ;
+        int i;
         int c;
         int ent;
         int disp;
@@ -111,33 +110,33 @@ public class LZWEncoder
         EOFCode = ClearCode + 1;
         free_ent = ClearCode + 2;
 
-        a_count = 0; 
+        a_count = 0;
 
         ent = NextPixel();
 
         hshift = 0;
         for (fcode = hsize; fcode < 65536; fcode *= 2)
             ++hshift;
-        hshift = 8 - hshift; 
+        hshift = 8 - hshift;
 
         hsize_reg = hsize;
-        ResetCodeTable(hsize_reg); 
+        ResetCodeTable(hsize_reg);
 
         Output(ClearCode, outs);
 
     outer_loop: while ((c = NextPixel()) != EOF)
         {
             fcode = (c << maxbits) + ent;
-            i = (c << hshift) ^ ent; 
+            i = (c << hshift) ^ ent;
 
             if (htab[i] == fcode)
             {
                 ent = codetab[i];
                 continue;
             }
-            else if (htab[i] >= 0) 
+            else if (htab[i] >= 0)
             {
-                disp = hsize_reg - i; 
+                disp = hsize_reg - i;
                 if (i == 0)
                     disp = 1;
                 do
@@ -156,7 +155,7 @@ public class LZWEncoder
             ent = c;
             if (free_ent < maxmaxcode)
             {
-                codetab[i] = free_ent++; 
+                codetab[i] = free_ent++;
                 htab[i] = fcode;
             }
             else
@@ -167,14 +166,14 @@ public class LZWEncoder
     }
     public void Encode(Stream os)
     {
-        os.WriteByte(Convert.ToByte(initCodeSize)); 
+        os.WriteByte(Convert.ToByte(initCodeSize));
 
-        remaining = imgW * imgH; 
+        remaining = imgW * imgH;
         curPixel = 0;
 
-        Compress(initCodeSize + 1, os); 
+        Compress(initCodeSize + 1, os);
 
-        os.WriteByte(0); 
+        os.WriteByte(0);
     }
     void Flush(Stream outs)
     {
@@ -186,7 +185,7 @@ public class LZWEncoder
         }
     }
 
-    int MaxCode(int n_bits)
+    static int MaxCode(int n_bits)
     {
         return (1 << n_bits) - 1;
     }
