@@ -7,11 +7,6 @@ public class Gif
     public ushort Width;
     public ushort Height;
 
-    //Bit 7	Local Color Table Flag
-    //Bit 6	Interlace Flag
-    //Bit 5	Sort Flag
-    //Bits 4-3	Reserved
-    //Bits 2-0	Size of Local Color Table Entry
     private byte Description;
     public int ColorBits
     {

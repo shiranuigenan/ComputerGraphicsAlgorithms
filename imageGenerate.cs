@@ -35,31 +35,13 @@ public static class imageGenerate
             }
         });
 
-        //for (int j = 0; j < w; j++)
-        //{
-        //    var grey = new short[h];
 
-        //    for (int i = 0; i < 4080; i++)
-        //    {
-        //        var hh = r.Next(h);
-        //        for (int k = 0; k < hh; k++)
-        //            grey[k]++;
-        //    }
 
-        //    for (int n = 0; n < h; n++)
-        //    {
-        //        pixels[n, j].r += p[grey[n]].r;
-        //        pixels[n, j].g += p[grey[n]].g;
-        //        pixels[n, j].b += p[grey[n]].b;
-        //    }
-        //}
 
         return pixels;
     }
     public static Common.Color24[,] Boundary(byte a, int w, int h)
     {
-        //var w = 2560;
-        //var h = 1440;
 
         var b = 255 / a;
         var r = new Random();
@@ -84,8 +66,6 @@ public static class imageGenerate
     }
     public static Common.Color24[,] BoundaryColored(byte a, int w, int h)
     {
-        //var w = 2560;
-        //var h = 1440;
 
         var b = 255 / a;
         var r = new Random();
@@ -152,8 +132,6 @@ public static class imageGenerate
     public static Common.Color24[,] XPowerY()
     {
         var pixels = new Common.Color24[26752, 26752];
-        //var max = double.MinValue;
-        //var min = double.MaxValue;
 
         for (int i = 0; i < 26752; i++)
             for (int j = 0; j < 26752; j++)
@@ -171,12 +149,8 @@ public static class imageGenerate
                 kji += Math.Pow((26752 - j) / 26753.0, (26752 - i) / 26753.0);
 
                 var k = (byte)(259 * (kij + kji - 5.0121643839212435));
-                //if (k > max) max = k;
-                //if (k < min) min = k;
                 pixels[j, i].r = pixels[j, i].g = pixels[j, i].b = k;
             }
-        //Console.WriteLine(min);
-        //Console.WriteLine(max);
         return pixels;
     }
     public static Common.Color24[,] EPowerXSquare(int width)
@@ -201,18 +175,10 @@ public static class imageGenerate
     }
     public static Common.Color24[,] FlagTurkiye(int yukseklik)
     {
-        //Y	Yükseklik 1
-        //A	Dış ay merkezinin uçkurluktan mesafesi	1/2 Y
-        //B	Ayın dış dairesinin kutru (çapı)	1/2 Y
-        //C	Ayın iç ve dış merkezleri arası	1/16 Y
-        //D	Ayın iç dairesinin kutru (çapı)	0.4 Y
-        //E	Yıldız dairesinin, ayın iç dairesinden olan mesafesi	1/3 Y
-        //F	Yıldız dairesinin kutru (çapı)	1/4 Y
-        //L	Genişlik 1.5 Y
 
         var genislik = 3 * yukseklik / 2;
 
-        var n = 8; //super resolution katsayısı
+        var n = 8; 
         var Y = yukseklik * n;
         var A = Y / 2;
         var B = Y / 4;
@@ -264,7 +230,7 @@ public static class imageGenerate
                     if (i * i + j * j + k * k < 16638241)
                         b++;
 
-                pixels[j, i] = p[b]; //Common.PsuedoGreyPlus24(b);
+                pixels[j, i] = p[b]; 
             }
         });
 
@@ -982,12 +948,9 @@ public static class imageGenerate
     }
     public static void LinearMovementX()
     {
-        //pixabay max duration 4859 frame 60fps
         var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 131072x1 -r 60 -i -";
         var outputArgs = "-c:v libx265 -preset ultrafast -vf scale=16384:9216 -x265-params lossless=1 lossless_16k_ultrafast.mp4";
 
-        //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
-        //-sws_flags neighbor
         var p = new Process
         {
             StartInfo =
@@ -1016,12 +979,9 @@ public static class imageGenerate
     }
     public static void ColorRain()
     {
-        //pixabay max duration 4859 frame 60fps
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=2430:1350 -x265-params lossless=1 9.mp4";
 
-        //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
-        //-sws_flags neighbor
         var p = new Process
         {
             StartInfo =
@@ -1046,8 +1006,6 @@ public static class imageGenerate
 
         for (int i = 0; i < 4859; i++)
         {
-            //a[i] = 255;
-            //a[i / 255] = (byte)(1 + (i % 255));
 
             r.NextBytes(b);
             for (var j = 0; j < 84; j++)
@@ -1068,19 +1026,7 @@ public static class imageGenerate
         var h = 5;
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
-        //var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags neighbor h.mp4";
         var outputArgs = $"-c:v flashsv2 -vf scale=3840:2160 -sws_flags neighbor flashsv2.mkv";
-        //libx265
-        /*
-        ffmpeg -i <infile> \
-        -c:a copy \
-        -c:v libx265 \
-        -tag:v hvc1 \
-        -crf 22 \
-        -pix_fmt yuv420p10le \
-        -x265-params "colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc" \
-        <outfile>.mkv
-        */
 
         var p = new Process
         {
@@ -1168,7 +1114,6 @@ public static class imageGenerate
         var h = 9 * w / 16;
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
-        //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=3840:2160 -crf 51 crf51_4k.mp4";
         var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 31 crf31_8k.mp4";
         var p = new Process
         {
@@ -1250,8 +1195,8 @@ public static class imageGenerate
     }
     public static void PinkNoise2()
     {
-        var w = 524288;//524288
-        var h = 294912;//294912
+        var w = 524288;
+        var h = 294912;
 
         var a = new List<List<byte[]>>();
 
@@ -1328,8 +1273,8 @@ public static class imageGenerate
     }
     public static void PinkNoiseAnimated()
     {
-        var w = 16384;//524288
-        var h = 9216;//294912
+        var w = 16384;
+        var h = 9216;
 
         var a = new List<List<byte[]>>();
 
@@ -2616,7 +2561,6 @@ public static class imageGenerate
     }
     public static void GifSinusoidal()
     {
-        //pixabay max 1000 frame
         var palette = PaletteGray256();
 
         int width = 1024;
@@ -2643,14 +2587,7 @@ public static class imageGenerate
     }
     public static void GifAcceleration()
     {
-        //pixabay max 1000 frame
         var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-        //for (int i = 0; i < 256; i++)
-        //{
-        //    palette[3 * i + 0] = (byte)i;
-        //    palette[3 * i + 1] = (byte)i;
-        //    palette[3 * i + 2] = (byte)i;
-        //}
 
         int width = 1000;
         int height = 64;
@@ -2743,7 +2680,6 @@ public static class imageGenerate
         {
             var pixels = new byte[width * height];
             var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.png";
-            //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
             for (int f = 1; f < 379; f++)
             {
                 var frame = NetPBM.Load(string.Format(path, 3 * f));
@@ -2803,13 +2739,11 @@ public static class imageGenerate
         {
             var pixels = new byte[width * height];
             var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.bmp";
-            //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
             for (int f = 1; f < 501; f++)
             {
                 var frame = NetPBM.Load(string.Format(path, f));
                 {
                     var c = new channelBasedImage(frame);
-                    //c.Scale(3);
                     Common.SimpleDither(c.r, x => x > 8388608 ? 16777215 : 0);
                     Common.SimpleDither(c.g, x => x > 8388608 ? 16777215 : 0);
                     Common.SimpleDither(c.b, x => x > 8388608 ? 16777215 : 0);
@@ -2832,40 +2766,12 @@ public static class imageGenerate
             }
         }
     }
-    //public static void GifDiagonal()
-    //{
-    //    using var gif = AnimatedGif.AnimatedGif.Create("diagonal.gif", 20);
 
-    //    int width = 512;
-    //    int height = 512;
-    //    var pixels = new Color24[width, height];
 
-    //    for (int f = 0; f < 255; f++)
-    //    {
-    //        for (int i = 0; i < width / 2; i++)
-    //            for (int j = 0; j < height / 2; j++)
-    //            {
-    //                var a = (byte)(i + j + f);
 
-    //                pixels[i, j].r = a;
-    //                pixels[i, j].g = a;
-    //                pixels[i, j].b = a;
 
-    //                pixels[width - i - 1, j].r = a;
-    //                pixels[width - i - 1, j].g = a;
-    //                pixels[width - i - 1, j].b = a;
 
-    //                pixels[i, height - j - 1].r = a;
-    //                pixels[i, height - j - 1].g = a;
-    //                pixels[i, height - j - 1].b = a;
 
-    //                pixels[width - i - 1, height - j - 1].r = a;
-    //                pixels[width - i - 1, height - j - 1].g = a;
-    //                pixels[width - i - 1, height - j - 1].b = a;
-    //            }
-    //        gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
-    //    }
-    //}
     public static Common.Color24[,] W2560H1440()
     {
         var pixels = new Common.Color24[1440, 2560];
@@ -2877,7 +2783,6 @@ public static class imageGenerate
                 pixels[j, i].r = k;
                 pixels[j, i].g = k;
                 pixels[j, i].b = k;
-                //pixels[j, i] = Common.PsuedoGreyPlus24((9*i + 16*j) / 32);
             }
         });
 
@@ -3112,11 +3017,8 @@ public static class imageGenerate
     public static void Bound()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
-        //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=1280:720 -sws_flags gauss -crf 0 9.mp4";
         var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
 
-        //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
-        //-sws_flags neighbor
         var p = new Process
         {
             StartInfo =
@@ -3381,7 +3283,6 @@ public static class imageGenerate
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 36x64 -r 60 -i -";
         var outputArgs = "-c:v libx265 -sws_flags neighbor -preset ultrafast -vf scale=4320:7680 -x265-params lossless=1 1.mp4";
-        //neighbor
         var p = new Process
         {
             StartInfo =
@@ -3413,8 +3314,6 @@ public static class imageGenerate
             if (y < 0) y += 64;
             if (y > 63) y -= 64;
 
-            //z = y * 256 + x;
-            //a[z] = 255;
 
             ffmpegIn.Write(a);
             ffmpegIn.Flush();

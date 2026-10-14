@@ -4,11 +4,11 @@ namespace ComputerGraphicsAlgorithms;
 
 public enum NetPBMFormat
 {
-    PBM,    // 1-bit
-    PGM,    // 8-bit gray
-    PM,     // 8-bit RGB
-    PGM32,  // 16-bit gray
-    PM32    // 16-bit RGB
+    PBM,    
+    PGM,    
+    PM,     
+    PGM32,  
+    PM32    
 }
 
 public class NetPBM

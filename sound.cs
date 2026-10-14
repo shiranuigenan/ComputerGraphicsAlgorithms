@@ -2,7 +2,6 @@
 
 public static class Sound
 {
-    ///flac 1.raw -f --endian=little --channels=1 --bps=32 --sample-rate=655350 --sign=signed
     public static void Su32bit()
     {
         var r = new Random();

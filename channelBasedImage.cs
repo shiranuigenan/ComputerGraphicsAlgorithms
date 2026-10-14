@@ -5,7 +5,6 @@ public class channelBasedImage
     public int width;
     public int height;
 
-    //renk doygunluğu 0-16777215(24bit) arası değişmektedir
     public int[,] r;
     public int[,] g;
     public int[,] b;
@@ -42,7 +41,6 @@ public class channelBasedImage
 
         var bytes = netPBM.Pixels;
 
-        //bütün pixel formatları için gerekli dönüşümler yapılmalı
         if (netPBM.Format == NetPBMFormat.PM)
         {
             int k = 0;
@@ -58,7 +56,6 @@ public class channelBasedImage
     }
     public NetPBM convertBitmap()
     {
-        //blue green red alpha
         var pixels = new byte[height * width * 3];
 
         int k = 0;
@@ -83,7 +80,6 @@ public class channelBasedImage
     }
     public NetPBM convertBitmap24()
     {
-        //blue green red alpha
         var pixels = new byte[height * width * 3];
 
         int k = 0;

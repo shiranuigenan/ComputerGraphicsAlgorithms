@@ -13,19 +13,19 @@ public class LZWEncoder
 
     static readonly int BITS = 12;
 
-    static readonly int HSIZE = 5003; // 80% occupancy
+    static readonly int HSIZE = 5003; 
 
-    int n_bits; // number of bits/code
-    int maxbits = BITS; // user settable max # bits/code
-    int maxcode; // maximum code, given n_bits
-    int maxmaxcode = 1 << BITS; // should NEVER generate this code
+    int n_bits; 
+    int maxbits = BITS; 
+    int maxcode; 
+    int maxmaxcode = 1 << BITS; 
 
     int[] htab = new int[HSIZE];
     int[] codetab = new int[HSIZE];
 
-    int hsize = HSIZE; // for dynamic table sizing
+    int hsize = HSIZE; 
 
-    int free_ent = 0; // first unused entry
+    int free_ent = 0; 
 
     bool clear_flg = false;
 
@@ -94,7 +94,7 @@ public class LZWEncoder
     void Compress(int init_bits, Stream outs)
     {
         int fcode;
-        int i /* = 0 */;
+        int i ;
         int c;
         int ent;
         int disp;
@@ -111,33 +111,33 @@ public class LZWEncoder
         EOFCode = ClearCode + 1;
         free_ent = ClearCode + 2;
 
-        a_count = 0; // clear packet
+        a_count = 0; 
 
         ent = NextPixel();
 
         hshift = 0;
         for (fcode = hsize; fcode < 65536; fcode *= 2)
             ++hshift;
-        hshift = 8 - hshift; // set hash code range bound
+        hshift = 8 - hshift; 
 
         hsize_reg = hsize;
-        ResetCodeTable(hsize_reg); // clear hash table
+        ResetCodeTable(hsize_reg); 
 
         Output(ClearCode, outs);
 
     outer_loop: while ((c = NextPixel()) != EOF)
         {
             fcode = (c << maxbits) + ent;
-            i = (c << hshift) ^ ent; // xor hashing
+            i = (c << hshift) ^ ent; 
 
             if (htab[i] == fcode)
             {
                 ent = codetab[i];
                 continue;
             }
-            else if (htab[i] >= 0) // non-empty slot
+            else if (htab[i] >= 0) 
             {
-                disp = hsize_reg - i; // secondary hash (after G. Knott)
+                disp = hsize_reg - i; 
                 if (i == 0)
                     disp = 1;
                 do
@@ -156,26 +156,25 @@ public class LZWEncoder
             ent = c;
             if (free_ent < maxmaxcode)
             {
-                codetab[i] = free_ent++; // code -> hashtable
+                codetab[i] = free_ent++; 
                 htab[i] = fcode;
             }
             else
                 ClearTable(outs);
         }
-        // Put out the final code.
         Output(ent, outs);
         Output(EOFCode, outs);
     }
     public void Encode(Stream os)
     {
-        os.WriteByte(Convert.ToByte(initCodeSize)); // write "initial code size" byte
+        os.WriteByte(Convert.ToByte(initCodeSize)); 
 
-        remaining = imgW * imgH; // reset navigation variables
+        remaining = imgW * imgH; 
         curPixel = 0;
 
-        Compress(initCodeSize + 1, os); // compress and write the pixel data
+        Compress(initCodeSize + 1, os); 
 
-        os.WriteByte(0); // write block terminator
+        os.WriteByte(0); 
     }
     void Flush(Stream outs)
     {

@@ -267,7 +267,6 @@ public static class Common
     }
 
 
-    // scale 1/ratio
     public static int[,] Scale(int[,] source, byte ratio)
     {
         var sourceWidth = source.GetLength(1);
