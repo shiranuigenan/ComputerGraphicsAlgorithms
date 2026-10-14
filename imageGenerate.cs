@@ -1,890 +1,873 @@
 ﻿using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using static ComputerGraphicsAlgorithms.common;
 
-namespace ComputerGraphicsAlgorithms
+namespace ComputerGraphicsAlgorithms;
+
+public static class imageGenerate
 {
-    public static class imageGenerate
+    public static common.Color24[,] Boundary4080()
     {
-        public static common.Color24[,] Boundary4080()
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        var w = 30720;
+        var h = 17280;
+
+        var r = new Random();
+
+        var pixels = new common.Color24[h, w];
+
+        Parallel.For(0, w, j =>
         {
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
-            var w = 30720;
-            var h = 17280;
-
-            var r = new Random();
-
-            var pixels = new common.Color24[h, w];
-
-            Parallel.For(0, w, j =>
-            {
-                var grey = new short[h];
-
-                for (int i = 0; i < 4080; i++)
-                {
-                    var hh = r.Next(h);
-                    for (int k = 0; k < hh; k++)
-                        grey[k]++;
-                }
-
-                for (int n = 0; n < h; n++)
-                {
-                    pixels[n, j].r += p[grey[n]].r;
-                    pixels[n, j].g += p[grey[n]].g;
-                    pixels[n, j].b += p[grey[n]].b;
-                }
-            });
-
-            //for (int j = 0; j < w; j++)
-            //{
-            //    var grey = new short[h];
-
-            //    for (int i = 0; i < 4080; i++)
-            //    {
-            //        var hh = r.Next(h);
-            //        for (int k = 0; k < hh; k++)
-            //            grey[k]++;
-            //    }
-
-            //    for (int n = 0; n < h; n++)
-            //    {
-            //        pixels[n, j].r += p[grey[n]].r;
-            //        pixels[n, j].g += p[grey[n]].g;
-            //        pixels[n, j].b += p[grey[n]].b;
-            //    }
-            //}
-
-            return pixels;
-        }
-        public static common.Color24[,] Boundary(byte a, int w, int h)
-        {
-            //var w = 2560;
-            //var h = 1440;
-
-            var b = 255 / a;
-            var r = new Random();
-
-            var pixels = new common.Color24[h, w];
-
-            for (int j = 0; j < w; j++)
-            {
-                for (int i = 0; i < b; i++)
-                {
-                    var hh = r.Next(h);
-                    for (int k = 0; k < hh; k++)
-                    {
-                        pixels[k, j].r += a;
-                        pixels[k, j].g += a;
-                        pixels[k, j].b += a;
-                    }
-                }
-            }
-
-            return pixels;
-        }
-        public static common.Color24[,] BoundaryColored(byte a, int w, int h)
-        {
-            //var w = 2560;
-            //var h = 1440;
-
-            var b = 255 / a;
-            var r = new Random();
-
-            var pixels = new common.Color24[h, w];
-
-            for (int j = 0; j < w; j++)
-            {
-                for (int i = 0; i < b; i++)
-                {
-                    var hh = r.Next(h);
-                    for (int k = 0; k < hh; k++)
-                        pixels[k, j].r += a;
-
-                    hh = r.Next(h);
-                    for (int k = 0; k < hh; k++)
-                        pixels[k, j].g += a;
-
-                    hh = r.Next(h);
-                    for (int k = 0; k < hh; k++)
-                        pixels[k, j].b += a;
-                }
-            }
-
-            return pixels;
-        }
-        public static common.Color24[,] XPowerY_PLUS_YPowerX()
-        {
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-            var w = 7680;
-            var h = 4320;
-
-            var pixels = new common.Color24[h, w];
-
-            for (int j = 0; j < h; j++)
-                for (int i = 0; i < w; i++)
-                    pixels[j, i] = p[4080 - (((9 * i + 16 * j) / 25) % 4081)];
-
-            return pixels;
-        }
-        public static void GradientBorder()
-        {
-            int a = 46340;
-            var b = new byte[a, a];
-            for (int i = 0; i < a; i++)
-                for (int j = 0; j < a; j++)
-                    b[i, j] = 255;
-
-            for (int j = 0; j < 256; j++)
-            {
-                var k = (byte)j;
-                for (int i = j; i < a - j; i++)
-                {
-                    b[i, j] = k;
-                    b[j, i] = k;
-                    b[i, a - 1 - j] = k;
-                    b[a - 1 - j, i] = k;
-                }
-            }
-
-            var c = pixelsToBitmap(b);
-
-
-            ColorPalette _palette = c.Palette;
-            Color[] _entries = _palette.Entries;
-            for (int i = 0; i < 256; i++)
-            {
-                Color p = new Color();
-                p = Color.FromArgb((byte)i, (byte)i, (byte)i);
-                _entries[i] = p;
-            }
-            c.Palette = _palette;
-
-            c.Save("1.png");
-        }
-        public static common.Color24[,] XPowerY()
-        {
-            var pixels = new common.Color24[26752, 26752];
-            //var max = double.MinValue;
-            //var min = double.MaxValue;
-
-            for (int i = 0; i < 26752; i++)
-                for (int j = 0; j < 26752; j++)
-                {
-                    var kij = 0.0;
-                    kij += Math.Pow((i + 1) / 26753.0, (j + 1) / 26753.0);
-                    kij += Math.Pow((26752 - i) / 26753.0, (j + 1) / 26753.0);
-                    kij += Math.Pow((i + 1) / 26753.0, (26752 - j) / 26753.0);
-                    kij += Math.Pow((26752 - i) / 26753.0, (26752 - j) / 26753.0);
-
-                    var kji = 0.0;
-                    kji += Math.Pow((j + 1) / 26753.0, (i + 1) / 26753.0);
-                    kji += Math.Pow((26752 - j) / 26753.0, (i + 1) / 26753.0);
-                    kji += Math.Pow((j + 1) / 26753.0, (26752 - i) / 26753.0);
-                    kji += Math.Pow((26752 - j) / 26753.0, (26752 - i) / 26753.0);
-
-                    var k = (byte)(259 * (kij + kji - 5.0121643839212435));
-                    //if (k > max) max = k;
-                    //if (k < min) min = k;
-                    pixels[j, i].r = pixels[j, i].g = pixels[j, i].b = k;
-                }
-            //Console.WriteLine(min);
-            //Console.WriteLine(max);
-            return pixels;
-        }
-        public static common.Color24[,] EPowerXSquare(int width)
-        {
-            int height = 9 * width / 16;
-            var pixels = new common.Color24[height, width];
-
-            for (int i = 0; i < width; i++)
-            {
-                double x = (i - width / 2) / (width / 6.0);
-                int y = (int)((width / 6.0) / Math.Pow(Math.E, x * x));
-
-                for (int j = (9 * width / 32) - y; j < (9 * width / 32) + y; j++)
-                {
-                    pixels[j, i].r = 255;
-                    pixels[j, i].g = 255;
-                    pixels[j, i].b = 255;
-                }
-            }
-
-            return pixels;
-        }
-        public static common.Color24[,] FlagTurkiye(int yukseklik)
-        {
-            //Y	Yükseklik 1
-            //A	Dış ay merkezinin uçkurluktan mesafesi	1/2 Y
-            //B	Ayın dış dairesinin kutru (çapı)	1/2 Y
-            //C	Ayın iç ve dış merkezleri arası	1/16 Y
-            //D	Ayın iç dairesinin kutru (çapı)	0.4 Y
-            //E	Yıldız dairesinin, ayın iç dairesinden olan mesafesi	1/3 Y
-            //F	Yıldız dairesinin kutru (çapı)	1/4 Y
-            //L	Genişlik 1.5 Y
-
-            var genislik = 3 * yukseklik / 2;
-
-            var n = 8; //super resolution katsayısı
-            var Y = yukseklik * n;
-            var A = Y / 2;
-            var B = Y / 4;
-            var C = Y / 16;
-            var D = Y / 5;
-            var E = Y / 3;
-            var F = Y / 8;
-            var L = 3 * Y / 2;
-            var YILDIZ = 33 * Y / 40;
-
-            var alan = new int[yukseklik, genislik];
-            for (int i = 0; i < Y; i++)
-                for (int j = 0; j < L; j++)
-                {
-                    if (Math.Sqrt((i - A) * (i - A) + (j - A) * (j - A)) < B && Math.Sqrt((i - A) * (i - A) + (j - A - C) * (j - A - C)) > D)
-                        alan[i / n, j / n] += 1;
-
-                    if (Math.Sqrt((i - A) * (i - A) + (j - YILDIZ) * (j - YILDIZ)) < F && Math.Sqrt((i - A) * (i - A) + (j - YILDIZ) * (j - YILDIZ)) > 0.4 * F)
-                        alan[i / n, j / n] += 1;
-
-                }
-
-            var pixels = new common.Color24[yukseklik, genislik];
-
-            for (int i = 0; i < yukseklik; i++)
-            {
-                for (int j = 0; j < genislik; j++)
-                {
-                    var oran = 1.0 * alan[i, j] / (n * n);
-                    pixels[i, j].r = (byte)(227 * (1.0 - oran) + oran * 255);
-                    pixels[i, j].g = (byte)(10 * (1.0 - oran) + oran * 255);
-                    pixels[i, j].b = (byte)(23 * (1.0 - oran) + oran * 255);
-                }
-            }
-
-            return pixels;
-        }
-        public static common.Color24[,] PerfectBallQuarter()
-        {
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
-            var pixels = new common.Color24[4080, 4080];
-            Parallel.For(0, 4080, i =>
-            {
-                for (var j = 0; j < 4080; j++)
-                {
-                    var b = 0;
-                    for (var k = 0; k < 4080; k++)
-                        if (i * i + j * j + k * k < 16638241)
-                            b++;
-
-                    pixels[j, i] = p[b]; //common.PsuedoGreyPlus24(b);
-                }
-            });
-
-            return pixels;
-        }
-        public static common.Color24[,] PerfectBall()
-        {
-            var pixels = new common.Color24[8192, 8192];
-
-            var quarter = PerfectBallQuarter();
+            var grey = new short[h];
 
             for (int i = 0; i < 4080; i++)
-                for (int j = 0; j < 4080; j++)
-                {
-                    var c = quarter[i, j];
-                    pixels[4095 - i, 4095 - j].r = c.r;
-                    pixels[4095 - i, 4095 - j].g = c.g;
-                    pixels[4095 - i, 4095 - j].b = c.b;
+            {
+                var hh = r.Next(h);
+                for (int k = 0; k < hh; k++)
+                    grey[k]++;
+            }
 
-                    pixels[4095 - i, 4096 + j].r = c.r;
-                    pixels[4095 - i, 4096 + j].g = c.g;
-                    pixels[4095 - i, 4096 + j].b = c.b;
+            for (int n = 0; n < h; n++)
+            {
+                pixels[n, j].r += p[grey[n]].r;
+                pixels[n, j].g += p[grey[n]].g;
+                pixels[n, j].b += p[grey[n]].b;
+            }
+        });
 
-                    pixels[4096 + i, 4095 - j].r = c.r;
-                    pixels[4096 + i, 4095 - j].g = c.g;
-                    pixels[4096 + i, 4095 - j].b = c.b;
+        //for (int j = 0; j < w; j++)
+        //{
+        //    var grey = new short[h];
 
-                    pixels[4096 + i, 4096 + j].r = c.r;
-                    pixels[4096 + i, 4096 + j].g = c.g;
-                    pixels[4096 + i, 4096 + j].b = c.b;
+        //    for (int i = 0; i < 4080; i++)
+        //    {
+        //        var hh = r.Next(h);
+        //        for (int k = 0; k < hh; k++)
+        //            grey[k]++;
+        //    }
 
-                }
+        //    for (int n = 0; n < h; n++)
+        //    {
+        //        pixels[n, j].r += p[grey[n]].r;
+        //        pixels[n, j].g += p[grey[n]].g;
+        //        pixels[n, j].b += p[grey[n]].b;
+        //    }
+        //}
 
+        return pixels;
+    }
+    public static common.Color24[,] Boundary(byte a, int w, int h)
+    {
+        //var w = 2560;
+        //var h = 1440;
 
-            return pixels;
-        }
-        public static void PerfectBallQuarterVector()
+        var b = 255 / a;
+        var r = new Random();
+
+        var pixels = new common.Color24[h, w];
+
+        for (int j = 0; j < w; j++)
         {
-            var bb = -1;
-            for (var j = 0; j < 4081; j++)
+            for (int i = 0; i < b; i++)
+            {
+                var hh = r.Next(h);
+                for (int k = 0; k < hh; k++)
+                {
+                    pixels[k, j].r += a;
+                    pixels[k, j].g += a;
+                    pixels[k, j].b += a;
+                }
+            }
+        }
+
+        return pixels;
+    }
+    public static common.Color24[,] BoundaryColored(byte a, int w, int h)
+    {
+        //var w = 2560;
+        //var h = 1440;
+
+        var b = 255 / a;
+        var r = new Random();
+
+        var pixels = new common.Color24[h, w];
+
+        for (int j = 0; j < w; j++)
+        {
+            for (int i = 0; i < b; i++)
+            {
+                var hh = r.Next(h);
+                for (int k = 0; k < hh; k++)
+                    pixels[k, j].r += a;
+
+                hh = r.Next(h);
+                for (int k = 0; k < hh; k++)
+                    pixels[k, j].g += a;
+
+                hh = r.Next(h);
+                for (int k = 0; k < hh; k++)
+                    pixels[k, j].b += a;
+            }
+        }
+
+        return pixels;
+    }
+    public static common.Color24[,] XPowerY_PLUS_YPowerX()
+    {
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var w = 7680;
+        var h = 4320;
+
+        var pixels = new common.Color24[h, w];
+
+        for (int j = 0; j < h; j++)
+            for (int i = 0; i < w; i++)
+                pixels[j, i] = p[4080 - (((9 * i + 16 * j) / 25) % 4081)];
+
+        return pixels;
+    }
+    public static void GradientBorder()
+    {
+        int a = 46340;
+        var b = new byte[a, a];
+        for (int i = 0; i < a; i++)
+            for (int j = 0; j < a; j++)
+                b[i, j] = 255;
+
+        for (int j = 0; j < 256; j++)
+        {
+            var k = (byte)j;
+            for (int i = j; i < a - j; i++)
+            {
+                b[i, j] = k;
+                b[j, i] = k;
+                b[i, a - 1 - j] = k;
+                b[a - 1 - j, i] = k;
+            }
+        }
+
+        var c = pixelsToBitmap(b);
+        c.Save("1.pgm");
+    }
+    public static common.Color24[,] XPowerY()
+    {
+        var pixels = new common.Color24[26752, 26752];
+        //var max = double.MinValue;
+        //var min = double.MaxValue;
+
+        for (int i = 0; i < 26752; i++)
+            for (int j = 0; j < 26752; j++)
+            {
+                var kij = 0.0;
+                kij += Math.Pow((i + 1) / 26753.0, (j + 1) / 26753.0);
+                kij += Math.Pow((26752 - i) / 26753.0, (j + 1) / 26753.0);
+                kij += Math.Pow((i + 1) / 26753.0, (26752 - j) / 26753.0);
+                kij += Math.Pow((26752 - i) / 26753.0, (26752 - j) / 26753.0);
+
+                var kji = 0.0;
+                kji += Math.Pow((j + 1) / 26753.0, (i + 1) / 26753.0);
+                kji += Math.Pow((26752 - j) / 26753.0, (i + 1) / 26753.0);
+                kji += Math.Pow((j + 1) / 26753.0, (26752 - i) / 26753.0);
+                kji += Math.Pow((26752 - j) / 26753.0, (26752 - i) / 26753.0);
+
+                var k = (byte)(259 * (kij + kji - 5.0121643839212435));
+                //if (k > max) max = k;
+                //if (k < min) min = k;
+                pixels[j, i].r = pixels[j, i].g = pixels[j, i].b = k;
+            }
+        //Console.WriteLine(min);
+        //Console.WriteLine(max);
+        return pixels;
+    }
+    public static common.Color24[,] EPowerXSquare(int width)
+    {
+        int height = 9 * width / 16;
+        var pixels = new common.Color24[height, width];
+
+        for (int i = 0; i < width; i++)
+        {
+            double x = (i - width / 2) / (width / 6.0);
+            int y = (int)((width / 6.0) / Math.Pow(Math.E, x * x));
+
+            for (int j = (9 * width / 32) - y; j < (9 * width / 32) + y; j++)
+            {
+                pixels[j, i].r = 255;
+                pixels[j, i].g = 255;
+                pixels[j, i].b = 255;
+            }
+        }
+
+        return pixels;
+    }
+    public static common.Color24[,] FlagTurkiye(int yukseklik)
+    {
+        //Y	Yükseklik 1
+        //A	Dış ay merkezinin uçkurluktan mesafesi	1/2 Y
+        //B	Ayın dış dairesinin kutru (çapı)	1/2 Y
+        //C	Ayın iç ve dış merkezleri arası	1/16 Y
+        //D	Ayın iç dairesinin kutru (çapı)	0.4 Y
+        //E	Yıldız dairesinin, ayın iç dairesinden olan mesafesi	1/3 Y
+        //F	Yıldız dairesinin kutru (çapı)	1/4 Y
+        //L	Genişlik 1.5 Y
+
+        var genislik = 3 * yukseklik / 2;
+
+        var n = 8; //super resolution katsayısı
+        var Y = yukseklik * n;
+        var A = Y / 2;
+        var B = Y / 4;
+        var C = Y / 16;
+        var D = Y / 5;
+        var E = Y / 3;
+        var F = Y / 8;
+        var L = 3 * Y / 2;
+        var YILDIZ = 33 * Y / 40;
+
+        var alan = new int[yukseklik, genislik];
+        for (int i = 0; i < Y; i++)
+            for (int j = 0; j < L; j++)
+            {
+                if (Math.Sqrt((i - A) * (i - A) + (j - A) * (j - A)) < B && Math.Sqrt((i - A) * (i - A) + (j - A - C) * (j - A - C)) > D)
+                    alan[i / n, j / n] += 1;
+
+                if (Math.Sqrt((i - A) * (i - A) + (j - YILDIZ) * (j - YILDIZ)) < F && Math.Sqrt((i - A) * (i - A) + (j - YILDIZ) * (j - YILDIZ)) > 0.4 * F)
+                    alan[i / n, j / n] += 1;
+
+            }
+
+        var pixels = new common.Color24[yukseklik, genislik];
+
+        for (int i = 0; i < yukseklik; i++)
+        {
+            for (int j = 0; j < genislik; j++)
+            {
+                var oran = 1.0 * alan[i, j] / (n * n);
+                pixels[i, j].r = (byte)(227 * (1.0 - oran) + oran * 255);
+                pixels[i, j].g = (byte)(10 * (1.0 - oran) + oran * 255);
+                pixels[i, j].b = (byte)(23 * (1.0 - oran) + oran * 255);
+            }
+        }
+
+        return pixels;
+    }
+    public static common.Color24[,] PerfectBallQuarter()
+    {
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        var pixels = new common.Color24[4080, 4080];
+        Parallel.For(0, 4080, i =>
+        {
+            for (var j = 0; j < 4080; j++)
             {
                 var b = 0;
-                for (var k = 0; k < 4081; k++)
-                    if (j * j + k * k < 16646400)
+                for (var k = 0; k < 4080; k++)
+                    if (i * i + j * j + k * k < 16638241)
                         b++;
-                if (bb != b)
-                {
-                    bb = b;
-                    var c = common.PsuedoGreyPlus(b);
-                    Console.WriteLine(string.Format("<stop offset=\"{0:0.00}%\" style=\"stop-color:rgb({1},{2},{3})\" />", 100.0 * j / 4080.0, c.r, c.g, c.b));
-                }
+
+                pixels[j, i] = p[b]; //common.PsuedoGreyPlus24(b);
+            }
+        });
+
+        return pixels;
+    }
+    public static common.Color24[,] PerfectBall()
+    {
+        var pixels = new common.Color24[8192, 8192];
+
+        var quarter = PerfectBallQuarter();
+
+        for (int i = 0; i < 4080; i++)
+            for (int j = 0; j < 4080; j++)
+            {
+                var c = quarter[i, j];
+                pixels[4095 - i, 4095 - j].r = c.r;
+                pixels[4095 - i, 4095 - j].g = c.g;
+                pixels[4095 - i, 4095 - j].b = c.b;
+
+                pixels[4095 - i, 4096 + j].r = c.r;
+                pixels[4095 - i, 4096 + j].g = c.g;
+                pixels[4095 - i, 4096 + j].b = c.b;
+
+                pixels[4096 + i, 4095 - j].r = c.r;
+                pixels[4096 + i, 4095 - j].g = c.g;
+                pixels[4096 + i, 4095 - j].b = c.b;
+
+                pixels[4096 + i, 4096 + j].r = c.r;
+                pixels[4096 + i, 4096 + j].g = c.g;
+                pixels[4096 + i, 4096 + j].b = c.b;
+
+            }
+
+
+        return pixels;
+    }
+    public static void PerfectBallQuarterVector()
+    {
+        var bb = -1;
+        for (var j = 0; j < 4081; j++)
+        {
+            var b = 0;
+            for (var k = 0; k < 4081; k++)
+                if (j * j + k * k < 16646400)
+                    b++;
+            if (bb != b)
+            {
+                bb = b;
+                var c = common.PsuedoGreyPlus(b);
+                Console.WriteLine(string.Format("<stop offset=\"{0:0.00}%\" style=\"stop-color:rgb({1},{2},{3})\" />", 100.0 * j / 4080.0, c.r, c.g, c.b));
             }
         }
-        public static common.Color32[,] PerfectBallQuarter2()
+    }
+    public static common.Color32[,] PerfectBallQuarter2()
+    {
+        var pixels = new common.Color32[4096, 4096];
+        Parallel.For(0, 4096, i =>
         {
-            var pixels = new common.Color32[4096, 4096];
-            Parallel.For(0, 4096, i =>
+            for (var j = 0; j < 4096; j++)
             {
-                for (var j = 0; j < 4096; j++)
-                {
-                    var b = 0;
-                    for (var k = 0; k < 4096; k++)
-                        if (i * i + j * j + k * k < 16638241)
-                            b++;
+                var b = 0;
+                for (var k = 0; k < 4096; k++)
+                    if (i * i + j * j + k * k < 16638241)
+                        b++;
 
-                    pixels[j, i] = common.PsuedoGreyPlus(b);
-                }
+                pixels[j, i] = common.PsuedoGreyPlus(b);
+            }
+        });
+
+        return pixels;
+    }
+    public static common.Color48[,] XSquarePlusYSquare()
+    {
+        var pixels = new common.Color48[10240, 10240];
+
+        Parallel.For(0, 5120, i =>
+        {
+            for (var j = 0; j < 5120; j++)
+            {
+                var a = (i + 1) * (i + 1) + (j + 1) * (j + 1);
+                pixels[5119 - j, 5119 - i] = common.PsuedoGreyPlus48(a / 50);
+            }
+        });
+
+        for (var i = 0; i < 5120; i++)
+            for (var j = 0; j < 5120; j++)
+            {
+                pixels[10239 - j, i] = pixels[j, i];
+                pixels[10239 - j, 10239 - i] = pixels[j, i];
+                pixels[j, 10239 - i] = pixels[j, i];
+            }
+
+        return pixels;
+    }
+    public static common.Color48[,] XMultiplyY()
+    {
+        var pixels = new common.Color48[10240, 10240];
+
+        Parallel.For(0, 5120, i =>
+        {
+            for (var j = 0; j < 5120; j++)
+                pixels[j, i] = common.PsuedoGreyPlus48(((i + 1) * (j + 1) - 1) / 25);
+        });
+
+        for (var i = 0; i < 5120; i++)
+            for (var j = 0; j < 5120; j++)
+            {
+                pixels[10239 - j, i] = pixels[j, i];
+                pixels[10239 - j, 10239 - i] = pixels[j, i];
+                pixels[j, 10239 - i] = pixels[j, i];
+            }
+
+        return pixels;
+    }
+    public static void XModPlusYMod()
+    {
+        var a = new byte[10240 * 10240 * 3];
+        var k = 0;
+        for (int i = 0; i < 10240; i++)
+            for (int j = 0; j < 10240; j++)
+            {
+                var d = common.PsuedoGreyPlus24(i % 2040 + j % 2040);
+                a[k++] = d.r;
+                a[k++] = d.g;
+                a[k++] = d.b;
+            }
+        var b = common.bytesToBitmap24(a, 10240, 10240);
+        common.saveNetPBM(b, "100.pm");
+    }
+    public static void XPlusYMod()
+    {
+        var a = new byte[10240 * 10240 * 3];
+        var k = 0;
+        for (int i = 0; i < 10240; i++)
+            for (int j = 0; j < 10240; j++)
+            {
+                var d = common.PsuedoGreyPlus24((i + j) % 4080);
+                a[k++] = d.r;
+                a[k++] = d.g;
+                a[k++] = d.b;
+            }
+        var b = common.bytesToBitmap24(a, 10240, 10240);
+        common.saveNetPBM(b, "100.pm");
+    }
+    public static void PsuedoPerspective()
+    {
+        var a = new byte[25600 * 4096 * 3];
+        var k = 0;
+        for (int i = 0; i < 4096; i++)
+            for (int j = 0; j < 25600; j++)
+            {
+                var d = common.PsuedoGreyPlus24(((j + 1) % (i + 1)) % 4080);
+                a[k++] = d.r;
+                a[k++] = d.g;
+                a[k++] = d.b;
+            }
+        var b = common.bytesToBitmap24(a, 25600, 4096);
+        common.saveNetPBM(b, "100.pm");
+    }
+    public static void Arctangent()
+    {
+        var w = new BinaryWriter(File.Create("a.raw"));
+
+        var a = new byte[16384 * 6];
+        for (int i = 0; i < 16384; i++)
+        {
+            var ii = i - 8191.5;
+            Parallel.For(0, 16384, j =>
+            {
+                var c = (Math.Atan(ii / (j - 8191.5)) + Math.PI / 2) / Math.PI;
+                c = 1 - Math.Abs(2 * c - 1);
+                c = 1 - Math.Abs(2 * c - 1);
+                c = 1 - Math.Abs(2 * c - 1);
+                c = 1 - Math.Abs(2 * c - 1);
+                c = 1 - Math.Abs(2 * c - 1);
+                var d = common.PsuedoGreyPlus48((int)(1048576 * c));
+                a[6 * j + 0] = (byte)d.r;
+                a[6 * j + 1] = (byte)(d.r >> 8);
+                a[6 * j + 2] = (byte)d.g;
+                a[6 * j + 3] = (byte)(d.g >> 8);
+                a[6 * j + 4] = (byte)d.b;
+                a[6 * j + 5] = (byte)(d.b >> 8);
             });
-
-            return pixels;
+            w.Write(a);
         }
-        public static common.Color48[,] XSquarePlusYSquare()
+        w.Close();
+    }
+    public static void Exponential()
+    {
+        var w = new BinaryWriter(File.Create("a.raw"));
+        for (int i = 0; i < 300000; i++)
         {
-            var pixels = new common.Color48[10240, 10240];
+            var f = Math.Pow(1.00004621098, i);
+            var d = common.PsuedoGreyPlus48((int)f);
+            w.Write(d.r);
+            w.Write(d.g);
+            w.Write(d.b);
+        }
+        w.Close();
+    }
+    public static void PinkNoise()
+    {
+        var r = new Random();
 
-            Parallel.For(0, 5120, i =>
+        var width = 28468;
+        var height = 25145;
+        var pixels = new Color24[height, width];
+
+        var w = width;
+        var h = height;
+
+        var a00 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a00[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a01 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a01[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a02 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a02[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a03 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a03[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a04 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a04[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a05 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a05[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a06 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a06[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a07 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a07[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a08 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a08[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a09 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a09[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a10 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a10[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a11 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a11[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a12 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a12[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a13 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a13[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a14 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a14[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a15 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a15[i, j] = (byte)(r.Next() % 256);
+
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
             {
-                for (var j = 0; j < 5120; j++)
-                {
-                    var a = (i + 1) * (i + 1) + (j + 1) * (j + 1);
-                    pixels[5119 - j, 5119 - i] = common.PsuedoGreyPlus48(a / 50);
-                }
-            });
-
-            for (var i = 0; i < 5120; i++)
-                for (var j = 0; j < 5120; j++)
-                {
-                    pixels[10239 - j, i] = pixels[j, i];
-                    pixels[10239 - j, 10239 - i] = pixels[j, i];
-                    pixels[j, 10239 - i] = pixels[j, i];
-                }
-
-            return pixels;
-        }
-        public static common.Color48[,] XMultiplyY()
-        {
-            var pixels = new common.Color48[10240, 10240];
-
-            Parallel.For(0, 5120, i =>
-            {
-                for (var j = 0; j < 5120; j++)
-                    pixels[j, i] = common.PsuedoGreyPlus48(((i + 1) * (j + 1) - 1) / 25);
-            });
-
-            for (var i = 0; i < 5120; i++)
-                for (var j = 0; j < 5120; j++)
-                {
-                    pixels[10239 - j, i] = pixels[j, i];
-                    pixels[10239 - j, 10239 - i] = pixels[j, i];
-                    pixels[j, 10239 - i] = pixels[j, i];
-                }
-
-            return pixels;
-        }
-        public static void XModPlusYMod()
-        {
-            var a = new byte[10240 * 10240 * 3];
-            var k = 0;
-            for (int i = 0; i < 10240; i++)
-                for (int j = 0; j < 10240; j++)
-                {
-                    var d = common.PsuedoGreyPlus24(i % 2040 + j % 2040);
-                    a[k++] = d.r;
-                    a[k++] = d.g;
-                    a[k++] = d.b;
-                }
-            var b = common.bytesToBitmap24(a, 10240, 10240);
-            common.saveJpeg(b, 100, "100.jpg");
-        }
-        public static void XPlusYMod()
-        {
-            var a = new byte[10240 * 10240 * 3];
-            var k = 0;
-            for (int i = 0; i < 10240; i++)
-                for (int j = 0; j < 10240; j++)
-                {
-                    var d = common.PsuedoGreyPlus24((i + j) % 4080);
-                    a[k++] = d.r;
-                    a[k++] = d.g;
-                    a[k++] = d.b;
-                }
-            var b = common.bytesToBitmap24(a, 10240, 10240);
-            common.saveJpeg(b, 100, "100.jpg");
-        }
-        public static void PsuedoPerspective()
-        {
-            var a = new byte[25600 * 4096 * 3];
-            var k = 0;
-            for (int i = 0; i < 4096; i++)
-                for (int j = 0; j < 25600; j++)
-                {
-                    var d = common.PsuedoGreyPlus24(((j + 1) % (i + 1)) % 4080);
-                    a[k++] = d.r;
-                    a[k++] = d.g;
-                    a[k++] = d.b;
-                }
-            var b = common.bytesToBitmap24(a, 25600, 4096);
-            common.saveJpeg(b, 100, "100.jpg");
-        }
-        public static void Arctangent()
-        {
-            var w = new BinaryWriter(File.Create("a.raw"));
-
-            var a = new byte[16384 * 6];
-            for (int i = 0; i < 16384; i++)
-            {
-                var ii = i - 8191.5;
-                Parallel.For(0, 16384, j =>
-                {
-                    var c = (Math.Atan(ii / (j - 8191.5)) + Math.PI / 2) / Math.PI;
-                    c = 1 - Math.Abs(2 * c - 1);
-                    c = 1 - Math.Abs(2 * c - 1);
-                    c = 1 - Math.Abs(2 * c - 1);
-                    c = 1 - Math.Abs(2 * c - 1);
-                    c = 1 - Math.Abs(2 * c - 1);
-                    var d = common.PsuedoGreyPlus48((int)(1048576 * c));
-                    a[6 * j + 0] = (byte)d.r;
-                    a[6 * j + 1] = (byte)(d.r >> 8);
-                    a[6 * j + 2] = (byte)d.g;
-                    a[6 * j + 3] = (byte)(d.g >> 8);
-                    a[6 * j + 4] = (byte)d.b;
-                    a[6 * j + 5] = (byte)(d.b >> 8);
-                });
-                w.Write(a);
-            }
-            w.Close();
-        }
-        public static void Exponential()
-        {
-            var w = new BinaryWriter(File.Create("a.raw"));
-            for (int i = 0; i < 300000; i++)
-            {
-                var f = Math.Pow(1.00004621098, i);
-                var d = common.PsuedoGreyPlus48((int)f);
-                w.Write(d.r);
-                w.Write(d.g);
-                w.Write(d.b);
-            }
-            w.Close();
-        }
-        public static void PinkNoise()
-        {
-            var r = new Random();
-
-            var width = 28468;
-            var height = 25145;
-            var pixels = new Color24[height, width];
-
-            var w = width;
-            var h = height;
-
-            var a00 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a00[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a01 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a01[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a02 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a02[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a03 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a03[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a04 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a04[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a05 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a05[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a06 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a06[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a07 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a07[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a08 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a08[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a09 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a09[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a10 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a10[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a11 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a11[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a12 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a12[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a13 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a13[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a14 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a14[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a15 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a15[i, j] = (byte)(r.Next() % 256);
-
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                {
-                    int a = a00[i, j]
-                          + a01[i / 2, j / 2]
-                          + a02[i / 4, j / 4]
-                          + a03[i / 8, j / 8]
-                          + a04[i / 16, j / 16]
-                          + a05[i / 32, j / 32]
-                          + a06[i / 64, j / 64]
-                          + a07[i / 128, j / 128]
-                          + a08[i / 256, j / 256]
-                          + a09[i / 512, j / 512]
-                          + a10[i / 1024, j / 1024]
-                          + a11[i / 2048, j / 2048]
-                          + a12[i / 4096, j / 4096]
-                          + a13[i / 8192, j / 8192]
-                          + a14[i / 16384, j / 16384]
-                          + a15[i / 32768, j / 32768];
-
-                    pixels[i, j].r = p[a].r;
-                    pixels[i, j].g = p[a].g;
-                    pixels[i, j].b = p[a].b;
-                }
-
-            var b = pixelsToBitmap(pixels);
-
-            for (int i = 0; i < 99; i++)
-                saveJpeg(b, i + 2, (i + 1).ToString("D2") + ".jpg");
-        }
-        public static void PinkNoiseAdvanced()
-        {
-            var r = new Random();
-
-            var width = 28468;
-            var height = 25145;
-            var ton = new ushort[height, width];
-            var pixels = new Color24[height, width];
-
-            var w = width;
-            var h = height;
-
-            var a00 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a00[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a01 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a01[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a02 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a02[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a03 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a03[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a04 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a04[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a05 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a05[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a06 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a06[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a07 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a07[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a08 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a08[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a09 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a09[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a10 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a10[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a11 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a11[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a12 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a12[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a13 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a13[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a14 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a14[i, j] = (byte)(r.Next() % 256);
-
-            w = (w + 1) / 2; h = (h + 1) / 2;
-
-            var a15 = new byte[h, w];
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a15[i, j] = (byte)(r.Next() % 256);
-
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
-            var k = new int[4081];
-
-            int max = int.MinValue;
-            int min = int.MaxValue;
-
-            for (int i = 0; i < height * 2; i++)
-                for (int j = 0; j < width * 2; j++)
-                {
-                    int a = (r.Next() % 256)
-                          + a00[i / 2, j / 2]
-                          + a01[i / 4, j / 4]
-                          + a02[i / 8, j / 8]
-                          + a03[i / 16, j / 16]
-                          + a04[i / 32, j / 32]
-                          + a05[i / 64, j / 64]
-                          + a06[i / 128, j / 128]
-                          + a07[i / 256, j / 256]
-                          + a08[i / 512, j / 512]
-                          + a09[i / 1024, j / 1024]
-                          + a10[i / 2048, j / 2048]
-                          + a11[i / 4096, j / 4096]
-                          + a12[i / 8192, j / 8192]
-                          + a13[i / 16384, j / 16384]
-                          + a14[i / 32768, j / 32768]
-                          + a15[i / 65536, j / 65536];
-
-                    ton[i / 2, j / 2] += (ushort)a;
-                }
-
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                {
-                    if (ton[i, j] > max) max = ton[i, j];
-                    if (ton[i, j] < min) min = ton[i, j];
-                }
-
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                    ton[i, j] -= (ushort)min;
-
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                    ton[i, j] = (ushort)(4080 * ton[i, j] / (0.0 + max - min));
-
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                {
-                    pixels[i, j].r = p[ton[i, j]].r;
-                    pixels[i, j].g = p[ton[i, j]].g;
-                    pixels[i, j].b = p[ton[i, j]].b;
-                }
-
-            var b = pixelsToBitmap(pixels);
-
-            for (int i = 0; i < 99; i++)
-                saveJpeg(b, i + 2, (i + 1).ToString("D2") + ".jpg");
-        }
-        public static void ZigZag()
-        {
-            var n = 32;
-
-            var zigZag = new List<Tuple<int, int>>[2 * n - 1];
-            for (int i = 0; i < zigZag.Length; i++)
-                zigZag[i] = new List<Tuple<int, int>>();
-
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    zigZag[i + j].Add(Tuple.Create(i, j));
-
-            var result = new Bitmap((n * n + 1) * n, n, PixelFormat.Format24bppRgb);
-            var rg = Graphics.FromImage(result);
-            rg.Clear(Color.White);
-
-            var bitmap = new Bitmap(n, n, PixelFormat.Format24bppRgb);
-
-            using (var g = Graphics.FromImage(bitmap))
-                g.Clear(Color.White);
-
-            var t = 0;
-            for (int i = 0; i < zigZag.Length; i++)
-                for (int j = 0; j < zigZag[i].Count; j++)
-                {
-                    bitmap.SetPixel(n - 1 - zigZag[i][j].Item1, n - 1 - zigZag[i][j].Item2, Color.Black);
-                    t++;
-
-                    if (t % 2 == 1)
-                    {
-                        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                        rg.DrawImage(bitmap, t * n, 0);
-                        bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                    }
-                    else
-                        rg.DrawImage(bitmap, t * n, 0);
-                }
-
-            result.Save("result.png");
-        }
-        public static void XPowerX()
-        {
-            var m = 0.6922;
-            var n = 15;
-            var a = 16384;
-            var an = a * n;
-            var b = new byte[a, a];
-            for (int i = 0; i < an; i++)
-            {
-                var c = 1.0 * i / an;
-                var d = (int)(an * (Math.Pow(c, c) - m));
-                for (int j = 0; j < d; j++)
-                    b[i / n, j / n]++;
+                int a = a00[i, j]
+                      + a01[i / 2, j / 2]
+                      + a02[i / 4, j / 4]
+                      + a03[i / 8, j / 8]
+                      + a04[i / 16, j / 16]
+                      + a05[i / 32, j / 32]
+                      + a06[i / 64, j / 64]
+                      + a07[i / 128, j / 128]
+                      + a08[i / 256, j / 256]
+                      + a09[i / 512, j / 512]
+                      + a10[i / 1024, j / 1024]
+                      + a11[i / 2048, j / 2048]
+                      + a12[i / 4096, j / 4096]
+                      + a13[i / 8192, j / 8192]
+                      + a14[i / 16384, j / 16384]
+                      + a15[i / 32768, j / 32768];
+
+                pixels[i, j].r = p[a].r;
+                pixels[i, j].g = p[a].g;
+                pixels[i, j].b = p[a].b;
             }
 
-            var w = new BinaryWriter(File.Create("a.raw"));
-            for (int i = 0; i < a; i++)
-                for (int j = 0; j < a; j++)
-                    w.Write((byte)(17 * b[i, j] / 15));
-            w.Close();
-        }
-        public static void Acceleration()
-        {
-            var b = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-            var w = 1044480;
-            var h = 1;
+        var b = pixelsToBitmap(pixels);
 
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
-            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 1.mp4";
-            var p = new Process
+        for (int i = 0; i < 99; i++)
+            saveNetPBM(b, (i + 1).ToString("D2") + ".pm");
+    }
+    public static void PinkNoiseAdvanced()
+    {
+        var r = new Random();
+
+        var width = 28468;
+        var height = 25145;
+        var ton = new ushort[height, width];
+        var pixels = new Color24[height, width];
+
+        var w = width;
+        var h = height;
+
+        var a00 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a00[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a01 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a01[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a02 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a02[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a03 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a03[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a04 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a04[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a05 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a05[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a06 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a06[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a07 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a07[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a08 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a08[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a09 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a09[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a10 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a10[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a11 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a11[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a12 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a12[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a13 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a13[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a14 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a14[i, j] = (byte)(r.Next() % 256);
+
+        w = (w + 1) / 2; h = (h + 1) / 2;
+
+        var a15 = new byte[h, w];
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a15[i, j] = (byte)(r.Next() % 256);
+
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        var k = new int[4081];
+
+        int max = int.MinValue;
+        int min = int.MaxValue;
+
+        for (int i = 0; i < height * 2; i++)
+            for (int j = 0; j < width * 2; j++)
             {
-                StartInfo =
+                int a = (r.Next() % 256)
+                      + a00[i / 2, j / 2]
+                      + a01[i / 4, j / 4]
+                      + a02[i / 8, j / 8]
+                      + a03[i / 16, j / 16]
+                      + a04[i / 32, j / 32]
+                      + a05[i / 64, j / 64]
+                      + a06[i / 128, j / 128]
+                      + a07[i / 256, j / 256]
+                      + a08[i / 512, j / 512]
+                      + a09[i / 1024, j / 1024]
+                      + a10[i / 2048, j / 2048]
+                      + a11[i / 4096, j / 4096]
+                      + a12[i / 8192, j / 8192]
+                      + a13[i / 16384, j / 16384]
+                      + a14[i / 32768, j / 32768]
+                      + a15[i / 65536, j / 65536];
+
+                ton[i / 2, j / 2] += (ushort)a;
+            }
+
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
+            {
+                if (ton[i, j] > max) max = ton[i, j];
+                if (ton[i, j] < min) min = ton[i, j];
+            }
+
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
+                ton[i, j] -= (ushort)min;
+
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
+                ton[i, j] = (ushort)(4080 * ton[i, j] / (0.0 + max - min));
+
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
+            {
+                pixels[i, j].r = p[ton[i, j]].r;
+                pixels[i, j].g = p[ton[i, j]].g;
+                pixels[i, j].b = p[ton[i, j]].b;
+            }
+
+        var b = pixelsToBitmap(pixels);
+
+        for (int i = 0; i < 99; i++)
+            saveNetPBM(b, (i + 1).ToString("D2") + ".pm");
+    }
+    public static void ZigZag()
+    {
+        var n = 32;
+
+        var zigZag = new List<Tuple<int, int>>[2 * n - 1];
+        for (int i = 0; i < zigZag.Length; i++)
+            zigZag[i] = new List<Tuple<int, int>>();
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                zigZag[i + j].Add(Tuple.Create(i, j));
+
+        var result = new NetPBM(NetPBMFormat.PM, (n * n + 1) * n, n);
+        result.Fill(255, 255, 255);
+
+        var bitmap = new NetPBM(NetPBMFormat.PM, n, n);
+        bitmap.Fill(255, 255, 255);
+
+        var t = 0;
+        for (int i = 0; i < zigZag.Length; i++)
+            for (int j = 0; j < zigZag[i].Count; j++)
+            {
+                bitmap.SetPixel(n - 1 - zigZag[i][j].Item1, n - 1 - zigZag[i][j].Item2, 0, 0, 0);
+                t++;
+
+                if (t % 2 == 1)
+                {
+                    bitmap.FlipX();
+                    result.CopyFrom(bitmap, t * n, 0);
+                    bitmap.FlipX();
+                }
+                else
+                    result.CopyFrom(bitmap, t * n, 0);
+            }
+
+        result.Save("result.pm");
+    }
+    public static void XPowerX()
+    {
+        var m = 0.6922;
+        var n = 15;
+        var a = 16384;
+        var an = a * n;
+        var b = new byte[a, a];
+        for (int i = 0; i < an; i++)
+        {
+            var c = 1.0 * i / an;
+            var d = (int)(an * (Math.Pow(c, c) - m));
+            for (int j = 0; j < d; j++)
+                b[i / n, j / n]++;
+        }
+
+        var w = new BinaryWriter(File.Create("a.raw"));
+        for (int i = 0; i < a; i++)
+            for (int j = 0; j < a; j++)
+                w.Write((byte)(17 * b[i, j] / 15));
+        w.Close();
+    }
+    public static void Acceleration()
+    {
+        var b = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var w = 1044480;
+        var h = 1;
+
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+        var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 1.mp4";
+        var p = new Process
+        {
+            StartInfo =
     {
         FileName = "ffmpeg.exe",
         Arguments = $"{inputArgs} {outputArgs}",
@@ -892,55 +875,55 @@ namespace ComputerGraphicsAlgorithms
         CreateNoWindow = false,
         RedirectStandardInput = true
     }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var t = 0;
-            var a = new int[54000];
-            for (int i = 0; i < 27000; i++)
-            {
-                t += i;
-                a[i] = t;
-            }
-            for (int i = 0; i < 27000; i++)
-            {
-                t += 27000 - i;
-                a[i + 27000] = t;
-            }
-
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var Data = new byte[w * h * 3];
-            for (int i = 0; i < 54000; i++)
-            {
-                if (i % 5400 == 0)
-                    Console.WriteLine(i / 5400);
-
-                for (int j = 0; j < w * h; j++)
-                {
-                    var k = (a[i] + j) % 522240;
-                    var c = b[k / 128];
-                    Data[3 * j + 0] = c.r;
-                    Data[3 * j + 1] = c.g;
-                    Data[3 * j + 2] = c.b;
-                }
-
-                ffmpegIn.Write(Data);
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void AccelerationLine()
+        var t = 0;
+        var a = new int[54000];
+        for (int i = 0; i < 27000; i++)
         {
-            var w = 1044480;
-            var h = 4;
+            t += i;
+            a[i] = t;
+        }
+        for (int i = 0; i < 27000; i++)
+        {
+            t += 27000 - i;
+            a[i + 27000] = t;
+        }
 
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
-            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 2.mp4";
-            var p = new Process
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var Data = new byte[w * h * 3];
+        for (int i = 0; i < 54000; i++)
+        {
+            if (i % 5400 == 0)
+                Console.WriteLine(i / 5400);
+
+            for (int j = 0; j < w * h; j++)
             {
-                StartInfo =
+                var k = (a[i] + j) % 522240;
+                var c = b[k / 128];
+                Data[3 * j + 0] = c.r;
+                Data[3 * j + 1] = c.g;
+                Data[3 * j + 2] = c.b;
+            }
+
+            ffmpegIn.Write(Data);
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void AccelerationLine()
+    {
+        var w = 1044480;
+        var h = 4;
+
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+        var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 2.mp4";
+        var p = new Process
+        {
+            StartInfo =
     {
         FileName = "ffmpeg.exe",
         Arguments = $"{inputArgs} {outputArgs}",
@@ -948,66 +931,66 @@ namespace ComputerGraphicsAlgorithms
         CreateNoWindow = false,
         RedirectStandardInput = true
     }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var a = new byte[8400 * 3];
-            Array.Fill(a, (byte)255);
-            var c = new byte[8400 * 3];
-            for (int i = 0; i < 4200; i++)
-            {
-                var b = PsuedoGreyPlus24(i);
-                c[3 * i + 0] = b.r;
-                c[3 * i + 1] = b.g;
-                c[3 * i + 2] = b.b;
-
-                c[3 * (8399 - i) + 0] = b.r;
-                c[3 * (8399 - i) + 1] = b.g;
-                c[3 * (8399 - i) + 2] = b.b;
-            }
-
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var Data = new byte[w * 3];
-            var k = 0;
-            for (int i = 0; i < 1440; i++)
-            {
-                k += i;
-                if (i % 145 == 0)
-                    Console.WriteLine(i / 145);
-
-                ffmpegIn.Write(Data, 0, k * 3);
-                ffmpegIn.Write(c);
-                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
-
-                ffmpegIn.Write(Data, 0, k * 3);
-                ffmpegIn.Write(c);
-                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
-
-                ffmpegIn.Write(Data, 0, k * 3);
-                ffmpegIn.Write(a);
-                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
-
-                ffmpegIn.Write(Data, 0, k * 3);
-                ffmpegIn.Write(a);
-                ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
-
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void LinearMovementX()
+        var a = new byte[8400 * 3];
+        Array.Fill(a, (byte)255);
+        var c = new byte[8400 * 3];
+        for (int i = 0; i < 4200; i++)
         {
-            //pixabay max duration 4859 frame 60fps
-            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 131072x1 -r 60 -i -";
-            var outputArgs = "-c:v libx265 -preset ultrafast -vf scale=16384:9216 -x265-params lossless=1 lossless_16k_ultrafast.mp4";
+            var b = PsuedoGreyPlus24(i);
+            c[3 * i + 0] = b.r;
+            c[3 * i + 1] = b.g;
+            c[3 * i + 2] = b.b;
 
-            //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
-            //-sws_flags neighbor
-            var p = new Process
-            {
-                StartInfo =
+            c[3 * (8399 - i) + 0] = b.r;
+            c[3 * (8399 - i) + 1] = b.g;
+            c[3 * (8399 - i) + 2] = b.b;
+        }
+
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var Data = new byte[w * 3];
+        var k = 0;
+        for (int i = 0; i < 1440; i++)
+        {
+            k += i;
+            if (i % 145 == 0)
+                Console.WriteLine(i / 145);
+
+            ffmpegIn.Write(Data, 0, k * 3);
+            ffmpegIn.Write(c);
+            ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
+            ffmpegIn.Write(Data, 0, k * 3);
+            ffmpegIn.Write(c);
+            ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
+            ffmpegIn.Write(Data, 0, k * 3);
+            ffmpegIn.Write(a);
+            ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
+            ffmpegIn.Write(Data, 0, k * 3);
+            ffmpegIn.Write(a);
+            ffmpegIn.Write(Data, 0, 1036080 * 3 - k * 3);
+
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void LinearMovementX()
+    {
+        //pixabay max duration 4859 frame 60fps
+        var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 131072x1 -r 60 -i -";
+        var outputArgs = "-c:v libx265 -preset ultrafast -vf scale=16384:9216 -x265-params lossless=1 lossless_16k_ultrafast.mp4";
+
+        //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
+        //-sws_flags neighbor
+        var p = new Process
+        {
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -1015,33 +998,33 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var a = new byte[131072];
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var a = new byte[131072];
 
-            for (int i = 0; i < 131072; i++)
-            {
-                a[i] = 255;
-                ffmpegIn.Write(a);
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void ColorRain()
+        for (int i = 0; i < 131072; i++)
         {
-            //pixabay max duration 4859 frame 60fps
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=2430:1350 -x265-params lossless=1 9.mp4";
+            a[i] = 255;
+            ffmpegIn.Write(a);
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void ColorRain()
+    {
+        //pixabay max duration 4859 frame 60fps
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
+        var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=2430:1350 -x265-params lossless=1 9.mp4";
 
-            //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
-            //-sws_flags neighbor
-            var p = new Process
-            {
-                StartInfo =
+        //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
+        //-sws_flags neighbor
+        var p = new Process
+        {
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -1049,59 +1032,59 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var a = new ushort[84];
-            var b = new byte[84];
-            var r = new Random();
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var a = new ushort[84];
+        var b = new byte[84];
+        var r = new Random();
 
-            for (int i = 0; i < 84; i++)
-                a[i] = (ushort)r.Next(65536);
+        for (int i = 0; i < 84; i++)
+            a[i] = (ushort)r.Next(65536);
 
-            for (int i = 0; i < 4859; i++)
-            {
-                //a[i] = 255;
-                //a[i / 255] = (byte)(1 + (i % 255));
-
-                r.NextBytes(b);
-                for (var j = 0; j < 84; j++)
-                {
-                    a[j] += b[j];
-                    ffmpegIn.WriteByte((byte)a[j]);
-                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
-                }
-
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void PerfectRandom48()
+        for (int i = 0; i < 4859; i++)
         {
-            var w = 9;
-            var h = 5;
+            //a[i] = 255;
+            //a[i / 255] = (byte)(1 + (i % 255));
 
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
-            //var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags neighbor h.mp4";
-            var outputArgs = $"-c:v flashsv2 -vf scale=3840:2160 -sws_flags neighbor flashsv2.mkv";
-            //libx265
-            /*
-            ffmpeg -i <infile> \
-            -c:a copy \
-            -c:v libx265 \
-            -tag:v hvc1 \
-            -crf 22 \
-            -pix_fmt yuv420p10le \
-            -x265-params "colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc" \
-            <outfile>.mkv
-            */
-
-            var p = new Process
+            r.NextBytes(b);
+            for (var j = 0; j < 84; j++)
             {
-                StartInfo =
+                a[j] += b[j];
+                ffmpegIn.WriteByte((byte)a[j]);
+                ffmpegIn.WriteByte((byte)(a[j] >> 8));
+            }
+
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void PerfectRandom48()
+    {
+        var w = 9;
+        var h = 5;
+
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
+        //var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags neighbor h.mp4";
+        var outputArgs = $"-c:v flashsv2 -vf scale=3840:2160 -sws_flags neighbor flashsv2.mkv";
+        //libx265
+        /*
+        ffmpeg -i <infile> \
+        -c:a copy \
+        -c:v libx265 \
+        -tag:v hvc1 \
+        -crf 22 \
+        -pix_fmt yuv420p10le \
+        -x265-params "colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc" \
+        <outfile>.mkv
+        */
+
+        var p = new Process
+        {
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -1109,132 +1092,41 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
+        var ffmpegIn = p.StandardInput.BaseStream;
 
-            var a = new ushort[w * h * 3];
-            var b = new byte[w * h * 3];
-            var r = new Random();
+        var a = new ushort[w * h * 3];
+        var b = new byte[w * h * 3];
+        var r = new Random();
 
-            for (int i = 0; i < a.Length; i++)
-                a[i] = (ushort)r.Next(65536);
+        for (int i = 0; i < a.Length; i++)
+            a[i] = (ushort)r.Next(65536);
 
-            for (int i = 0; i < 360; i++)
-            {
-                r.NextBytes(b);
-                for (int j = 0; j < a.Length; j++)
-                {
-                    a[j] += b[j];
-
-                    ffmpegIn.WriteByte((byte)a[j]);
-                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
-                }
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void PerfectRandom16Gray()
+        for (int i = 0; i < 360; i++)
         {
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
-            var outputArgs = $"-sws_flags gauss -c:v libx265 -preset ultrafast -vf scale=16384:9216 -crf 0 gauss_crf0_16k.mp4";
-            var p = new Process
-            {
-                StartInfo =
-            {
-                FileName = "ffmpeg.exe",
-                Arguments = $"{inputArgs} {outputArgs}",
-                UseShellExecute = false,
-                CreateNoWindow = false,
-                RedirectStandardInput = true
-            }
-            };
-
-            p.Start();
-
-            var ffmpegIn = p.StandardInput.BaseStream;
-
-            var a = new ushort[135];
-            var b = new byte[135];
-            var r = new Random();
-
-            for (int i = 0; i < a.Length; i++)
-                a[i] = (ushort)r.Next(65536);
-
-            for (int i = 0; i < 4859; i++)
-            {
-                r.NextBytes(b);
-                for (int j = 0; j < a.Length; j++)
-                {
-                    a[j] += b[j];
-
-                    ffmpegIn.WriteByte((byte)a[j]);
-                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
-                }
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void PerfectRandom8()
-        {
-            var w = 16;
-            var h = 9 * w / 16;
-
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
-            //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=3840:2160 -crf 51 crf51_4k.mp4";
-            var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 31 crf31_8k.mp4";
-            var p = new Process
-            {
-                StartInfo =
-            {
-                FileName = "ffmpeg.exe",
-                Arguments = $"{inputArgs} {outputArgs}",
-                UseShellExecute = false,
-                CreateNoWindow = false,
-                RedirectStandardInput = true
-            }
-            };
-
-            p.Start();
-
-            var ffmpegIn = p.StandardInput.BaseStream;
-
-            var a = new int[w * h];
-            var b = new byte[w * h];
-            var r = new Random();
-
+            r.NextBytes(b);
             for (int j = 0; j < a.Length; j++)
-                a[j] = r.Next() % 16777216;
-
-            for (int i = 0; i < 5184; i++)
             {
-                r.NextBytes(b);
-                for (int j = 0; j < a.Length; j++)
-                {
-                    a[j] = (a[j] + (b[j] >> 7)) % 16777216;
-                    ffmpegIn.WriteByte((byte)a[j]);
-                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
-                    ffmpegIn.WriteByte((byte)(a[j] >> 16));
-                }
-                ffmpegIn.Flush();
+                a[j] += b[j];
+
+                ffmpegIn.WriteByte((byte)a[j]);
+                ffmpegIn.WriteByte((byte)(a[j] >> 8));
             }
-            ffmpegIn.Close();
-            p.WaitForExit();
+            ffmpegIn.Flush();
         }
-        public static void PerfectRandom24()
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void PerfectRandom16Gray()
+    {
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
+        var outputArgs = $"-sws_flags gauss -c:v libx265 -preset ultrafast -vf scale=16384:9216 -crf 0 gauss_crf0_16k.mp4";
+        var p = new Process
         {
-            var w = 9;
-            var h = 5;
-
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 9x5 -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 -sws_flags neighbor -vf scale=240:135 1.mp4";
-            var p = new Process
-            {
-                StartInfo =
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -1242,134 +1134,271 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
+        var ffmpegIn = p.StandardInput.BaseStream;
 
-            var a = new byte[w * h * 3];
-            var b = new byte[w * h * 3];
-            var r = new Random();
-            r.NextBytes(a);
+        var a = new ushort[135];
+        var b = new byte[135];
+        var r = new Random();
 
-            for (int i = 0; i < 3600; i++)
-            {
-                r.NextBytes(b);
-                for (int j = 0; j < a.Length; j++)
-                    a[j] += (byte)(b[j] >> 7);
+        for (int i = 0; i < a.Length; i++)
+            a[i] = (ushort)r.Next(65536);
 
-                ffmpegIn.Write(a);
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void PinkNoise2()
+        for (int i = 0; i < 4859; i++)
         {
-            var w = 524288;//524288
-            var h = 294912;//294912
-
-            var a = new List<List<byte[]>>();
-
-            var bit = 20;
-            var ww = w;
-            var hh = h;
-            for (int i = 1; i < bit; i++)
+            r.NextBytes(b);
+            for (int j = 0; j < a.Length; j++)
             {
-                ww = (ww + 1) >> 1;
-                hh = (hh + 1) >> 1;
+                a[j] += b[j];
 
-                var b = new List<byte[]>();
-                for (int j = 0; j < hh; j++)
-                    b.Add(new byte[ww]);
+                ffmpegIn.WriteByte((byte)a[j]);
+                ffmpegIn.WriteByte((byte)(a[j] >> 8));
+            }
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void PerfectRandom8()
+    {
+        var w = 16;
+        var h = 9 * w / 16;
 
-                a.Add(b);
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+        //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=3840:2160 -crf 51 crf51_4k.mp4";
+        var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 31 crf31_8k.mp4";
+        var p = new Process
+        {
+            StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+        };
+
+        p.Start();
+
+        var ffmpegIn = p.StandardInput.BaseStream;
+
+        var a = new int[w * h];
+        var b = new byte[w * h];
+        var r = new Random();
+
+        for (int j = 0; j < a.Length; j++)
+            a[j] = r.Next() % 16777216;
+
+        for (int i = 0; i < 5184; i++)
+        {
+            r.NextBytes(b);
+            for (int j = 0; j < a.Length; j++)
+            {
+                a[j] = (a[j] + (b[j] >> 7)) % 16777216;
+                ffmpegIn.WriteByte((byte)a[j]);
+                ffmpegIn.WriteByte((byte)(a[j] >> 8));
+                ffmpegIn.WriteByte((byte)(a[j] >> 16));
+            }
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void PerfectRandom24()
+    {
+        var w = 9;
+        var h = 5;
+
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 9x5 -r 60 -i -";
+        var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 -sws_flags neighbor -vf scale=240:135 1.mp4";
+        var p = new Process
+        {
+            StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+        };
+
+        p.Start();
+
+        var ffmpegIn = p.StandardInput.BaseStream;
+
+        var a = new byte[w * h * 3];
+        var b = new byte[w * h * 3];
+        var r = new Random();
+        r.NextBytes(a);
+
+        for (int i = 0; i < 3600; i++)
+        {
+            r.NextBytes(b);
+            for (int j = 0; j < a.Length; j++)
+                a[j] += (byte)(b[j] >> 7);
+
+            ffmpegIn.Write(a);
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void PinkNoise2()
+    {
+        var w = 524288;//524288
+        var h = 294912;//294912
+
+        var a = new List<List<byte[]>>();
+
+        var bit = 20;
+        var ww = w;
+        var hh = h;
+        for (int i = 1; i < bit; i++)
+        {
+            ww = (ww + 1) >> 1;
+            hh = (hh + 1) >> 1;
+
+            var b = new List<byte[]>();
+            for (int j = 0; j < hh; j++)
+                b.Add(new byte[ww]);
+
+            a.Add(b);
+        }
+
+        var p = new List<long[]>();
+        for (int j = 0; j < h >> 4; j++)
+            p.Add(new long[w >> 4]);
+
+        var r = new Random();
+        a.ForEach(x => x.ForEach(y => r.NextBytes(y)));
+
+        for (int y = 0; y < h; y++)
+        {
+            if (y % 29492 == 0)
+                Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + y / 29492);
+
+            for (int x = 0; x < w; x++)
+            {
+                int sum = r.Next(256);
+                for (int j = 1; j < bit; j++)
+                    sum += a[j - 1][y >> j][x >> j];
+                p[y >> 4][x >> 4] += sum;
+            }
+        }
+
+        var max = long.MinValue;
+        var min = long.MaxValue;
+
+        for (int y = 0; y < h >> 4; y++)
+            for (int x = 0; x < w >> 4; x++)
+            {
+                if (p[y][x] > max) max = p[y][x];
+                if (p[y][x] < min) min = p[y][x];
             }
 
-            var p = new List<long[]>();
-            for (int j = 0; j < h >> 4; j++)
-                p.Add(new long[w >> 4]);
+        for (int y = 0; y < h >> 4; y++)
+            for (int x = 0; x < w >> 4; x++)
+                p[y][x] -= min;
 
-            var r = new Random();
-            a.ForEach(x => x.ForEach(y => r.NextBytes(y)));
+        for (int y = 0; y < h >> 4; y++)
+            for (int x = 0; x < w >> 4; x++)
+                p[y][x] = (long)(4080 * p[y][x] / (0.0 + max - min));
 
-            for (int y = 0; y < h; y++)
+        var pixels = new Color24[h >> 4, w >> 4];
+        var t = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        for (int y = 0; y < h >> 4; y++)
+            for (int x = 0; x < w >> 4; x++)
             {
-                if (y % 29492 == 0)
-                    Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + y / 29492);
+                pixels[y, x].r = t[p[y][x]].r;
+                pixels[y, x].g = t[p[y][x]].g;
+                pixels[y, x].b = t[p[y][x]].b;
+            }
 
-                for (int x = 0; x < w; x++)
+        var bm = pixelsToBitmap(pixels);
+
+        for (int i = 0; i < 99; i++)
+            saveNetPBM(bm, (i + 1).ToString("D2") + ".pm");
+
+    }
+    public static void PinkNoiseAnimated()
+    {
+        var w = 16384;//524288
+        var h = 9216;//294912
+
+        var a = new List<List<byte[]>>();
+
+        var bit = 15;
+        var ww = w;
+        var hh = h;
+        for (int i = 1; i < bit; i++)
+        {
+            ww = (ww + 1) >> 1;
+            hh = (hh + 1) >> 1;
+
+            var b = new List<byte[]>();
+            for (int j = 0; j < hh; j++)
+                b.Add(new byte[ww]);
+
+            a.Add(b);
+        }
+
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
+        var outputArgs = $"-c:v libx265 -preset veryslow -crf 0 4.mp4";
+        var p = new Process
+        {
+            StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+        };
+        p.Start();
+
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var d = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        var r = new Random();
+        var frameCount = 65536;
+        for (int i = 0, diff, k, x, y, sum; i < frameCount; i++)
+        {
+            diff = (i - 1) ^ i;
+            for (k = 1; k < bit; k++)
+                if ((diff & (1 << k)) > 0)
+                    a[k - 1].ForEach(x => r.NextBytes(x));
+
+            for (y = 0; y < h; y++)
+                for (x = 0; x < w; x++)
                 {
-                    int sum = r.Next(256);
+                    sum = r.Next(256);
                     for (int j = 1; j < bit; j++)
                         sum += a[j - 1][y >> j][x >> j];
-                    p[y >> 4][x >> 4] += sum;
+
+                    ffmpegIn.WriteByte(d[sum].r);
+                    ffmpegIn.WriteByte(d[sum].g);
+                    ffmpegIn.WriteByte(d[sum].b);
                 }
-            }
-
-            var max = long.MinValue;
-            var min = long.MaxValue;
-
-            for (int y = 0; y < h >> 4; y++)
-                for (int x = 0; x < w >> 4; x++)
-                {
-                    if (p[y][x] > max) max = p[y][x];
-                    if (p[y][x] < min) min = p[y][x];
-                }
-
-            for (int y = 0; y < h >> 4; y++)
-                for (int x = 0; x < w >> 4; x++)
-                    p[y][x] -= min;
-
-            for (int y = 0; y < h >> 4; y++)
-                for (int x = 0; x < w >> 4; x++)
-                    p[y][x] = (long)(4080 * p[y][x] / (0.0 + max - min));
-
-            var pixels = new Color24[h >> 4, w >> 4];
-            var t = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
-            for (int y = 0; y < h >> 4; y++)
-                for (int x = 0; x < w >> 4; x++)
-                {
-                    pixels[y, x].r = t[p[y][x]].r;
-                    pixels[y, x].g = t[p[y][x]].g;
-                    pixels[y, x].b = t[p[y][x]].b;
-                }
-
-            var bm = pixelsToBitmap(pixels);
-
-            for (int i = 0; i < 99; i++)
-                saveJpeg(bm, i + 2, (i + 1).ToString("D2") + ".jpg");
-
+            ffmpegIn.Flush();
         }
-        public static void PinkNoiseAnimated()
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void LinearMovementVertical()
+    {
+        var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 16384x9216 -r 60 -i -";
+        var outputArgs = "-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless_16k_ultrafast.mp4";
+
+        var p = new Process
         {
-            var w = 16384;//524288
-            var h = 9216;//294912
-
-            var a = new List<List<byte[]>>();
-
-            var bit = 15;
-            var ww = w;
-            var hh = h;
-            for (int i = 1; i < bit; i++)
-            {
-                ww = (ww + 1) >> 1;
-                hh = (hh + 1) >> 1;
-
-                var b = new List<byte[]>();
-                for (int j = 0; j < hh; j++)
-                    b.Add(new byte[ww]);
-
-                a.Add(b);
-            }
-
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset veryslow -crf 0 4.mp4";
-            var p = new Process
-            {
-                StartInfo =
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -1377,327 +1406,245 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
-            p.Start();
+        };
 
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var d = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        p.Start();
 
-            var r = new Random();
-            var frameCount = 65536;
-            for (int i = 0, diff, k, x, y, sum; i < frameCount; i++)
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var a = new byte[16384 * 9216];
+
+        for (int i = 0; i < 4859; i++)
+        {
+            var t = 0;
+            for (int j = 0; j < 9216; j++)
             {
-                diff = (i - 1) ^ i;
-                for (k = 1; k < bit; k++)
-                    if ((diff & (1 << k)) > 0)
-                        a[k - 1].ForEach(x => r.NextBytes(x));
+                var h = 16 * j;
+                for (int k = 0; k < 16384; k++)
+                {
+                    if (h + 9 * k < i * 60.7015)
+                        a[t++] = 255;
+                    else
+                        a[t++] = 0;
+                }
+            }
+            ffmpegIn.Write(a);
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
 
-                for (y = 0; y < h; y++)
-                    for (x = 0; x < w; x++)
+    public static byte[] PalettePsuedoGray()
+    {
+        var file = "psuedo-gray.pal";
+
+        if (File.Exists(file))
+            return File.ReadAllBytes(file);
+        else
+        {
+            var palette = new byte[768];
+
+            int k = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                var t = PsuedoGrey(i);
+                palette[k++] = t.r;
+                palette[k++] = t.g;
+                palette[k++] = t.b;
+            }
+
+            File.WriteAllBytes(file, palette);
+
+            return palette;
+        }
+    }
+    public static byte[] PaletteGray256()
+    {
+        var file = "gray256.pal";
+
+        if (File.Exists(file))
+            return File.ReadAllBytes(file);
+        else
+        {
+            var palette = new byte[768];
+
+            int k = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                var t = (byte)i;
+                palette[k++] = t;
+                palette[k++] = t;
+                palette[k++] = t;
+            }
+
+            File.WriteAllBytes(file, palette);
+
+            return palette;
+        }
+    }
+    public static byte[] Palette5173()
+    {
+        var file = "5173.pal";
+
+        if (File.Exists(file))
+            return File.ReadAllBytes(file);
+        else
+        {
+            var palette = new byte[768];
+
+            var ra = new byte[] { 0, 63, 127, 191, 255 };
+            var ga = new byte[] { 0, 15, 31, 47, 63, 79, 95, 111, 127, 143, 159, 175, 191, 207, 223, 239, 255 };
+            var ba = new byte[] { 0, 127, 255 };
+
+            int k = 0;
+            for (int r = 0; r < ra.Length; r++)
+                for (int g = 0; g < ga.Length; g++)
+                    for (int b = 0; b < ba.Length; b++)
                     {
-                        sum = r.Next(256);
-                        for (int j = 1; j < bit; j++)
-                            sum += a[j - 1][y >> j][x >> j];
-
-                        ffmpegIn.WriteByte(d[sum].r);
-                        ffmpegIn.WriteByte(d[sum].g);
-                        ffmpegIn.WriteByte(d[sum].b);
+                        palette[k++] = ra[r];
+                        palette[k++] = ga[g];
+                        palette[k++] = ba[b];
                     }
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
+            palette[k++] = 255;
+            palette[k++] = 255;
+            palette[k++] = 255;
+
+            File.WriteAllBytes(file, palette);
+
+            return palette;
         }
-        public static void LinearMovementVertical()
+    }
+    public static byte Palette5173(byte r, byte g, byte b)
+    {
+        var ri = (10 * r + 5) / 512;
+        var gi = (34 * g + 17) / 512;
+        var bi = (6 * b + 3) / 512;
+
+        return (byte)(51 * ri + 3 * gi + bi);
+    }
+    public static byte[] Palette884()
+    {
+        var file = "884.pal";
+
+        if (File.Exists(file))
+            return File.ReadAllBytes(file);
+        else
         {
-            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 16384x9216 -r 60 -i -";
-            var outputArgs = "-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless_16k_ultrafast.mp4";
+            var palette = new byte[768];
 
-            var p = new Process
-            {
-                StartInfo =
-            {
-                FileName = "ffmpeg.exe",
-                Arguments = $"{inputArgs} {outputArgs}",
-                UseShellExecute = false,
-                CreateNoWindow = false,
-                RedirectStandardInput = true
-            }
-            };
-
-            p.Start();
-
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var a = new byte[16384 * 9216];
-
-            for (int i = 0; i < 4859; i++)
-            {
-                var t = 0;
-                for (int j = 0; j < 9216; j++)
-                {
-                    var h = 16 * j;
-                    for (int k = 0; k < 16384; k++)
+            int k = 0;
+            for (int r = 0; r < 8; r++)
+                for (int g = 0; g < 8; g++)
+                    for (int b = 0; b < 4; b++)
                     {
-                        if (h + 9 * k < i * 60.7015)
-                            a[t++] = 255;
-                        else
-                            a[t++] = 0;
+                        palette[k++] = (byte)(r * 255 / 7);
+                        palette[k++] = (byte)(g * 255 / 7);
+                        palette[k++] = (byte)(b * 255 / 3);
                     }
-                }
-                ffmpegIn.Write(a);
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
+
+            File.WriteAllBytes(file, palette);
+
+            return palette;
         }
-        public static Bitmap TestRGB()
+    }
+    public static byte Palette884(byte r, byte g, byte b)
+    {
+        var ri = (16 * r + 8) / 512;
+        var gi = (16 * g + 8) / 512;
+        var bi = (8 * b + 4) / 512;
+
+        return (byte)(32 * ri + 4 * gi + bi);
+    }
+    public static byte[] Palette666()
+    {
+        var file = "666.pal";
+
+        if (File.Exists(file))
+            return File.ReadAllBytes(file);
+        else
         {
-            var file = "full-rgb-test.png";
+            var palette = new byte[768];
 
-            if (File.Exists(file))
-                return new Bitmap(file);
-            else
-            {
-                var pixels = new byte[256 * 256 * 256 * 3];
-                var k = 0;
-
-                for (int i = 0; i < 4096; i++)
-                    for (int j = 0; j < 4096; j++)
+            int k = 0;
+            for (int r = 0; r < 6; r++)
+                for (int g = 0; g < 6; g++)
+                    for (int b = 0; b < 6; b++)
                     {
-                        pixels[k++] = (byte)(16 * (i / 256) + j / 256);
-                        pixels[k++] = (byte)i;
-                        pixels[k++] = (byte)j;
+                        palette[k++] = (byte)(r * 255 / 5);
+                        palette[k++] = (byte)(g * 255 / 5);
+                        palette[k++] = (byte)(b * 255 / 5);
                     }
-                var bitmap = bytesToBitmap24(pixels, 4096, 4096);
-                bitmap.Save(file);
-                return bitmap;
-            }
+
+            File.WriteAllBytes(file, palette);
+
+            return palette;
         }
-        public static Bitmap Palette8BitToBitmap(byte[] palette)
+    }
+    public static byte Palette666(byte r, byte g, byte b)
+    {
+        var ri = (12 * r + 6) / 512;
+        var gi = (12 * g + 6) / 512;
+        var bi = (12 * b + 6) / 512;
+
+        return (byte)(36 * ri + 6 * gi + bi);
+    }
+    public static byte[] Palette555()
+    {
+        var file = "555.pal";
+
+        if (File.Exists(file))
+            return File.ReadAllBytes(file);
+        else
         {
-            var b = new Bitmap(16, 16, PixelFormat.Format24bppRgb);
+            var palette = new byte[384];
 
-            var k = 0;
-            for (int i = 0; i < 16; i++)
-                for (int j = 0; j < 16; j++)
-                {
-                    b.SetPixel(j, i, Color.FromArgb(palette[k + 0], palette[k + 1], palette[k + 2]));
-                    k += 3;
-                }
+            int k = 0;
+            for (int r = 0; r < 5; r++)
+                for (int g = 0; g < 5; g++)
+                    for (int b = 0; b < 5; b++)
+                    {
+                        palette[k++] = (byte)(r * 255 / 4);
+                        palette[k++] = (byte)(g * 255 / 4);
+                        palette[k++] = (byte)(b * 255 / 4);
+                    }
 
-            return b;
+            File.WriteAllBytes(file, palette);
+
+            return palette;
         }
-        public static byte[] PalettePsuedoGray()
+    }
+    public static byte[] Palette444()
+    {
+        var file = "444.pal";
+
+        if (File.Exists(file))
+            return File.ReadAllBytes(file);
+        else
         {
-            var file = "psuedo-gray.pal";
+            var palette = new byte[192];
 
-            if (File.Exists(file))
-                return File.ReadAllBytes(file);
-            else
-            {
-                var palette = new byte[768];
+            int k = 0;
+            for (int r = 0; r < 4; r++)
+                for (int g = 0; g < 4; g++)
+                    for (int b = 0; b < 4; b++)
+                    {
+                        palette[k++] = (byte)(r * 85);
+                        palette[k++] = (byte)(g * 85);
+                        palette[k++] = (byte)(b * 85);
+                    }
 
-                int k = 0;
-                for (int i = 0; i < 256; i++)
-                {
-                    var t = PsuedoGrey(i);
-                    palette[k++] = t.r;
-                    palette[k++] = t.g;
-                    palette[k++] = t.b;
-                }
+            File.WriteAllBytes(file, palette);
 
-                File.WriteAllBytes(file, palette);
-
-                return palette;
-            }
+            return palette;
         }
-        public static byte[] PaletteGray256()
+    }
+
+    public static void GifKare1()
+    {
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+        using (var gif = new AnimatedGif($"kare1.gif", 10, 10, palette, 8, 1))
         {
-            var file = "gray256.pal";
-
-            if (File.Exists(file))
-                return File.ReadAllBytes(file);
-            else
-            {
-                var palette = new byte[768];
-
-                int k = 0;
-                for (int i = 0; i < 256; i++)
-                {
-                    var t = (byte)i;
-                    palette[k++] = t;
-                    palette[k++] = t;
-                    palette[k++] = t;
-                }
-
-                File.WriteAllBytes(file, palette);
-
-                return palette;
-            }
-        }
-        public static byte[] Palette5173()
-        {
-            var file = "5173.pal";
-
-            if (File.Exists(file))
-                return File.ReadAllBytes(file);
-            else
-            {
-                var palette = new byte[768];
-
-                var ra = new byte[] { 0, 63, 127, 191, 255 };
-                var ga = new byte[] { 0, 15, 31, 47, 63, 79, 95, 111, 127, 143, 159, 175, 191, 207, 223, 239, 255 };
-                var ba = new byte[] { 0, 127, 255 };
-
-                int k = 0;
-                for (int r = 0; r < ra.Length; r++)
-                    for (int g = 0; g < ga.Length; g++)
-                        for (int b = 0; b < ba.Length; b++)
-                        {
-                            palette[k++] = ra[r];
-                            palette[k++] = ga[g];
-                            palette[k++] = ba[b];
-                        }
-                palette[k++] = 255;
-                palette[k++] = 255;
-                palette[k++] = 255;
-
-                File.WriteAllBytes(file, palette);
-
-                return palette;
-            }
-        }
-        public static byte Palette5173(byte r, byte g, byte b)
-        {
-            var ri = (10 * r + 5) / 512;
-            var gi = (34 * g + 17) / 512;
-            var bi = (6 * b + 3) / 512;
-
-            return (byte)(51 * ri + 3 * gi + bi);
-        }
-        public static byte[] Palette884()
-        {
-            var file = "884.pal";
-
-            if (File.Exists(file))
-                return File.ReadAllBytes(file);
-            else
-            {
-                var palette = new byte[768];
-
-                int k = 0;
-                for (int r = 0; r < 8; r++)
-                    for (int g = 0; g < 8; g++)
-                        for (int b = 0; b < 4; b++)
-                        {
-                            palette[k++] = (byte)(r * 255 / 7);
-                            palette[k++] = (byte)(g * 255 / 7);
-                            palette[k++] = (byte)(b * 255 / 3);
-                        }
-
-                File.WriteAllBytes(file, palette);
-
-                return palette;
-            }
-        }
-        public static byte Palette884(byte r, byte g, byte b)
-        {
-            var ri = (16 * r + 8) / 512;
-            var gi = (16 * g + 8) / 512;
-            var bi = (8 * b + 4) / 512;
-
-            return (byte)(32 * ri + 4 * gi + bi);
-        }
-        public static byte[] Palette666()
-        {
-            var file = "666.pal";
-
-            if (File.Exists(file))
-                return File.ReadAllBytes(file);
-            else
-            {
-                var palette = new byte[768];
-
-                int k = 0;
-                for (int r = 0; r < 6; r++)
-                    for (int g = 0; g < 6; g++)
-                        for (int b = 0; b < 6; b++)
-                        {
-                            palette[k++] = (byte)(r * 255 / 5);
-                            palette[k++] = (byte)(g * 255 / 5);
-                            palette[k++] = (byte)(b * 255 / 5);
-                        }
-
-                File.WriteAllBytes(file, palette);
-
-                return palette;
-            }
-        }
-        public static byte Palette666(byte r, byte g, byte b)
-        {
-            var ri = (12 * r + 6) / 512;
-            var gi = (12 * g + 6) / 512;
-            var bi = (12 * b + 6) / 512;
-
-            return (byte)(36 * ri + 6 * gi + bi);
-        }
-        public static byte[] Palette555()
-        {
-            var file = "555.pal";
-
-            if (File.Exists(file))
-                return File.ReadAllBytes(file);
-            else
-            {
-                var palette = new byte[384];
-
-                int k = 0;
-                for (int r = 0; r < 5; r++)
-                    for (int g = 0; g < 5; g++)
-                        for (int b = 0; b < 5; b++)
-                        {
-                            palette[k++] = (byte)(r * 255 / 4);
-                            palette[k++] = (byte)(g * 255 / 4);
-                            palette[k++] = (byte)(b * 255 / 4);
-                        }
-
-                File.WriteAllBytes(file, palette);
-
-                return palette;
-            }
-        }
-        public static byte[] Palette444()
-        {
-            var file = "444.pal";
-
-            if (File.Exists(file))
-                return File.ReadAllBytes(file);
-            else
-            {
-                var palette = new byte[192];
-
-                int k = 0;
-                for (int r = 0; r < 4; r++)
-                    for (int g = 0; g < 4; g++)
-                        for (int b = 0; b < 4; b++)
-                        {
-                            palette[k++] = (byte)(r * 85);
-                            palette[k++] = (byte)(g * 85);
-                            palette[k++] = (byte)(b * 85);
-                        }
-
-                File.WriteAllBytes(file, palette);
-
-                return palette;
-            }
-        }
-
-        public static void GifKare1()
-        {
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-            using (var gif = new AnimatedGif($"kare1.gif", 10, 10, palette, 8, 1))
-            {
-                var f0 = new byte[100] {
+            var f0 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -1708,9 +1655,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0);
+            gif.AddFrame(f0);
 
-                var f1 = new byte[100] {
+            var f1 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
@@ -1721,9 +1668,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1);
+            gif.AddFrame(f1);
 
-                var f2 = new byte[100] {
+            var f2 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1734,9 +1681,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2);
+            gif.AddFrame(f2);
 
-                var f3 = new byte[100] {
+            var f3 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1747,15 +1694,15 @@ namespace ComputerGraphicsAlgorithms
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3);
-            }
+            gif.AddFrame(f3);
         }
-        public static void GifKare2()
+    }
+    public static void GifKare2()
+    {
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+        using (var gif = new AnimatedGif($"kare2.gif", 10, 10, palette, 4, 1))
         {
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-            using (var gif = new AnimatedGif($"kare2.gif", 10, 10, palette, 4, 1))
-            {
-                var f0 = new byte[100] {
+            var f0 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -1766,9 +1713,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0);
+            gif.AddFrame(f0);
 
-                var f1 = new byte[100] {
+            var f1 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
@@ -1779,9 +1726,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1);
+            gif.AddFrame(f1);
 
-                var f2 = new byte[100] {
+            var f2 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
@@ -1792,9 +1739,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2);
+            gif.AddFrame(f2);
 
-                var f3 = new byte[100] {
+            var f3 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1805,9 +1752,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3);
+            gif.AddFrame(f3);
 
-                var f4 = new byte[100] {
+            var f4 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1818,9 +1765,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f4);
+            gif.AddFrame(f4);
 
-                var f5 = new byte[100] {
+            var f5 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1831,9 +1778,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f5);
+            gif.AddFrame(f5);
 
-                var f6 = new byte[100] {
+            var f6 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1844,9 +1791,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f6);
+            gif.AddFrame(f6);
 
-                var f7 = new byte[100] {
+            var f7 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1857,15 +1804,15 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f7);
-            }
+            gif.AddFrame(f7);
         }
-        public static void GifKare3()
+    }
+    public static void GifKare3()
+    {
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+        using (var gif = new AnimatedGif($"kare3.gif", 10, 10, palette, 2, 1))
         {
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-            using (var gif = new AnimatedGif($"kare3.gif", 10, 10, palette, 2, 1))
-            {
-                var f0 = new byte[100] {
+            var f0 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -1876,9 +1823,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0);
+            gif.AddFrame(f0);
 
-                var f0_ = new byte[100] {
+            var f0_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                     1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -1889,9 +1836,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0_);
+            gif.AddFrame(f0_);
 
-                var f1 = new byte[100] {
+            var f1 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
@@ -1902,9 +1849,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1);
+            gif.AddFrame(f1);
 
-                var f1_ = new byte[100] {
+            var f1_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
                     1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
@@ -1915,9 +1862,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1_);
+            gif.AddFrame(f1_);
 
-                var f2 = new byte[100] {
+            var f2 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
@@ -1928,9 +1875,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2);
+            gif.AddFrame(f2);
 
-                var f2_ = new byte[100] {
+            var f2_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
@@ -1941,9 +1888,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2_);
+            gif.AddFrame(f2_);
 
-                var f3 = new byte[100] {
+            var f3 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1954,9 +1901,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3);
+            gif.AddFrame(f3);
 
-                var f3_ = new byte[100] {
+            var f3_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1967,9 +1914,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3_);
+            gif.AddFrame(f3_);
 
-                var f4 = new byte[100] {
+            var f4 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1980,9 +1927,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f4);
+            gif.AddFrame(f4);
 
-                var f4_ = new byte[100] {
+            var f4_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1993,9 +1940,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
                     1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f4_);
+            gif.AddFrame(f4_);
 
-                var f5 = new byte[100] {
+            var f5 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2006,9 +1953,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f5);
+            gif.AddFrame(f5);
 
-                var f5_ = new byte[100] {
+            var f5_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2019,9 +1966,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                     1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f5_);
+            gif.AddFrame(f5_);
 
-                var f6 = new byte[100] {
+            var f6 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2032,9 +1979,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f6);
+            gif.AddFrame(f6);
 
-                var f6_ = new byte[100] {
+            var f6_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2045,9 +1992,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f6_);
+            gif.AddFrame(f6_);
 
-                var f7 = new byte[100] {
+            var f7 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2058,9 +2005,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f7);
+            gif.AddFrame(f7);
 
-                var f7_ = new byte[100] {
+            var f7_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -2071,15 +2018,15 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f7_);
-            }
+            gif.AddFrame(f7_);
         }
-        public static void GifDaire1()
+    }
+    public static void GifDaire1()
+    {
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+        using (var gif = new AnimatedGif($"daire1.gif", 10, 10, palette, 8, 1))
         {
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-            using (var gif = new AnimatedGif($"daire1.gif", 10, 10, palette, 8, 1))
-            {
-                var f0 = new byte[100] {
+            var f0 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -2090,9 +2037,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0);
+            gif.AddFrame(f0);
 
-                var f1 = new byte[100] {
+            var f1 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
@@ -2103,9 +2050,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1);
+            gif.AddFrame(f1);
 
-                var f2 = new byte[100] {
+            var f2 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2116,9 +2063,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2);
+            gif.AddFrame(f2);
 
-                var f3 = new byte[100] {
+            var f3 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2129,15 +2076,15 @@ namespace ComputerGraphicsAlgorithms
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3);
-            }
+            gif.AddFrame(f3);
         }
-        public static void GifDaire2()
+    }
+    public static void GifDaire2()
+    {
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+        using (var gif = new AnimatedGif($"daire2.gif", 10, 10, palette, 4, 1))
         {
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-            using (var gif = new AnimatedGif($"daire2.gif", 10, 10, palette, 4, 1))
-            {
-                var f0 = new byte[100] {
+            var f0 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -2148,9 +2095,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0);
+            gif.AddFrame(f0);
 
-                var f1 = new byte[100] {
+            var f1 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 0, 0, 1, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
@@ -2161,9 +2108,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1);
+            gif.AddFrame(f1);
 
-                var f2 = new byte[100] {
+            var f2 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
@@ -2174,9 +2121,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2);
+            gif.AddFrame(f2);
 
-                var f3 = new byte[100] {
+            var f3 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2187,9 +2134,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3);
+            gif.AddFrame(f3);
 
-                var f4 = new byte[100] {
+            var f4 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2200,9 +2147,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f4);
+            gif.AddFrame(f4);
 
-                var f5 = new byte[100] {
+            var f5 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2213,9 +2160,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 1, 0, 0, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f5);
+            gif.AddFrame(f5);
 
-                var f6 = new byte[100] {
+            var f6 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2226,9 +2173,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f6);
+            gif.AddFrame(f6);
 
-                var f7 = new byte[100] {
+            var f7 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2239,15 +2186,15 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f7);
-            }
+            gif.AddFrame(f7);
         }
-        public static void GifDaire3()
+    }
+    public static void GifDaire3()
+    {
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+        using (var gif = new AnimatedGif($"daire3.gif", 10, 10, palette, 2, 1))
         {
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-            using (var gif = new AnimatedGif($"daire3.gif", 10, 10, palette, 2, 1))
-            {
-                var f0 = new byte[100] {
+            var f0 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -2258,9 +2205,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0);
+            gif.AddFrame(f0);
 
-                var f0_ = new byte[100] {
+            var f0_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -2271,9 +2218,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f0_);
+            gif.AddFrame(f0_);
 
-                var f1 = new byte[100] {
+            var f1 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 0, 0, 1, 1, 1, 1,
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
@@ -2284,9 +2231,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1);
+            gif.AddFrame(f1);
 
-                var f1_ = new byte[100] {
+            var f1_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 1, 1, 1,
                     1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
@@ -2297,9 +2244,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f1_);
+            gif.AddFrame(f1_);
 
-                var f2 = new byte[100] {
+            var f2 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
@@ -2310,9 +2257,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2);
+            gif.AddFrame(f2);
 
-                var f2_ = new byte[100] {
+            var f2_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
@@ -2323,9 +2270,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f2_);
+            gif.AddFrame(f2_);
 
-                var f3 = new byte[100] {
+            var f3 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2336,9 +2283,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3);
+            gif.AddFrame(f3);
 
-                var f3_ = new byte[100] {
+            var f3_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2349,9 +2296,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f3_);
+            gif.AddFrame(f3_);
 
-                var f4 = new byte[100] {
+            var f4 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2362,9 +2309,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
                     1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f4);
+            gif.AddFrame(f4);
 
-                var f4_ = new byte[100] {
+            var f4_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2375,9 +2322,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 0, 0, 0, 0, 1, 1,
                     1, 1, 1, 1, 1, 0, 0, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f4_);
+            gif.AddFrame(f4_);
 
-                var f5 = new byte[100] {
+            var f5 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2388,9 +2335,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
                     1, 1, 1, 1, 0, 0, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f5);
+            gif.AddFrame(f5);
 
-                var f5_ = new byte[100] {
+            var f5_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2401,9 +2348,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                     1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f5_);
+            gif.AddFrame(f5_);
 
-                var f6 = new byte[100] {
+            var f6 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2414,9 +2361,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 0, 0, 0, 0, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f6);
+            gif.AddFrame(f6);
 
-                var f6_ = new byte[100] {
+            var f6_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2427,9 +2374,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f6_);
+            gif.AddFrame(f6_);
 
-                var f7 = new byte[100] {
+            var f7 = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -2440,9 +2387,9 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f7);
+            gif.AddFrame(f7);
 
-                var f7_ = new byte[100] {
+            var f7_ = new byte[100] {
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
@@ -2453,194 +2400,194 @@ namespace ComputerGraphicsAlgorithms
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-                gif.AddFrame(f7_);
-            }
+            gif.AddFrame(f7_);
         }
-        public static void GifDot1()
-        {
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+    }
+    public static void GifDot1()
+    {
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
 
-            using (var gif = new AnimatedGif($"dot1.gif", 4, 4, palette, 30, 1))
-            {
-                var pixels = new byte[16] { 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-                gif.AddFrame(pixels);
-                pixels[5] = 1; pixels[6] = 0;
-                gif.AddFrame(pixels);
-                pixels[6] = 1; pixels[10] = 0;
-                gif.AddFrame(pixels);
-                pixels[10] = 1; pixels[9] = 0;
-                gif.AddFrame(pixels);
-            }
+        using (var gif = new AnimatedGif($"dot1.gif", 4, 4, palette, 30, 1))
+        {
+            var pixels = new byte[16] { 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            gif.AddFrame(pixels);
+            pixels[5] = 1; pixels[6] = 0;
+            gif.AddFrame(pixels);
+            pixels[6] = 1; pixels[10] = 0;
+            gif.AddFrame(pixels);
+            pixels[10] = 1; pixels[9] = 0;
+            gif.AddFrame(pixels);
         }
-        public static void GifDot2()
-        {
-            var palette = new byte[4 * 3] { 0, 0, 0, 85, 85, 85, 170, 170, 170, 255, 255, 255 };
+    }
+    public static void GifDot2()
+    {
+        var palette = new byte[4 * 3] { 0, 0, 0, 85, 85, 85, 170, 170, 170, 255, 255, 255 };
 
-            using (var gif = new AnimatedGif($"dot2.gif", 4, 4, palette, 10, 2))
-            {
-                var pixels = new byte[16] { 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-                gif.AddFrame(pixels);
-                pixels[5] = 1; pixels[6] = 2;
-                gif.AddFrame(pixels);
-                pixels[5] = 2; pixels[6] = 1;
-                gif.AddFrame(pixels);
-                pixels[5] = 3; pixels[6] = 0;
-                gif.AddFrame(pixels);
-                pixels[6] = 1; pixels[10] = 2;
-                gif.AddFrame(pixels);
-                pixels[6] = 2; pixels[10] = 1;
-                gif.AddFrame(pixels);
-                pixels[6] = 3; pixels[10] = 0;
-                gif.AddFrame(pixels);
-                pixels[10] = 1; pixels[9] = 2;
-                gif.AddFrame(pixels);
-                pixels[10] = 2; pixels[9] = 1;
-                gif.AddFrame(pixels);
-                pixels[10] = 3; pixels[9] = 0;
-                gif.AddFrame(pixels);
-                pixels[9] = 1; pixels[5] = 2;
-                gif.AddFrame(pixels);
-                pixels[9] = 2; pixels[5] = 1;
-                gif.AddFrame(pixels);
-            }
+        using (var gif = new AnimatedGif($"dot2.gif", 4, 4, palette, 10, 2))
+        {
+            var pixels = new byte[16] { 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+            gif.AddFrame(pixels);
+            pixels[5] = 1; pixels[6] = 2;
+            gif.AddFrame(pixels);
+            pixels[5] = 2; pixels[6] = 1;
+            gif.AddFrame(pixels);
+            pixels[5] = 3; pixels[6] = 0;
+            gif.AddFrame(pixels);
+            pixels[6] = 1; pixels[10] = 2;
+            gif.AddFrame(pixels);
+            pixels[6] = 2; pixels[10] = 1;
+            gif.AddFrame(pixels);
+            pixels[6] = 3; pixels[10] = 0;
+            gif.AddFrame(pixels);
+            pixels[10] = 1; pixels[9] = 2;
+            gif.AddFrame(pixels);
+            pixels[10] = 2; pixels[9] = 1;
+            gif.AddFrame(pixels);
+            pixels[10] = 3; pixels[9] = 0;
+            gif.AddFrame(pixels);
+            pixels[9] = 1; pixels[5] = 2;
+            gif.AddFrame(pixels);
+            pixels[9] = 2; pixels[5] = 1;
+            gif.AddFrame(pixels);
         }
-        public static void GifDot4()
+    }
+    public static void GifDot4()
+    {
+        var palette = new byte[16 * 3] { 0, 0, 0, 17, 17, 17, 34, 34, 34, 51, 51, 51, 68, 68, 68, 85, 85, 85, 102, 102, 102, 119, 119, 119, 136, 136, 136, 153, 153, 153, 170, 170, 170, 187, 187, 187, 204, 204, 204, 221, 221, 221, 238, 238, 238, 255, 255, 255 };
+
+        using (var gif = new AnimatedGif($"dot4.gif", 4, 4, palette, 2, 4))
         {
-            var palette = new byte[16 * 3] { 0, 0, 0, 17, 17, 17, 34, 34, 34, 51, 51, 51, 68, 68, 68, 85, 85, 85, 102, 102, 102, 119, 119, 119, 136, 136, 136, 153, 153, 153, 170, 170, 170, 187, 187, 187, 204, 204, 204, 221, 221, 221, 238, 238, 238, 255, 255, 255 };
+            var pixels = new byte[16] { 15, 15, 15, 15, 15, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 };
+            gif.AddFrame(pixels);
+            pixels[5] = 1; pixels[6] = 14;
+            gif.AddFrame(pixels);
+            pixels[5] = 2; pixels[6] = 13;
+            gif.AddFrame(pixels);
+            pixels[5] = 3; pixels[6] = 12;
+            gif.AddFrame(pixels);
+            pixels[5] = 4; pixels[6] = 11;
+            gif.AddFrame(pixels);
+            pixels[5] = 5; pixels[6] = 10;
+            gif.AddFrame(pixels);
+            pixels[5] = 6; pixels[6] = 9;
+            gif.AddFrame(pixels);
+            pixels[5] = 7; pixels[6] = 8;
+            gif.AddFrame(pixels);
+            pixels[5] = 8; pixels[6] = 7;
+            gif.AddFrame(pixels);
+            pixels[5] = 9; pixels[6] = 6;
+            gif.AddFrame(pixels);
+            pixels[5] = 10; pixels[6] = 5;
+            gif.AddFrame(pixels);
+            pixels[5] = 11; pixels[6] = 4;
+            gif.AddFrame(pixels);
+            pixels[5] = 12; pixels[6] = 3;
+            gif.AddFrame(pixels);
+            pixels[5] = 13; pixels[6] = 2;
+            gif.AddFrame(pixels);
+            pixels[5] = 14; pixels[6] = 1;
+            gif.AddFrame(pixels);
+            pixels[5] = 15; pixels[6] = 0;
+            gif.AddFrame(pixels);
 
-            using (var gif = new AnimatedGif($"dot4.gif", 4, 4, palette, 2, 4))
-            {
-                var pixels = new byte[16] { 15, 15, 15, 15, 15, 0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 };
-                gif.AddFrame(pixels);
-                pixels[5] = 1; pixels[6] = 14;
-                gif.AddFrame(pixels);
-                pixels[5] = 2; pixels[6] = 13;
-                gif.AddFrame(pixels);
-                pixels[5] = 3; pixels[6] = 12;
-                gif.AddFrame(pixels);
-                pixels[5] = 4; pixels[6] = 11;
-                gif.AddFrame(pixels);
-                pixels[5] = 5; pixels[6] = 10;
-                gif.AddFrame(pixels);
-                pixels[5] = 6; pixels[6] = 9;
-                gif.AddFrame(pixels);
-                pixels[5] = 7; pixels[6] = 8;
-                gif.AddFrame(pixels);
-                pixels[5] = 8; pixels[6] = 7;
-                gif.AddFrame(pixels);
-                pixels[5] = 9; pixels[6] = 6;
-                gif.AddFrame(pixels);
-                pixels[5] = 10; pixels[6] = 5;
-                gif.AddFrame(pixels);
-                pixels[5] = 11; pixels[6] = 4;
-                gif.AddFrame(pixels);
-                pixels[5] = 12; pixels[6] = 3;
-                gif.AddFrame(pixels);
-                pixels[5] = 13; pixels[6] = 2;
-                gif.AddFrame(pixels);
-                pixels[5] = 14; pixels[6] = 1;
-                gif.AddFrame(pixels);
-                pixels[5] = 15; pixels[6] = 0;
-                gif.AddFrame(pixels);
+            pixels[6] = 1; pixels[10] = 14;
+            gif.AddFrame(pixels);
+            pixels[6] = 2; pixels[10] = 13;
+            gif.AddFrame(pixels);
+            pixels[6] = 3; pixels[10] = 12;
+            gif.AddFrame(pixels);
+            pixels[6] = 4; pixels[10] = 11;
+            gif.AddFrame(pixels);
+            pixels[6] = 5; pixels[10] = 10;
+            gif.AddFrame(pixels);
+            pixels[6] = 6; pixels[10] = 9;
+            gif.AddFrame(pixels);
+            pixels[6] = 7; pixels[10] = 8;
+            gif.AddFrame(pixels);
+            pixels[6] = 8; pixels[10] = 7;
+            gif.AddFrame(pixels);
+            pixels[6] = 9; pixels[10] = 6;
+            gif.AddFrame(pixels);
+            pixels[6] = 10; pixels[10] = 5;
+            gif.AddFrame(pixels);
+            pixels[6] = 11; pixels[10] = 4;
+            gif.AddFrame(pixels);
+            pixels[6] = 12; pixels[10] = 3;
+            gif.AddFrame(pixels);
+            pixels[6] = 13; pixels[10] = 2;
+            gif.AddFrame(pixels);
+            pixels[6] = 14; pixels[10] = 1;
+            gif.AddFrame(pixels);
+            pixels[6] = 15; pixels[10] = 0;
+            gif.AddFrame(pixels);
 
-                pixels[6] = 1; pixels[10] = 14;
-                gif.AddFrame(pixels);
-                pixels[6] = 2; pixels[10] = 13;
-                gif.AddFrame(pixels);
-                pixels[6] = 3; pixels[10] = 12;
-                gif.AddFrame(pixels);
-                pixels[6] = 4; pixels[10] = 11;
-                gif.AddFrame(pixels);
-                pixels[6] = 5; pixels[10] = 10;
-                gif.AddFrame(pixels);
-                pixels[6] = 6; pixels[10] = 9;
-                gif.AddFrame(pixels);
-                pixels[6] = 7; pixels[10] = 8;
-                gif.AddFrame(pixels);
-                pixels[6] = 8; pixels[10] = 7;
-                gif.AddFrame(pixels);
-                pixels[6] = 9; pixels[10] = 6;
-                gif.AddFrame(pixels);
-                pixels[6] = 10; pixels[10] = 5;
-                gif.AddFrame(pixels);
-                pixels[6] = 11; pixels[10] = 4;
-                gif.AddFrame(pixels);
-                pixels[6] = 12; pixels[10] = 3;
-                gif.AddFrame(pixels);
-                pixels[6] = 13; pixels[10] = 2;
-                gif.AddFrame(pixels);
-                pixels[6] = 14; pixels[10] = 1;
-                gif.AddFrame(pixels);
-                pixels[6] = 15; pixels[10] = 0;
-                gif.AddFrame(pixels);
+            pixels[10] = 1; pixels[9] = 14;
+            gif.AddFrame(pixels);
+            pixels[10] = 2; pixels[9] = 13;
+            gif.AddFrame(pixels);
+            pixels[10] = 3; pixels[9] = 12;
+            gif.AddFrame(pixels);
+            pixels[10] = 4; pixels[9] = 11;
+            gif.AddFrame(pixels);
+            pixels[10] = 5; pixels[9] = 10;
+            gif.AddFrame(pixels);
+            pixels[10] = 6; pixels[9] = 9;
+            gif.AddFrame(pixels);
+            pixels[10] = 7; pixels[9] = 8;
+            gif.AddFrame(pixels);
+            pixels[10] = 8; pixels[9] = 7;
+            gif.AddFrame(pixels);
+            pixels[10] = 9; pixels[9] = 6;
+            gif.AddFrame(pixels);
+            pixels[10] = 10; pixels[9] = 5;
+            gif.AddFrame(pixels);
+            pixels[10] = 11; pixels[9] = 4;
+            gif.AddFrame(pixels);
+            pixels[10] = 12; pixels[9] = 3;
+            gif.AddFrame(pixels);
+            pixels[10] = 13; pixels[9] = 2;
+            gif.AddFrame(pixels);
+            pixels[10] = 14; pixels[9] = 1;
+            gif.AddFrame(pixels);
+            pixels[10] = 15; pixels[9] = 0;
+            gif.AddFrame(pixels);
 
-                pixels[10] = 1; pixels[9] = 14;
-                gif.AddFrame(pixels);
-                pixels[10] = 2; pixels[9] = 13;
-                gif.AddFrame(pixels);
-                pixels[10] = 3; pixels[9] = 12;
-                gif.AddFrame(pixels);
-                pixels[10] = 4; pixels[9] = 11;
-                gif.AddFrame(pixels);
-                pixels[10] = 5; pixels[9] = 10;
-                gif.AddFrame(pixels);
-                pixels[10] = 6; pixels[9] = 9;
-                gif.AddFrame(pixels);
-                pixels[10] = 7; pixels[9] = 8;
-                gif.AddFrame(pixels);
-                pixels[10] = 8; pixels[9] = 7;
-                gif.AddFrame(pixels);
-                pixels[10] = 9; pixels[9] = 6;
-                gif.AddFrame(pixels);
-                pixels[10] = 10; pixels[9] = 5;
-                gif.AddFrame(pixels);
-                pixels[10] = 11; pixels[9] = 4;
-                gif.AddFrame(pixels);
-                pixels[10] = 12; pixels[9] = 3;
-                gif.AddFrame(pixels);
-                pixels[10] = 13; pixels[9] = 2;
-                gif.AddFrame(pixels);
-                pixels[10] = 14; pixels[9] = 1;
-                gif.AddFrame(pixels);
-                pixels[10] = 15; pixels[9] = 0;
-                gif.AddFrame(pixels);
-
-                pixels[9] = 1; pixels[5] = 14;
-                gif.AddFrame(pixels);
-                pixels[9] = 2; pixels[5] = 13;
-                gif.AddFrame(pixels);
-                pixels[9] = 3; pixels[5] = 12;
-                gif.AddFrame(pixels);
-                pixels[9] = 4; pixels[5] = 11;
-                gif.AddFrame(pixels);
-                pixels[9] = 5; pixels[5] = 10;
-                gif.AddFrame(pixels);
-                pixels[9] = 6; pixels[5] = 9;
-                gif.AddFrame(pixels);
-                pixels[9] = 7; pixels[5] = 8;
-                gif.AddFrame(pixels);
-                pixels[9] = 8; pixels[5] = 7;
-                gif.AddFrame(pixels);
-                pixels[9] = 9; pixels[5] = 6;
-                gif.AddFrame(pixels);
-                pixels[9] = 10; pixels[5] = 5;
-                gif.AddFrame(pixels);
-                pixels[9] = 11; pixels[5] = 4;
-                gif.AddFrame(pixels);
-                pixels[9] = 12; pixels[5] = 3;
-                gif.AddFrame(pixels);
-                pixels[9] = 13; pixels[5] = 2;
-                gif.AddFrame(pixels);
-                pixels[9] = 14; pixels[5] = 1;
-                gif.AddFrame(pixels);
-            }
+            pixels[9] = 1; pixels[5] = 14;
+            gif.AddFrame(pixels);
+            pixels[9] = 2; pixels[5] = 13;
+            gif.AddFrame(pixels);
+            pixels[9] = 3; pixels[5] = 12;
+            gif.AddFrame(pixels);
+            pixels[9] = 4; pixels[5] = 11;
+            gif.AddFrame(pixels);
+            pixels[9] = 5; pixels[5] = 10;
+            gif.AddFrame(pixels);
+            pixels[9] = 6; pixels[5] = 9;
+            gif.AddFrame(pixels);
+            pixels[9] = 7; pixels[5] = 8;
+            gif.AddFrame(pixels);
+            pixels[9] = 8; pixels[5] = 7;
+            gif.AddFrame(pixels);
+            pixels[9] = 9; pixels[5] = 6;
+            gif.AddFrame(pixels);
+            pixels[9] = 10; pixels[5] = 5;
+            gif.AddFrame(pixels);
+            pixels[9] = 11; pixels[5] = 4;
+            gif.AddFrame(pixels);
+            pixels[9] = 12; pixels[5] = 3;
+            gif.AddFrame(pixels);
+            pixels[9] = 13; pixels[5] = 2;
+            gif.AddFrame(pixels);
+            pixels[9] = 14; pixels[5] = 1;
+            gif.AddFrame(pixels);
         }
-        public static void GifDot2R()
-        {
-            var palette = Palette444();
+    }
+    public static void GifDot2R()
+    {
+        var palette = Palette444();
 
-            List<byte[]> frames = [
-                [3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        List<byte[]> frames = [
+            [3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                 [3, 3, 3, 3, 3, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                 [3, 3, 3, 3, 3, 2, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                 [3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3],
@@ -2653,192 +2600,192 @@ namespace ComputerGraphicsAlgorithms
                 [3, 3, 3, 3, 3, 2, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3],
                 [3, 3, 3, 3, 3, 1, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3]];
 
-            using var gif = new AnimatedGif($"dot2r.gif", 4, 4, palette, 10, 6);
-            for (int f = 0; f < frames.Count; f++)
+        using var gif = new AnimatedGif($"dot2r.gif", 4, 4, palette, 10, 6);
+        for (int f = 0; f < frames.Count; f++)
+        {
+            var r = frames[f];
+            var g = frames[(f + 3) % 12];
+            var b = frames[(f + 6) % 12];
+            var pixels = new byte[16];
+
+            for (int i = 0; i < 16; i++)
+                pixels[i] = (byte)(r[i] * 16 + g[i] * 4 + b[i]);
+
+            gif.AddFrame(pixels);
+        }
+    }
+    public static void GifSinusoidal()
+    {
+        //pixabay max 1000 frame
+        var palette = PaletteGray256();
+
+        int width = 1024;
+        int height = 256;
+
+        using (var gif = new AnimatedGif("sinusoidal-gray.gif", width, height, palette))
+        {
+            var pixels = new byte[width * height];
+            var sins = new byte[width];
+            for (int f = 0; f < width / 4; f++)
             {
-                var r = frames[f];
-                var g = frames[(f + 3) % 12];
-                var b = frames[(f + 6) % 12];
-                var pixels = new byte[16];
+                var k = 0;
+                for (int j = 0; j < width; j++)
+                    sins[j] = (byte)(255 * (Math.Sin(Math.PI * (j + 8 * f) / width) / 2 + 0.5));
 
-                for (int i = 0; i < 16; i++)
-                    pixels[i] = (byte)(r[i] * 16 + g[i] * 4 + b[i]);
-
+                for (int i = 0; i < height; i++)
+                    for (int j = 0; j < width; j++)
+                    {
+                        pixels[k++] = (byte)(sins[j] - i);
+                    }
                 gif.AddFrame(pixels);
             }
         }
-        public static void GifSinusoidal()
+    }
+    public static void GifAcceleration()
+    {
+        //pixabay max 1000 frame
+        var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
+        //for (int i = 0; i < 256; i++)
+        //{
+        //    palette[3 * i + 0] = (byte)i;
+        //    palette[3 * i + 1] = (byte)i;
+        //    palette[3 * i + 2] = (byte)i;
+        //}
+
+        int width = 1000;
+        int height = 64;
+
+        using (var gif = new AnimatedGif("acceleration.gif", width, height, palette, 2, 1))
         {
-            //pixabay max 1000 frame
-            var palette = PaletteGray256();
-
-            int width = 1024;
-            int height = 256;
-
-            using (var gif = new AnimatedGif("sinusoidal-gray.gif", width, height, palette))
+            var pixels = new byte[width * height];
+            for (int f = 0; f < 1000; f++)
             {
-                var pixels = new byte[width * height];
-                var sins = new byte[width];
-                for (int f = 0; f < width / 4; f++)
-                {
-                    var k = 0;
-                    for (int j = 0; j < width; j++)
-                        sins[j] = (byte)(255 * (Math.Sin(Math.PI * (j + 8 * f) / width) / 2 + 0.5));
+                for (int i = 0; i < height; i++)
+                    pixels[i * width + f] = 1;
+                gif.AddFrame(pixels);
+            }
+        }
+    }
+    public static void GifPlus()
+    {
+        var palette = Palette5173();
 
+        int width = 256;
+        int height = 256;
+
+        using (var gif = new AnimatedGif("plus.gif", width, height, palette))
+        {
+            var pixels = new byte[width * height];
+
+            for (int f = 0; f < 254; f++)
+            {
+                var k = 0;
+                for (int i = 0; i < height; i++)
+                    for (int j = 0; j < width; j++)
+                        pixels[k++] = (byte)((k + f - 1) % 255);
+                gif.AddFrame(pixels);
+            }
+        }
+    }
+    public static void GifPsuedo()
+    {
+        var palette = new byte[768];
+        var psuedoPalette = new byte[315];
+        var k = 0;
+        for (int i = 0; i < 315; i++)
+        {
+            var p = common.PsuedoGreyPlus24(i + 3766);
+
+            var newColor = true;
+            for (int j = 0; j < k; j++)
+                if (p.r == palette[3 * j + 0] && p.g == palette[3 * j + 1] && p.b == palette[3 * j + 2])
+                {
+                    newColor = false;
+                    break;
+                }
+
+            if (newColor)
+            {
+                palette[3 * k + 0] = p.r;
+                palette[3 * k + 1] = p.g;
+                palette[3 * k + 2] = p.b;
+                k++;
+            }
+
+            psuedoPalette[i] = (byte)(k - 1);
+        }
+
+        int width = 512;
+        int height = 16;
+
+        using (var gif = new AnimatedGif("psuedo.gif", width, height, palette))
+        {
+            var pixels = new byte[width * height];
+
+            for (int f = 0; f < 254; f++)
+            {
+                k = 0;
+                for (int i = 0; i < height; i++)
+                    for (int j = 0; j < width; j++)
+                        pixels[k++] = psuedoPalette[(i + j + f) % 315];
+                gif.AddFrame(pixels);
+            }
+        }
+    }
+    public static void GifFromFrames()
+    {
+        var palette = Palette555();
+
+        int width = 270;
+        int height = 480;
+
+        using (var gif = new AnimatedGif("1.gif", width, height, palette, 5, 7))
+        {
+            var pixels = new byte[width * height];
+            var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.png";
+            //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
+            for (int f = 1; f < 379; f++)
+            {
+                var frame = NetPBM.Load(string.Format(path, 3 * f));
+                {
+                    var c = new channelBasedImage(frame);
+                    c.Scale(9);
+                    common.FloydSteinberg(c.r, x => x > 8388608 ? 16777215 : 0);
+                    common.FloydSteinberg(c.g, x => x > 8388608 ? 16777215 : 0);
+                    common.FloydSteinberg(c.b, x => x > 8388608 ? 16777215 : 0);
+
+                    var k = 0;
                     for (int i = 0; i < height; i++)
                         for (int j = 0; j < width; j++)
                         {
-                            pixels[k++] = (byte)(sins[j] - i);
+                            byte p = 0;
+
+                            if (c.b[2 * i + 0, 2 * j + 0] != 0) p++;
+                            if (c.b[2 * i + 0, 2 * j + 1] != 0) p++;
+                            if (c.b[2 * i + 1, 2 * j + 0] != 0) p++;
+                            if (c.b[2 * i + 1, 2 * j + 1] != 0) p++;
+
+                            if (c.g[2 * i + 0, 2 * j + 0] != 0) p += 5;
+                            if (c.g[2 * i + 0, 2 * j + 1] != 0) p += 5;
+                            if (c.g[2 * i + 1, 2 * j + 0] != 0) p += 5;
+                            if (c.g[2 * i + 1, 2 * j + 1] != 0) p += 5;
+
+                            if (c.r[2 * i + 0, 2 * j + 0] != 0) p += 25;
+                            if (c.r[2 * i + 0, 2 * j + 1] != 0) p += 25;
+                            if (c.r[2 * i + 1, 2 * j + 0] != 0) p += 25;
+                            if (c.r[2 * i + 1, 2 * j + 1] != 0) p += 25;
+
+                            pixels[k++] = p;
                         }
+
                     gif.AddFrame(pixels);
                 }
             }
         }
-        public static void GifAcceleration()
-        {
-            //pixabay max 1000 frame
-            var palette = new byte[2 * 3] { 0, 0, 0, 255, 255, 255 };
-            //for (int i = 0; i < 256; i++)
-            //{
-            //    palette[3 * i + 0] = (byte)i;
-            //    palette[3 * i + 1] = (byte)i;
-            //    palette[3 * i + 2] = (byte)i;
-            //}
-
-            int width = 1000;
-            int height = 64;
-
-            using (var gif = new AnimatedGif("acceleration.gif", width, height, palette, 2, 1))
-            {
-                var pixels = new byte[width * height];
-                for (int f = 0; f < 1000; f++)
-                {
-                    for (int i = 0; i < height; i++)
-                        pixels[i * width + f] = 1;
-                    gif.AddFrame(pixels);
-                }
-            }
-        }
-        public static void GifPlus()
-        {
-            var palette = Palette5173();
-
-            int width = 256;
-            int height = 256;
-
-            using (var gif = new AnimatedGif("plus.gif", width, height, palette))
-            {
-                var pixels = new byte[width * height];
-
-                for (int f = 0; f < 254; f++)
-                {
-                    var k = 0;
-                    for (int i = 0; i < height; i++)
-                        for (int j = 0; j < width; j++)
-                            pixels[k++] = (byte)((k + f - 1) % 255);
-                    gif.AddFrame(pixels);
-                }
-            }
-        }
-        public static void GifPsuedo()
-        {
-            var palette = new byte[768];
-            var psuedoPalette = new byte[315];
-            var k = 0;
-            for (int i = 0; i < 315; i++)
-            {
-                var p = common.PsuedoGreyPlus24(i + 3766);
-
-                var newColor = true;
-                for (int j = 0; j < k; j++)
-                    if (p.r == palette[3 * j + 0] && p.g == palette[3 * j + 1] && p.b == palette[3 * j + 2])
-                    {
-                        newColor = false;
-                        break;
-                    }
-
-                if (newColor)
-                {
-                    palette[3 * k + 0] = p.r;
-                    palette[3 * k + 1] = p.g;
-                    palette[3 * k + 2] = p.b;
-                    k++;
-                }
-
-                psuedoPalette[i] = (byte)(k - 1);
-            }
-
-            int width = 512;
-            int height = 16;
-
-            using (var gif = new AnimatedGif("psuedo.gif", width, height, palette))
-            {
-                var pixels = new byte[width * height];
-
-                for (int f = 0; f < 254; f++)
-                {
-                    k = 0;
-                    for (int i = 0; i < height; i++)
-                        for (int j = 0; j < width; j++)
-                            pixels[k++] = psuedoPalette[(i + j + f) % 315];
-                    gif.AddFrame(pixels);
-                }
-            }
-        }
-        public static void GifFromFrames()
-        {
-            var palette = Palette555();
-
-            int width = 270;
-            int height = 480;
-
-            using (var gif = new AnimatedGif("1.gif", width, height, palette, 5, 7))
-            {
-                var pixels = new byte[width * height];
-                var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.png";
-                //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
-                for (int f = 1; f < 379; f++)
-                {
-                    using (var frame = new Bitmap(string.Format(path, 3 * f)))
-                    {
-                        var c = new channelBasedImage(frame);
-                        c.Scale(9);
-                        common.FloydSteinberg(c.r, x => x > 8388608 ? 16777215 : 0);
-                        common.FloydSteinberg(c.g, x => x > 8388608 ? 16777215 : 0);
-                        common.FloydSteinberg(c.b, x => x > 8388608 ? 16777215 : 0);
-
-                        var k = 0;
-                        for (int i = 0; i < height; i++)
-                            for (int j = 0; j < width; j++)
-                            {
-                                byte p = 0;
-
-                                if (c.b[2 * i + 0, 2 * j + 0] != 0) p++;
-                                if (c.b[2 * i + 0, 2 * j + 1] != 0) p++;
-                                if (c.b[2 * i + 1, 2 * j + 0] != 0) p++;
-                                if (c.b[2 * i + 1, 2 * j + 1] != 0) p++;
-
-                                if (c.g[2 * i + 0, 2 * j + 0] != 0) p += 5;
-                                if (c.g[2 * i + 0, 2 * j + 1] != 0) p += 5;
-                                if (c.g[2 * i + 1, 2 * j + 0] != 0) p += 5;
-                                if (c.g[2 * i + 1, 2 * j + 1] != 0) p += 5;
-
-                                if (c.r[2 * i + 0, 2 * j + 0] != 0) p += 25;
-                                if (c.r[2 * i + 0, 2 * j + 1] != 0) p += 25;
-                                if (c.r[2 * i + 1, 2 * j + 0] != 0) p += 25;
-                                if (c.r[2 * i + 1, 2 * j + 1] != 0) p += 25;
-
-                                pixels[k++] = p;
-                            }
-
-                        gif.AddFrame(pixels);
-                    }
-                }
-            }
-        }
-        public static void GifFromFrames2()
-        {
-            var palette = new byte[24] {
+    }
+    public static void GifFromFrames2()
+    {
+        var palette = new byte[24] {
                 0,0,0,
                 0,0,255,
                 0,255,0,
@@ -2849,176 +2796,176 @@ namespace ComputerGraphicsAlgorithms
                 255,255,255
             };
 
-            int width = 512;
-            int height = 256;
+        int width = 512;
+        int height = 256;
 
-            using (var gif = new AnimatedGif("1.gif", width, height, palette, 2, 3))
+        using (var gif = new AnimatedGif("1.gif", width, height, palette, 2, 3))
+        {
+            var pixels = new byte[width * height];
+            var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.bmp";
+            //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
+            for (int f = 1; f < 501; f++)
             {
-                var pixels = new byte[width * height];
-                var path = @"C:\Users\Kenan\Desktop\d\ffmpeg-master-latest-win64-gpl\bin\{0:D4}.bmp";
-                //var path = @"C:\Users\Kenan\Desktop\frames3\{0:D4}.bmp";
-                for (int f = 1; f < 501; f++)
+                var frame = NetPBM.Load(string.Format(path, f));
                 {
-                    using (var frame = new Bitmap(string.Format(path, f)))
-                    {
-                        var c = new channelBasedImage(frame);
-                        //c.Scale(3);
-                        common.SimpleDither(c.r, x => x > 8388608 ? 16777215 : 0);
-                        common.SimpleDither(c.g, x => x > 8388608 ? 16777215 : 0);
-                        common.SimpleDither(c.b, x => x > 8388608 ? 16777215 : 0);
+                    var c = new channelBasedImage(frame);
+                    //c.Scale(3);
+                    common.SimpleDither(c.r, x => x > 8388608 ? 16777215 : 0);
+                    common.SimpleDither(c.g, x => x > 8388608 ? 16777215 : 0);
+                    common.SimpleDither(c.b, x => x > 8388608 ? 16777215 : 0);
 
-                        var k = 0;
-                        for (int i = 0; i < height; i++)
-                            for (int j = 0; j < width; j++)
-                            {
-                                byte p = 0;
+                    var k = 0;
+                    for (int i = 0; i < height; i++)
+                        for (int j = 0; j < width; j++)
+                        {
+                            byte p = 0;
 
-                                if (c.b[i, j] != 0) p++;
-                                if (c.g[i, j] != 0) p += 2;
-                                if (c.r[i, j] != 0) p += 4;
+                            if (c.b[i, j] != 0) p++;
+                            if (c.g[i, j] != 0) p += 2;
+                            if (c.r[i, j] != 0) p += 4;
 
-                                pixels[k++] = p;
-                            }
+                            pixels[k++] = p;
+                        }
 
-                        gif.AddFrame(pixels);
-                    }
+                    gif.AddFrame(pixels);
                 }
             }
         }
-        //public static void GifDiagonal()
-        //{
-        //    using var gif = AnimatedGif.AnimatedGif.Create("diagonal.gif", 20);
+    }
+    //public static void GifDiagonal()
+    //{
+    //    using var gif = AnimatedGif.AnimatedGif.Create("diagonal.gif", 20);
 
-        //    int width = 512;
-        //    int height = 512;
-        //    var pixels = new Color24[width, height];
+    //    int width = 512;
+    //    int height = 512;
+    //    var pixels = new Color24[width, height];
 
-        //    for (int f = 0; f < 255; f++)
-        //    {
-        //        for (int i = 0; i < width / 2; i++)
-        //            for (int j = 0; j < height / 2; j++)
-        //            {
-        //                var a = (byte)(i + j + f);
+    //    for (int f = 0; f < 255; f++)
+    //    {
+    //        for (int i = 0; i < width / 2; i++)
+    //            for (int j = 0; j < height / 2; j++)
+    //            {
+    //                var a = (byte)(i + j + f);
 
-        //                pixels[i, j].r = a;
-        //                pixels[i, j].g = a;
-        //                pixels[i, j].b = a;
+    //                pixels[i, j].r = a;
+    //                pixels[i, j].g = a;
+    //                pixels[i, j].b = a;
 
-        //                pixels[width - i - 1, j].r = a;
-        //                pixels[width - i - 1, j].g = a;
-        //                pixels[width - i - 1, j].b = a;
+    //                pixels[width - i - 1, j].r = a;
+    //                pixels[width - i - 1, j].g = a;
+    //                pixels[width - i - 1, j].b = a;
 
-        //                pixels[i, height - j - 1].r = a;
-        //                pixels[i, height - j - 1].g = a;
-        //                pixels[i, height - j - 1].b = a;
+    //                pixels[i, height - j - 1].r = a;
+    //                pixels[i, height - j - 1].g = a;
+    //                pixels[i, height - j - 1].b = a;
 
-        //                pixels[width - i - 1, height - j - 1].r = a;
-        //                pixels[width - i - 1, height - j - 1].g = a;
-        //                pixels[width - i - 1, height - j - 1].b = a;
-        //            }
-        //        gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
-        //    }
-        //}
-        public static common.Color24[,] W2560H1440()
+    //                pixels[width - i - 1, height - j - 1].r = a;
+    //                pixels[width - i - 1, height - j - 1].g = a;
+    //                pixels[width - i - 1, height - j - 1].b = a;
+    //            }
+    //        gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
+    //    }
+    //}
+    public static common.Color24[,] W2560H1440()
+    {
+        var pixels = new common.Color24[1440, 2560];
+        Parallel.For(0, 2560, i =>
         {
-            var pixels = new common.Color24[1440, 2560];
-            Parallel.For(0, 2560, i =>
+            for (var j = 0; j < 1440; j++)
             {
-                for (var j = 0; j < 1440; j++)
+                var k = (byte)((9 * i + 16 * j) >> 9);
+                pixels[j, i].r = k;
+                pixels[j, i].g = k;
+                pixels[j, i].b = k;
+                //pixels[j, i] = common.PsuedoGreyPlus24((9*i + 16*j) / 32);
+            }
+        });
+
+        return pixels;
+    }
+    public static void RealGradient()
+    {
+        int w = 34 * 2560, h = 34 * 1440;
+
+        var a = new int[h, w];
+
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a[i, j] = (i * 16 + j * 9) << 1;
+
+        common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+        var a2 = common.Scale(a, 34);
+
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a[i, j] = (i * 16 + j * 9) << 2;
+
+        common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+        var a3 = common.Scale(a, 34);
+
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+                a[i, j] = (i * 16 + j * 9) << 3;
+
+        common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+        var a4 = common.Scale(a, 34);
+
+        var c = new channelBasedImage96(w / 34, h / 34);
+
+        c.r = a2; c.g = a3; c.b = a4; var bgr = c.convertBitmap(); bgr.Save("bgr.pm");
+        c.r = a2; c.g = a4; c.b = a3; var gbr = c.convertBitmap(); gbr.Save("gbr.pm");
+        c.r = a3; c.g = a2; c.b = a4; var brg = c.convertBitmap(); brg.Save("brg.pm");
+        c.r = a3; c.g = a4; c.b = a2; var grb = c.convertBitmap(); grb.Save("grb.pm");
+        c.r = a4; c.g = a2; c.b = a3; var rbg = c.convertBitmap(); rbg.Save("rbg.pm");
+        c.r = a4; c.g = a3; c.b = a2; var rgb = c.convertBitmap(); rgb.Save("rgb.pm");
+    }
+    public static void Gigapixel17()
+    {
+        int w = 10922 * 16, h = 10922 * 9;
+        var a = new int[h, w];
+
+        for (int i = 0; i < h; i++)
+        {
+            if (i % 9830 == 0)
+                Console.WriteLine(i / 9830);
+
+            for (int j = 0; j < w; j++)
+                a[i, j] += i * 16 + j * 9;
+        }
+
+        var max = a[h - 1, w - 1];
+
+        common.MinimizedAverageError(a, x => x > (max >> 1) ? max : 0);
+        var w8 = w / 8;
+        var b = new byte[h * w8];
+        int k = 0, p = 0;
+        for (int i = 0; i < h; i++)
+            for (int j = 0; j < w; j++)
+            {
+                if (a[i, j] != 0)
+                    b[k] += (byte)(1 << (7 - p));
+                p++;
+                if (p == 8)
                 {
-                    var k = (byte)((9 * i + 16 * j) >> 9);
-                    pixels[j, i].r = k;
-                    pixels[j, i].g = k;
-                    pixels[j, i].b = k;
-                    //pixels[j, i] = common.PsuedoGreyPlus24((9*i + 16*j) / 32);
+                    p = 0;
+                    k++;
                 }
-            });
-
-            return pixels;
-        }
-        public static void RealGradient()
-        {
-            int w = 34 * 2560, h = 34 * 1440;
-
-            var a = new int[h, w];
-
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a[i, j] = (i * 16 + j * 9) << 1;
-
-            common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
-            var a2 = common.Scale(a, 34);
-
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a[i, j] = (i * 16 + j * 9) << 2;
-
-            common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
-            var a3 = common.Scale(a, 34);
-
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                    a[i, j] = (i * 16 + j * 9) << 3;
-
-            common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
-            var a4 = common.Scale(a, 34);
-
-            var c = new channelBasedImage96(w / 34, h / 34);
-
-            c.r = a2; c.g = a3; c.b = a4; var bgr = c.convertBitmap(); bgr.Save("bgr.png");//common.saveJpeg(bgr, 100, "bgr.jpg");
-            c.r = a2; c.g = a4; c.b = a3; var gbr = c.convertBitmap(); gbr.Save("gbr.png");//common.saveJpeg(gbr, 100, "gbr.jpg");
-            c.r = a3; c.g = a2; c.b = a4; var brg = c.convertBitmap(); brg.Save("brg.png");//common.saveJpeg(brg, 100, "brg.jpg");
-            c.r = a3; c.g = a4; c.b = a2; var grb = c.convertBitmap(); grb.Save("grb.png");//common.saveJpeg(grb, 100, "grb.jpg");
-            c.r = a4; c.g = a2; c.b = a3; var rbg = c.convertBitmap(); rbg.Save("rbg.png");//common.saveJpeg(rbg, 100, "rbg.jpg");
-            c.r = a4; c.g = a3; c.b = a2; var rgb = c.convertBitmap(); rgb.Save("rgb.png");//common.saveJpeg(rgb, 100, "rgb.jpg");
-        }
-        public static void Gigapixel17()
-        {
-            int w = 10922 * 16, h = 10922 * 9;
-            var a = new int[h, w];
-
-            for (int i = 0; i < h; i++)
-            {
-                if (i % 9830 == 0)
-                    Console.WriteLine(i / 9830);
-
-                for (int j = 0; j < w; j++)
-                    a[i, j] += i * 16 + j * 9;
             }
 
-            var max = a[h - 1, w - 1];
+        var bitmap = common.bitsToBitmap(b, w, h);
+        bitmap.Save("3.pbm");
+    }
+    public static void MultiLevel()
+    {
+        var n = 7;
+        var w = 747;
+        var h = 420;
 
-            common.MinimizedAverageError(a, x => x > (max >> 1) ? max : 0);
-            var w8 = w / 8;
-            var b = new byte[h * w8];
-            int k = 0, p = 0;
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                {
-                    if (a[i, j] != 0)
-                        b[k] += (byte)(1 << (7 - p));
-                    p++;
-                    if (p == 8)
-                    {
-                        p = 0;
-                        k++;
-                    }
-                }
-
-            var bitmap = common.bitsToBitmap(b, w, h);
-            bitmap.Save("3.tiff", ImageFormat.Tiff);
-        }
-        public static void MultiLevel()
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
+        var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 crf0.mp4";
+        var p = new Process
         {
-            var n = 7;
-            var w = 747;
-            var h = 420;
-
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
-            var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 crf0.mp4";
-            var p = new Process
-            {
-                StartInfo =
+            StartInfo =
     {
         FileName = "ffmpeg.exe",
         Arguments = $"{inputArgs} {outputArgs}",
@@ -3026,87 +2973,87 @@ namespace ComputerGraphicsAlgorithms
         CreateNoWindow = false,
         RedirectStandardInput = true
     }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var rnd = new Random();
-            var a = new List<ushort[,,]>();
+        var rnd = new Random();
+        var a = new List<ushort[,,]>();
 
-            for (int i = 0; i < n; i++)
-            {
-                var x = (int)Math.Ceiling(1.0 * w / (h / (i + 1)));
-                var y = (int)Math.Ceiling(1.0 * h / (h / (i + 1)));
+        for (int i = 0; i < n; i++)
+        {
+            var x = (int)Math.Ceiling(1.0 * w / (h / (i + 1)));
+            var y = (int)Math.Ceiling(1.0 * h / (h / (i + 1)));
 
-                var u = new ushort[y, x, 3];
+            var u = new ushort[y, x, 3];
 
-                for (int j = 0; j < u.GetLength(0); j++)
-                    for (int k = 0; k < u.GetLength(1); k++)
-                    {
-                        u[j, k, 0] = (ushort)rnd.Next(65536);
-                        u[j, k, 1] = (ushort)rnd.Next(65536);
-                        u[j, k, 2] = (ushort)rnd.Next(65536);
-                    }
-
-                a.Add(u);
-            }
-
-            var ffmpegIn = p.StandardInput.BaseStream;
-
-            for (int i = 1; i < n + 1; i++)
-            {
-                for (int j = 0; j < 180; j++)
+            for (int j = 0; j < u.GetLength(0); j++)
+                for (int k = 0; k < u.GetLength(1); k++)
                 {
-                    for (int s = 0; s < i; s++)
-                    {
-                        var e = 0;
-                        var b = new byte[a[s].GetLength(0) * a[s].GetLength(1) * 3];
-                        rnd.NextBytes(b);
-                        for (int t = 0; t < a[s].GetLength(0); t++)
-                            for (int k = 0; k < a[s].GetLength(1); k++)
-                            {
-                                a[s][t, k, 0] += b[e++];
-                                a[s][t, k, 1] += b[e++];
-                                a[s][t, k, 2] += b[e++];
-                            }
-                    }
+                    u[j, k, 0] = (ushort)rnd.Next(65536);
+                    u[j, k, 1] = (ushort)rnd.Next(65536);
+                    u[j, k, 2] = (ushort)rnd.Next(65536);
+                }
 
-                    for (int y = 0; y < h; y++)
-                        for (int x = 0; x < w; x++)
+            a.Add(u);
+        }
+
+        var ffmpegIn = p.StandardInput.BaseStream;
+
+        for (int i = 1; i < n + 1; i++)
+        {
+            for (int j = 0; j < 180; j++)
+            {
+                for (int s = 0; s < i; s++)
+                {
+                    var e = 0;
+                    var b = new byte[a[s].GetLength(0) * a[s].GetLength(1) * 3];
+                    rnd.NextBytes(b);
+                    for (int t = 0; t < a[s].GetLength(0); t++)
+                        for (int k = 0; k < a[s].GetLength(1); k++)
                         {
-                            int r = 0, g = 0, b = 0;
-                            for (int k = 0; k < i; k++)
-                            {
-                                var xx = x / (h / (k + 1));
-                                var yy = y / (h / (k + 1));
-
-                                r += a[k][yy, xx, 0];
-                                g += a[k][yy, xx, 1];
-                                b += a[k][yy, xx, 2];
-                            }
-                            var ur = r / i;
-                            var ug = g / i;
-                            var ub = b / i;
-
-                            ffmpegIn.WriteByte((byte)ur); ffmpegIn.WriteByte((byte)(ur >> 8));
-                            ffmpegIn.WriteByte((byte)ug); ffmpegIn.WriteByte((byte)(ug >> 8));
-                            ffmpegIn.WriteByte((byte)ub); ffmpegIn.WriteByte((byte)(ub >> 8));
+                            a[s][t, k, 0] += b[e++];
+                            a[s][t, k, 1] += b[e++];
+                            a[s][t, k, 2] += b[e++];
                         }
-                    ffmpegIn.Flush();
                 }
+
+                for (int y = 0; y < h; y++)
+                    for (int x = 0; x < w; x++)
+                    {
+                        int r = 0, g = 0, b = 0;
+                        for (int k = 0; k < i; k++)
+                        {
+                            var xx = x / (h / (k + 1));
+                            var yy = y / (h / (k + 1));
+
+                            r += a[k][yy, xx, 0];
+                            g += a[k][yy, xx, 1];
+                            b += a[k][yy, xx, 2];
+                        }
+                        var ur = r / i;
+                        var ug = g / i;
+                        var ub = b / i;
+
+                        ffmpegIn.WriteByte((byte)ur); ffmpegIn.WriteByte((byte)(ur >> 8));
+                        ffmpegIn.WriteByte((byte)ug); ffmpegIn.WriteByte((byte)(ug >> 8));
+                        ffmpegIn.WriteByte((byte)ub); ffmpegIn.WriteByte((byte)(ub >> 8));
+                    }
+                ffmpegIn.Flush();
             }
-            ffmpegIn.Close();
-            p.WaitForExit();
         }
-        public static void MultiLevelLine()
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void MultiLevelLine()
+    {
+        var w = 1044480;
+        var h = 1;
+        var inputArgs = $"-y -f rawvideo -pix_fmt gray16 -s:v {w}x1 -r 60 -i -";
+        var outputArgs = $"-c:v libx265 -preset veryfast -x265-params lossless=1 -vf scale=16384:9216 vertfast_lossless.mp4";
+        var p = new Process
         {
-            var w = 1044480;
-            var h = 1;
-            var inputArgs = $"-y -f rawvideo -pix_fmt gray16 -s:v {w}x1 -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset veryfast -x265-params lossless=1 -vf scale=16384:9216 vertfast_lossless.mp4";
-            var p = new Process
-            {
-                StartInfo =
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -3114,66 +3061,66 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
+        var ffmpegIn = p.StandardInput.BaseStream;
 
-            for (int i = 0; i < 65537; i++)
+        for (int i = 0; i < 65537; i++)
+        {
+            for (int j = 0; j < w; j++)
             {
-                for (int j = 0; j < w; j++)
-                {
-                    var g = (ushort)(i + j / 16);
-                    ffmpegIn.WriteByte((byte)g);
-                    ffmpegIn.WriteByte((byte)(g >> 8));
-                }
-
-                ffmpegIn.Flush();
+                var g = (ushort)(i + j / 16);
+                ffmpegIn.WriteByte((byte)g);
+                ffmpegIn.WriteByte((byte)(g >> 8));
             }
-            ffmpegIn.Close();
-            p.WaitForExit();
 
+            ffmpegIn.Flush();
         }
-        public static void Izgara()
-        {
-            int w = 512;
-            int h = 512;
-            var width = 8192;
-            var height = 4608;
-            var pixels = new Color24[height, width];
-            var pix = new Color24[1 + height / h, 1 + width / w];
+        ffmpegIn.Close();
+        p.WaitForExit();
 
-            var r = new Random();
+    }
+    public static void Izgara()
+    {
+        int w = 512;
+        int h = 512;
+        var width = 8192;
+        var height = 4608;
+        var pixels = new Color24[height, width];
+        var pix = new Color24[1 + height / h, 1 + width / w];
 
-            for (int y = 0; y < 1 + height / h; y++)
-                for (int x = 0; x < 1 + width / w; x++)
-                {
-                    pix[y, x].r = (byte)(r.Next(86) * 3);
-                    pix[y, x].g = (byte)(r.Next(86) * 3);
-                    pix[y, x].b = (byte)(r.Next(86) * 3);
-                }
+        var r = new Random();
 
-            for (int y = 0; y < height; y++)
-                for (int x = 0; x < width; x++)
-                    pixels[y, x] = pix[y / h, x / w];
-
-            var b = pixelsToBitmap(pixels);
-
-            for (int i = 0; i < 101; i += 5)
-                saveJpeg(b, i, i.ToString("D3") + ".jpg");
-        }
-        public static void Bound()
-        {
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
-            //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=1280:720 -sws_flags gauss -crf 0 9.mp4";
-            var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
-
-            //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
-            //-sws_flags neighbor
-            var p = new Process
+        for (int y = 0; y < 1 + height / h; y++)
+            for (int x = 0; x < 1 + width / w; x++)
             {
-                StartInfo =
+                pix[y, x].r = (byte)(r.Next(86) * 3);
+                pix[y, x].g = (byte)(r.Next(86) * 3);
+                pix[y, x].b = (byte)(r.Next(86) * 3);
+            }
+
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+                pixels[y, x] = pix[y / h, x / w];
+
+        var b = pixelsToBitmap(pixels);
+
+        for (int i = 0; i < 101; i += 5)
+            saveNetPBM(b, i.ToString("D3") + ".pm");
+    }
+    public static void Bound()
+    {
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
+        //var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=1280:720 -sws_flags gauss -crf 0 9.mp4";
+        var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
+
+        //var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 1 libsvtav1_crf1_8k.mp4";
+        //-sws_flags neighbor
+        var p = new Process
+        {
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -3181,78 +3128,78 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var a = new ushort[135];
-            var b = new byte[135];
-            var r = new Random();
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var a = new ushort[135];
+        var b = new byte[135];
+        var r = new Random();
 
-            for (int i = 0; i < 135; i++)
-                a[i] = (ushort)r.Next(65536);
+        for (int i = 0; i < 135; i++)
+            a[i] = (ushort)r.Next(65536);
 
-            for (int i = 0; i < 1530; i++)
+        for (int i = 0; i < 1530; i++)
+        {
+            r.NextBytes(b);
+            for (var j = 0; j < 135; j++)
             {
-                r.NextBytes(b);
-                for (var j = 0; j < 135; j++)
-                {
-                    a[j] += (byte)(b[j] % (2 + i / 60));
-                    ffmpegIn.WriteByte((byte)a[j]);
-                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
-                }
-
-                ffmpegIn.Flush();
+                a[j] += (byte)(b[j] % (2 + i / 60));
+                ffmpegIn.WriteByte((byte)a[j]);
+                ffmpegIn.WriteByte((byte)(a[j] >> 8));
             }
-            ffmpegIn.Close();
-            p.WaitForExit();
+
+            ffmpegIn.Flush();
         }
-        public static byte[,] Checker(byte[,] a)
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static byte[,] Checker(byte[,] a)
+    {
+        var b = a.GetLength(0);
+        var c = b * 2;
+        var d = new byte[c, c];
+
+        for (var i = 0; i < c; i++)
+            for (var j = 0; j < c; j++)
+                d[i, j] = a[i / 2, j / 2];
+
+        for (var i = 0; i < c; i++)
+            d[i, i] = (byte)(255 - d[i, i]);
+
+        return d;
+    }
+    public static byte[,] Checker169(byte[,] a)
+    {
+        var b = a.GetLength(0);
+        var c = b * 2;
+        var d = new byte[c, c];
+
+        for (var i = 0; i < c; i++)
+            for (var j = 0; j < c; j++)
+                d[i, j] = a[i / 2, j / 2];
+
+        for (var i = 0; i < c; i++)
+            d[i, i]++;
+
+        return d;
+    }
+    public static void CheckerVideo()
+    {
+        var n = 14;
+        var a = 1 << n;
+        var b = new byte[1, 1] { { 0 } };
+
+        for (int i = 0; i < n; i++)
+            b = Checker(b);
+
+        var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 4608x8192 -r 60 -i -";
+        var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 1.mp4";
+
+        var p = new Process
         {
-            var b = a.GetLength(0);
-            var c = b * 2;
-            var d = new byte[c, c];
-
-            for (var i = 0; i < c; i++)
-                for (var j = 0; j < c; j++)
-                    d[i, j] = a[i / 2, j / 2];
-
-            for (var i = 0; i < c; i++)
-                d[i, i] = (byte)(255 - d[i, i]);
-
-            return d;
-        }
-        public static byte[,] Checker169(byte[,] a)
-        {
-            var b = a.GetLength(0);
-            var c = b * 2;
-            var d = new byte[c, c];
-
-            for (var i = 0; i < c; i++)
-                for (var j = 0; j < c; j++)
-                    d[i, j] = a[i / 2, j / 2];
-
-            for (var i = 0; i < c; i++)
-                d[i, i]++;
-
-            return d;
-        }
-        public static void CheckerVideo()
-        {
-            var n = 14;
-            var a = 1 << n;
-            var b = new byte[1, 1] { { 0 } };
-
-            for (int i = 0; i < n; i++)
-                b = Checker(b);
-
-            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 4608x8192 -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 1.mp4";
-
-            var p = new Process
-            {
-                StartInfo =
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -3260,33 +3207,33 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
+        var ffmpegIn = p.StandardInput.BaseStream;
 
-            for (int f = 0; f < 3600; f++)
-            {
-                for (int i = 0; i < 9216; i++)
-                    for (int j = 0; j < 16384; j++)
-                        ffmpegIn.WriteByte(b[(i + f) % 16384, (j + f) % 16384]);
-
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static void CheckerVideo169()
+        for (int f = 0; f < 3600; f++)
         {
-            var n = 7;
-            var a = 1 << n;
-            var b = new byte[1, 1] { { 0 } };
+            for (int i = 0; i < 9216; i++)
+                for (int j = 0; j < 16384; j++)
+                    ffmpegIn.WriteByte(b[(i + f) % 16384, (j + f) % 16384]);
 
-            for (int i = 0; i < n; i++)
-                b = Checker169(b);
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static void CheckerVideo169()
+    {
+        var n = 7;
+        var a = 1 << n;
+        var b = new byte[1, 1] { { 0 } };
 
-            var r = new byte[8, 3] {
+        for (int i = 0; i < n; i++)
+            b = Checker169(b);
+
+        var r = new byte[8, 3] {
                 { 0, 0, 0 },
                 { 0, 0, 255 },
                 { 0, 255, 0 },
@@ -3297,22 +3244,148 @@ namespace ComputerGraphicsAlgorithms
                 { 255, 255, 255 }
             };
 
-            var c = new byte[8192, 8192, 3];
-            for (int i = 0; i < 8192; i++)
+        var c = new byte[8192, 8192, 3];
+        for (int i = 0; i < 8192; i++)
+            for (int j = 0; j < 8192; j++)
+            {
+                var k = b[i / 64, j / 64];
+                c[i, j, 0] = r[k % 8, 0];
+                c[i, j, 1] = r[k % 8, 1];
+                c[i, j, 2] = r[k % 8, 2];
+            }
+
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 8192x4608 -r 60 -i -";
+        var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless.mp4";
+
+        var p = new Process
+        {
+            StartInfo =
+            {
+                FileName = "ffmpeg.exe",
+                Arguments = $"{inputArgs} {outputArgs}",
+                UseShellExecute = false,
+                CreateNoWindow = false,
+                RedirectStandardInput = true
+            }
+        };
+
+        p.Start();
+
+        var ffmpegIn = p.StandardInput.BaseStream;
+
+        for (int f = 0; f < 4096; f++)
+        {
+            for (int i = 0; i < 4608; i++)
                 for (int j = 0; j < 8192; j++)
                 {
-                    var k = b[i / 64, j / 64];
-                    c[i, j, 0] = r[k % 8, 0];
-                    c[i, j, 1] = r[k % 8, 1];
-                    c[i, j, 2] = r[k % 8, 2];
+                    var ii = (i + f) % 8192;
+                    var jj = (j + f) % 8192;
+
+                    ffmpegIn.WriteByte(c[ii, jj, 2]);
+                    ffmpegIn.WriteByte(c[ii, jj, 1]);
+                    ffmpegIn.WriteByte(c[ii, jj, 0]);
                 }
 
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 8192x4608 -r 60 -i -";
-            var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless.mp4";
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static common.Color24[,] ViewfinityS9()
+    {
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+        var w = 5120;
+        var h = 2880;
+        var n = 8;
+        var a = new short[h * n, w * n];
 
-            var p = new Process
+        for (int j = 0; j < h * n; j++)
+            for (int i = 0; i < w * n; i++)
+                a[j, i] = (short)((j * 16 + i * 9) / 90.34);
+
+        var pixels = new common.Color24[h, w];
+
+        for (int j = 0; j < h; j++)
+        {
+            var jj = j * 8;
+            for (int i = 0; i < w; i++)
             {
-                StartInfo =
+                var ii = i * 8;
+                int r = 0, g = 0, b = 0;
+                for (int x = 0; x < 8; x++)
+                    for (int y = 0; y < 8; y++)
+                    {
+                        var k = a[jj + x, ii + y] % 4081;
+                        r += p[k].r;
+                        g += p[k].g;
+                        b += p[k].b;
+                    }
+                pixels[j, i].r = (byte)(r / 64);
+                pixels[j, i].g = (byte)(g / 64);
+                pixels[j, i].b = (byte)(b / 64);
+            }
+        }
+        return pixels;
+    }
+    public static common.Color24[,] ViewfinityS9Simple()
+    {
+        var n = 13;
+        var w = 5120;
+        var h = 2880;
+        var a = new int[h, w];
+
+        var c = 1 + ((h * n - 1) * 16 + (w * n - 1) * 9) / 2;
+        var d = c / 4;
+
+        for (int j = 0; j < h * n; j++)
+            for (int i = 0; i < w * n; i++)
+                a[j / n, i / n] += ((j * 16 + i * 9) / d) % 4;
+
+        var pixels = new common.Color24[h, w];
+
+        for (int j = 0; j < h; j++)
+        {
+            for (int i = 0; i < w; i++)
+            {
+                var k = (byte)(1 + (a[j, i] >> 1));
+
+                pixels[j, i].r = k;
+                pixels[j, i].g = k;
+                pixels[j, i].b = k;
+            }
+        }
+        return pixels;
+    }
+    public static common.Color24[,] ViewfinityS9Simple2()
+    {
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        var w = 5120;
+        var h = 2880;
+
+        var pixels = new common.Color24[h, w];
+
+        for (int j = 0; j < h; j++)
+        {
+            for (int i = 0; i < w; i++)
+            {
+                var a = (j * 16 + i * 9) / 25;
+
+                pixels[j, i].r = p[a].r;
+                pixels[j, i].g = p[a].g;
+                pixels[j, i].b = p[a].b;
+            }
+        }
+        return pixels;
+    }
+    public static void BrownianMotion()
+    {
+        var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 36x64 -r 60 -i -";
+        var outputArgs = "-c:v libx265 -sws_flags neighbor -preset ultrafast -vf scale=4320:7680 -x265-params lossless=1 1.mp4";
+        //neighbor
+        var p = new Process
+        {
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -3320,125 +3393,95 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
-
-            for (int f = 0; f < 4096; f++)
-            {
-                for (int i = 0; i < 4608; i++)
-                    for (int j = 0; j < 8192; j++)
-                    {
-                        var ii = (i + f) % 8192;
-                        var jj = (j + f) % 8192;
-
-                        ffmpegIn.WriteByte(c[ii, jj, 2]);
-                        ffmpegIn.WriteByte(c[ii, jj, 1]);
-                        ffmpegIn.WriteByte(c[ii, jj, 0]);
-                    }
-
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static common.Color24[,] ViewfinityS9()
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var a = new byte[2304];
+        var x = 18;
+        var y = 32;
+        var r = new Random();
+        for (int i = 0; i < 3600; i++)
         {
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-            var w = 5120;
-            var h = 2880;
-            var n = 8;
-            var a = new short[h * n, w * n];
+            var z = y * 36 + x;
+            a[z] += 51;
+            x += (r.Next() % 3) - 1;
+            y += (r.Next() % 5) - 2;
 
-            for (int j = 0; j < h * n; j++)
-                for (int i = 0; i < w * n; i++)
-                    a[j, i] = (short)((j * 16 + i * 9) / 90.34);
+            if (x < 0) x += 36;
+            if (x > 35) x -= 36;
+            if (y < 0) y += 64;
+            if (y > 63) y -= 64;
 
-            var pixels = new common.Color24[h, w];
+            //z = y * 256 + x;
+            //a[z] = 255;
 
-            for (int j = 0; j < h; j++)
+            ffmpegIn.Write(a);
+            ffmpegIn.Flush();
+        }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static common.Color24[,] RandomGradient24(int n = 26752)
+    {
+        var r = new Random();
+        var m = n / 256.0;
+        var k = 0;
+        var a = new byte[n * n * 3];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
             {
-                var jj = j * 8;
-                for (int i = 0; i < w; i++)
+                var p = i + j;
+                if (p < n)
                 {
-                    var ii = i * 8;
-                    int r = 0, g = 0, b = 0;
-                    for (int x = 0; x < 8; x++)
-                        for (int y = 0; y < 8; y++)
-                        {
-                            var k = a[jj + x, ii + y] % 4081;
-                            r += p[k].r;
-                            g += p[k].g;
-                            b += p[k].b;
-                        }
-                    pixels[j, i].r = (byte)(r / 64);
-                    pixels[j, i].g = (byte)(g / 64);
-                    pixels[j, i].b = (byte)(b / 64);
+                    a[k++] = (byte)r.Next((int)(p / m));
+                    a[k++] = (byte)r.Next((int)(p / m));
+                    a[k++] = (byte)r.Next((int)(p / m));
+                }
+                else
+                {
+                    a[k++] = (byte)r.Next((int)((p - n) / m), 256);
+                    a[k++] = (byte)r.Next((int)((p - n) / m), 256);
+                    a[k++] = (byte)r.Next((int)((p - n) / m), 256);
                 }
             }
-            return pixels;
-        }
-        public static common.Color24[,] ViewfinityS9Simple()
-        {
-            var n = 13;
-            var w = 5120;
-            var h = 2880;
-            var a = new int[h, w];
 
-            var c = 1 + ((h * n - 1) * 16 + (w * n - 1) * 9) / 2;
-            var d = c / 4;
-
-            for (int j = 0; j < h * n; j++)
-                for (int i = 0; i < w * n; i++)
-                    a[j / n, i / n] += ((j * 16 + i * 9) / d) % 4;
-
-            var pixels = new common.Color24[h, w];
-
-            for (int j = 0; j < h; j++)
+        return common.bytesToPixels24(a, n, n);
+    }
+    public static common.Color48[,] RandomGradient48(int n = 12800)
+    {
+        var r = new Random();
+        var m = n / 65536.0;
+        var a = new common.Color48[n, n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
             {
-                for (int i = 0; i < w; i++)
+                var p = i + j;
+                if (p < n)
                 {
-                    var k = (byte)(1 + (a[j, i] >> 1));
-
-                    pixels[j, i].r = k;
-                    pixels[j, i].g = k;
-                    pixels[j, i].b = k;
+                    a[i, j].r = (ushort)r.Next((int)(p / m));
+                    a[i, j].g = (ushort)r.Next((int)(p / m));
+                    a[i, j].b = (ushort)r.Next((int)(p / m));
+                }
+                else
+                {
+                    a[i, j].r = (ushort)r.Next((int)((p - n) / m), 65536);
+                    a[i, j].g = (ushort)r.Next((int)((p - n) / m), 65536);
+                    a[i, j].b = (ushort)r.Next((int)((p - n) / m), 65536);
                 }
             }
-            return pixels;
-        }
-        public static common.Color24[,] ViewfinityS9Simple2()
+
+        return a;
+    }
+    public static void ColorRainHDR()
+    {
+        var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
+        var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=144:80 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
+
+        var p = new Process
         {
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
-            var w = 5120;
-            var h = 2880;
-
-            var pixels = new common.Color24[h, w];
-
-            for (int j = 0; j < h; j++)
-            {
-                for (int i = 0; i < w; i++)
-                {
-                    var a = (j * 16 + i * 9) / 25;
-
-                    pixels[j, i].r = p[a].r;
-                    pixels[j, i].g = p[a].g;
-                    pixels[j, i].b = p[a].b;
-                }
-            }
-            return pixels;
-        }
-        public static void BrownianMotion()
-        {
-            var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 36x64 -r 60 -i -";
-            var outputArgs = "-c:v libx265 -sws_flags neighbor -preset ultrafast -vf scale=4320:7680 -x265-params lossless=1 1.mp4";
-            //neighbor
-            var p = new Process
-            {
-                StartInfo =
+            StartInfo =
             {
                 FileName = "ffmpeg.exe",
                 Arguments = $"{inputArgs} {outputArgs}",
@@ -3446,154 +3489,57 @@ namespace ComputerGraphicsAlgorithms
                 CreateNoWindow = false,
                 RedirectStandardInput = true
             }
-            };
+        };
 
-            p.Start();
+        p.Start();
 
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var a = new byte[2304];
-            var x = 18;
-            var y = 32;
-            var r = new Random();
-            for (int i = 0; i < 3600; i++)
-            {
-                var z = y * 36 + x;
-                a[z] += 51;
-                x += (r.Next() % 3) - 1;
-                y += (r.Next() % 5) - 2;
+        var ffmpegIn = p.StandardInput.BaseStream;
+        var a = new ushort[135];
+        var b = new byte[135];
+        var r = new Random();
 
-                if (x < 0) x += 36;
-                if (x > 35) x -= 36;
-                if (y < 0) y += 64;
-                if (y > 63) y -= 64;
+        for (int i = 0; i < 135; i++)
+            a[i] = (ushort)r.Next(65536);
 
-                //z = y * 256 + x;
-                //a[z] = 255;
-
-                ffmpegIn.Write(a);
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static common.Color24[,] RandomGradient24(int n = 26752)
+        for (int i = 0; i < 4859; i++)
         {
-            var r = new Random();
-            var m = n / 256.0;
-            var k = 0;
-            var a = new byte[n * n * 3];
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                {
-                    var p = i + j;
-                    if (p < n)
-                    {
-                        a[k++] = (byte)r.Next((int)(p / m));
-                        a[k++] = (byte)r.Next((int)(p / m));
-                        a[k++] = (byte)r.Next((int)(p / m));
-                    }
-                    else
-                    {
-                        a[k++] = (byte)r.Next((int)((p - n) / m), 256);
-                        a[k++] = (byte)r.Next((int)((p - n) / m), 256);
-                        a[k++] = (byte)r.Next((int)((p - n) / m), 256);
-                    }
-                }
-
-            return common.bytesToPixels24(a, n, n);
-        }
-        public static common.Color48[,] RandomGradient48(int n = 12800)
-        {
-            var r = new Random();
-            var m = n / 65536.0;
-            var a = new common.Color48[n, n];
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                {
-                    var p = i + j;
-                    if (p < n)
-                    {
-                        a[i, j].r = (ushort)r.Next((int)(p / m));
-                        a[i, j].g = (ushort)r.Next((int)(p / m));
-                        a[i, j].b = (ushort)r.Next((int)(p / m));
-                    }
-                    else
-                    {
-                        a[i, j].r = (ushort)r.Next((int)((p - n) / m), 65536);
-                        a[i, j].g = (ushort)r.Next((int)((p - n) / m), 65536);
-                        a[i, j].b = (ushort)r.Next((int)((p - n) / m), 65536);
-                    }
-                }
-
-            return a;
-        }
-        public static void ColorRainHDR()
-        {
-            var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
-            var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=144:80 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
-
-            var p = new Process
+            r.NextBytes(b);
+            for (var j = 0; j < 135; j++)
             {
-                StartInfo =
-            {
-                FileName = "ffmpeg.exe",
-                Arguments = $"{inputArgs} {outputArgs}",
-                UseShellExecute = false,
-                CreateNoWindow = false,
-                RedirectStandardInput = true
-            }
-            };
-
-            p.Start();
-
-            var ffmpegIn = p.StandardInput.BaseStream;
-            var a = new ushort[135];
-            var b = new byte[135];
-            var r = new Random();
-
-            for (int i = 0; i < 135; i++)
-                a[i] = (ushort)r.Next(65536);
-
-            for (int i = 0; i < 4859; i++)
-            {
-                r.NextBytes(b);
-                for (var j = 0; j < 135; j++)
-                {
-                    a[j] += b[j];
-                    ffmpegIn.WriteByte((byte)a[j]);
-                    ffmpegIn.WriteByte((byte)(a[j] >> 8));
-                }
-
-                ffmpegIn.Flush();
-            }
-            ffmpegIn.Close();
-            p.WaitForExit();
-        }
-        public static common.Color24[,] Hat()
-        {
-            var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
-
-            var w = 5248;
-            var h = 2880;
-
-            var pixels = new common.Color24[h, w];
-
-            var k = 0;
-            for (int i = 0; i < 100; i++)
-            {
-                var a = 4079 / (i + 1.0);
-                var b = 1.0;
-                for (int j = 0; j < i + 2; j++)
-                {
-                    pixels[i, k].r = p[(int)b].r;
-                    pixels[i, k].g = p[(int)b].g;
-                    pixels[i, k].b = p[(int)b].b;
-                    k++;
-                    b += a;
-                }
+                a[j] += b[j];
+                ffmpegIn.WriteByte((byte)a[j]);
+                ffmpegIn.WriteByte((byte)(a[j] >> 8));
             }
 
-            return pixels;
+            ffmpegIn.Flush();
         }
+        ffmpegIn.Close();
+        p.WaitForExit();
+    }
+    public static common.Color24[,] Hat()
+    {
+        var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
+
+        var w = 5248;
+        var h = 2880;
+
+        var pixels = new common.Color24[h, w];
+
+        var k = 0;
+        for (int i = 0; i < 100; i++)
+        {
+            var a = 4079 / (i + 1.0);
+            var b = 1.0;
+            for (int j = 0; j < i + 2; j++)
+            {
+                pixels[i, k].r = p[(int)b].r;
+                pixels[i, k].g = p[(int)b].g;
+                pixels[i, k].b = p[(int)b].b;
+                k++;
+                b += a;
+            }
+        }
+
+        return pixels;
     }
 }
