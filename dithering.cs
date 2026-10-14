@@ -1,6 +1,6 @@
 ﻿namespace ComputerGraphicsAlgorithms;
 
-public static class dithering
+public static class Dithering
 {
     public static void FloydSteinberg()
     {

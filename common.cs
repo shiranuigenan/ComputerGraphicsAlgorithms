@@ -2,7 +2,7 @@
 
 namespace ComputerGraphicsAlgorithms;
 
-public static class common
+public static class Common
 {
     public struct Color24
     {
@@ -86,7 +86,7 @@ public static class common
 
         return new Color48 { r = (ushort)r, g = (ushort)g, b = (ushort)b };
     }
-    public static Color24[,] bytesToPixels24(byte[] bytes, int width, int height)
+    public static Color24[,]? bytesToPixels24(byte[] bytes, int width, int height)
     {
         try
         {
@@ -102,7 +102,7 @@ public static class common
         catch (System.Exception) { }
         return null;
     }
-    public static Color32[,] bytesToPixels(byte[] bytes, int width, int height)
+    public static Color32[,]? bytesToPixels(byte[] bytes, int width, int height)
     {
         try
         {
@@ -118,7 +118,7 @@ public static class common
         catch (System.Exception) { }
         return null;
     }
-    public static Color48[,] bytesToPixels48(byte[] bytes, int width, int height)
+    public static Color48[,]? bytesToPixels48(byte[] bytes, int width, int height)
     {
         try
         {
@@ -172,7 +172,7 @@ public static class common
         }
         return new NetPBM(NetPBMFormat.PGM, pixels, width, height);
     }
-    public static byte[] randomBytes(int byteCount)
+    public static byte[]? randomBytes(int byteCount)
     {
         try
         {

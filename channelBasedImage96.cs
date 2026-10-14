@@ -55,9 +55,9 @@ public class channelBasedImage96
     {
         width /= ratio;
         height /= ratio;
-        r = common.Scale(r, ratio);
-        g = common.Scale(g, ratio);
-        b = common.Scale(b, ratio);
+        r = Common.Scale(r, ratio);
+        g = Common.Scale(g, ratio);
+        b = Common.Scale(b, ratio);
     }
     public NetPBM convertBitmap()
     {

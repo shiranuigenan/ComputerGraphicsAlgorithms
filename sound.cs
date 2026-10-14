@@ -1,6 +1,6 @@
 ﻿namespace ComputerGraphicsAlgorithms;
 
-public static class sound
+public static class Sound
 {
     ///flac 1.raw -f --endian=little --channels=1 --bps=32 --sample-rate=655350 --sign=signed
     public static void Su32bit()
@@ -74,11 +74,11 @@ public static class sound
             writer.Close();
         }
     }
-    public static byte[] whiteNoiseFlac24bit()
+    public static byte[]? whiteNoiseFlac24bit()
     {
         return intTo24bit(pseudoRandomNumberGenerator24bit());
     }
-    public static byte[] pinkNoiseFlac24bit()
+    public static byte[]? pinkNoiseFlac24bit()
     {
         int bit = 23;
         var prn = pseudoRandomNumberGenerator24bit();
@@ -140,7 +140,7 @@ public static class sound
         }
         return pinkNoise;
     }
-    public static byte[] pinkNoiseFlac24bit2()
+    public static byte[]? pinkNoiseFlac24bit2()
     {
         int bit = 23;
         var whiteNoise = new int[bit];
@@ -180,7 +180,7 @@ public static class sound
             a[i] = (uint)x;
         return a;
     }
-    public static byte[] intTo24bit(int[] a)
+    public static byte[]? intTo24bit(int[] a)
     {
         if (a == null || a.Length < 1)
             return null;

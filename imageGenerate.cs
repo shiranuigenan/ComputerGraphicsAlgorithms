@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
-using static ComputerGraphicsAlgorithms.common;
+using static ComputerGraphicsAlgorithms.Common;
 
 namespace ComputerGraphicsAlgorithms;
 
 public static class imageGenerate
 {
-    public static common.Color24[,] Boundary4080()
+    public static Common.Color24[,] Boundary4080()
     {
         var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
 
@@ -14,7 +14,7 @@ public static class imageGenerate
 
         var r = new Random();
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         Parallel.For(0, w, j =>
         {
@@ -56,7 +56,7 @@ public static class imageGenerate
 
         return pixels;
     }
-    public static common.Color24[,] Boundary(byte a, int w, int h)
+    public static Common.Color24[,] Boundary(byte a, int w, int h)
     {
         //var w = 2560;
         //var h = 1440;
@@ -64,7 +64,7 @@ public static class imageGenerate
         var b = 255 / a;
         var r = new Random();
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         for (int j = 0; j < w; j++)
         {
@@ -82,7 +82,7 @@ public static class imageGenerate
 
         return pixels;
     }
-    public static common.Color24[,] BoundaryColored(byte a, int w, int h)
+    public static Common.Color24[,] BoundaryColored(byte a, int w, int h)
     {
         //var w = 2560;
         //var h = 1440;
@@ -90,7 +90,7 @@ public static class imageGenerate
         var b = 255 / a;
         var r = new Random();
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         for (int j = 0; j < w; j++)
         {
@@ -112,13 +112,13 @@ public static class imageGenerate
 
         return pixels;
     }
-    public static common.Color24[,] XPowerY_PLUS_YPowerX()
+    public static Common.Color24[,] XPowerY_PLUS_YPowerX()
     {
         var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
         var w = 7680;
         var h = 4320;
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         for (int j = 0; j < h; j++)
             for (int i = 0; i < w; i++)
@@ -149,9 +149,9 @@ public static class imageGenerate
         var c = pixelsToBitmap(b);
         c.Save("1.pgm");
     }
-    public static common.Color24[,] XPowerY()
+    public static Common.Color24[,] XPowerY()
     {
-        var pixels = new common.Color24[26752, 26752];
+        var pixels = new Common.Color24[26752, 26752];
         //var max = double.MinValue;
         //var min = double.MaxValue;
 
@@ -179,10 +179,10 @@ public static class imageGenerate
         //Console.WriteLine(max);
         return pixels;
     }
-    public static common.Color24[,] EPowerXSquare(int width)
+    public static Common.Color24[,] EPowerXSquare(int width)
     {
         int height = 9 * width / 16;
-        var pixels = new common.Color24[height, width];
+        var pixels = new Common.Color24[height, width];
 
         for (int i = 0; i < width; i++)
         {
@@ -199,7 +199,7 @@ public static class imageGenerate
 
         return pixels;
     }
-    public static common.Color24[,] FlagTurkiye(int yukseklik)
+    public static Common.Color24[,] FlagTurkiye(int yukseklik)
     {
         //Y	Yükseklik 1
         //A	Dış ay merkezinin uçkurluktan mesafesi	1/2 Y
@@ -235,7 +235,7 @@ public static class imageGenerate
 
             }
 
-        var pixels = new common.Color24[yukseklik, genislik];
+        var pixels = new Common.Color24[yukseklik, genislik];
 
         for (int i = 0; i < yukseklik; i++)
         {
@@ -250,11 +250,11 @@ public static class imageGenerate
 
         return pixels;
     }
-    public static common.Color24[,] PerfectBallQuarter()
+    public static Common.Color24[,] PerfectBallQuarter()
     {
         var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
 
-        var pixels = new common.Color24[4080, 4080];
+        var pixels = new Common.Color24[4080, 4080];
         Parallel.For(0, 4080, i =>
         {
             for (var j = 0; j < 4080; j++)
@@ -264,15 +264,15 @@ public static class imageGenerate
                     if (i * i + j * j + k * k < 16638241)
                         b++;
 
-                pixels[j, i] = p[b]; //common.PsuedoGreyPlus24(b);
+                pixels[j, i] = p[b]; //Common.PsuedoGreyPlus24(b);
             }
         });
 
         return pixels;
     }
-    public static common.Color24[,] PerfectBall()
+    public static Common.Color24[,] PerfectBall()
     {
-        var pixels = new common.Color24[8192, 8192];
+        var pixels = new Common.Color24[8192, 8192];
 
         var quarter = PerfectBallQuarter();
 
@@ -313,14 +313,14 @@ public static class imageGenerate
             if (bb != b)
             {
                 bb = b;
-                var c = common.PsuedoGreyPlus(b);
+                var c = Common.PsuedoGreyPlus(b);
                 Console.WriteLine(string.Format("<stop offset=\"{0:0.00}%\" style=\"stop-color:rgb({1},{2},{3})\" />", 100.0 * j / 4080.0, c.r, c.g, c.b));
             }
         }
     }
-    public static common.Color32[,] PerfectBallQuarter2()
+    public static Common.Color32[,] PerfectBallQuarter2()
     {
-        var pixels = new common.Color32[4096, 4096];
+        var pixels = new Common.Color32[4096, 4096];
         Parallel.For(0, 4096, i =>
         {
             for (var j = 0; j < 4096; j++)
@@ -330,22 +330,22 @@ public static class imageGenerate
                     if (i * i + j * j + k * k < 16638241)
                         b++;
 
-                pixels[j, i] = common.PsuedoGreyPlus(b);
+                pixels[j, i] = Common.PsuedoGreyPlus(b);
             }
         });
 
         return pixels;
     }
-    public static common.Color48[,] XSquarePlusYSquare()
+    public static Common.Color48[,] XSquarePlusYSquare()
     {
-        var pixels = new common.Color48[10240, 10240];
+        var pixels = new Common.Color48[10240, 10240];
 
         Parallel.For(0, 5120, i =>
         {
             for (var j = 0; j < 5120; j++)
             {
                 var a = (i + 1) * (i + 1) + (j + 1) * (j + 1);
-                pixels[5119 - j, 5119 - i] = common.PsuedoGreyPlus48(a / 50);
+                pixels[5119 - j, 5119 - i] = Common.PsuedoGreyPlus48(a / 50);
             }
         });
 
@@ -359,14 +359,14 @@ public static class imageGenerate
 
         return pixels;
     }
-    public static common.Color48[,] XMultiplyY()
+    public static Common.Color48[,] XMultiplyY()
     {
-        var pixels = new common.Color48[10240, 10240];
+        var pixels = new Common.Color48[10240, 10240];
 
         Parallel.For(0, 5120, i =>
         {
             for (var j = 0; j < 5120; j++)
-                pixels[j, i] = common.PsuedoGreyPlus48(((i + 1) * (j + 1) - 1) / 25);
+                pixels[j, i] = Common.PsuedoGreyPlus48(((i + 1) * (j + 1) - 1) / 25);
         });
 
         for (var i = 0; i < 5120; i++)
@@ -386,13 +386,13 @@ public static class imageGenerate
         for (int i = 0; i < 10240; i++)
             for (int j = 0; j < 10240; j++)
             {
-                var d = common.PsuedoGreyPlus24(i % 2040 + j % 2040);
+                var d = Common.PsuedoGreyPlus24(i % 2040 + j % 2040);
                 a[k++] = d.r;
                 a[k++] = d.g;
                 a[k++] = d.b;
             }
-        var b = common.bytesToBitmap24(a, 10240, 10240);
-        common.saveNetPBM(b, "100.pm");
+        var b = Common.bytesToBitmap24(a, 10240, 10240);
+        Common.saveNetPBM(b, "100.pm");
     }
     public static void XPlusYMod()
     {
@@ -401,13 +401,13 @@ public static class imageGenerate
         for (int i = 0; i < 10240; i++)
             for (int j = 0; j < 10240; j++)
             {
-                var d = common.PsuedoGreyPlus24((i + j) % 4080);
+                var d = Common.PsuedoGreyPlus24((i + j) % 4080);
                 a[k++] = d.r;
                 a[k++] = d.g;
                 a[k++] = d.b;
             }
-        var b = common.bytesToBitmap24(a, 10240, 10240);
-        common.saveNetPBM(b, "100.pm");
+        var b = Common.bytesToBitmap24(a, 10240, 10240);
+        Common.saveNetPBM(b, "100.pm");
     }
     public static void PsuedoPerspective()
     {
@@ -416,13 +416,13 @@ public static class imageGenerate
         for (int i = 0; i < 4096; i++)
             for (int j = 0; j < 25600; j++)
             {
-                var d = common.PsuedoGreyPlus24(((j + 1) % (i + 1)) % 4080);
+                var d = Common.PsuedoGreyPlus24(((j + 1) % (i + 1)) % 4080);
                 a[k++] = d.r;
                 a[k++] = d.g;
                 a[k++] = d.b;
             }
-        var b = common.bytesToBitmap24(a, 25600, 4096);
-        common.saveNetPBM(b, "100.pm");
+        var b = Common.bytesToBitmap24(a, 25600, 4096);
+        Common.saveNetPBM(b, "100.pm");
     }
     public static void Arctangent()
     {
@@ -440,7 +440,7 @@ public static class imageGenerate
                 c = 1 - Math.Abs(2 * c - 1);
                 c = 1 - Math.Abs(2 * c - 1);
                 c = 1 - Math.Abs(2 * c - 1);
-                var d = common.PsuedoGreyPlus48((int)(1048576 * c));
+                var d = Common.PsuedoGreyPlus48((int)(1048576 * c));
                 a[6 * j + 0] = (byte)d.r;
                 a[6 * j + 1] = (byte)(d.r >> 8);
                 a[6 * j + 2] = (byte)d.g;
@@ -458,7 +458,7 @@ public static class imageGenerate
         for (int i = 0; i < 300000; i++)
         {
             var f = Math.Pow(1.00004621098, i);
-            var d = common.PsuedoGreyPlus48((int)f);
+            var d = Common.PsuedoGreyPlus48((int)f);
             w.Write(d.r);
             w.Write(d.g);
             w.Write(d.b);
@@ -2694,7 +2694,7 @@ public static class imageGenerate
         var k = 0;
         for (int i = 0; i < 315; i++)
         {
-            var p = common.PsuedoGreyPlus24(i + 3766);
+            var p = Common.PsuedoGreyPlus24(i + 3766);
 
             var newColor = true;
             for (int j = 0; j < k; j++)
@@ -2750,9 +2750,9 @@ public static class imageGenerate
                 {
                     var c = new channelBasedImage(frame);
                     c.Scale(9);
-                    common.FloydSteinberg(c.r, x => x > 8388608 ? 16777215 : 0);
-                    common.FloydSteinberg(c.g, x => x > 8388608 ? 16777215 : 0);
-                    common.FloydSteinberg(c.b, x => x > 8388608 ? 16777215 : 0);
+                    Common.FloydSteinberg(c.r, x => x > 8388608 ? 16777215 : 0);
+                    Common.FloydSteinberg(c.g, x => x > 8388608 ? 16777215 : 0);
+                    Common.FloydSteinberg(c.b, x => x > 8388608 ? 16777215 : 0);
 
                     var k = 0;
                     for (int i = 0; i < height; i++)
@@ -2810,9 +2810,9 @@ public static class imageGenerate
                 {
                     var c = new channelBasedImage(frame);
                     //c.Scale(3);
-                    common.SimpleDither(c.r, x => x > 8388608 ? 16777215 : 0);
-                    common.SimpleDither(c.g, x => x > 8388608 ? 16777215 : 0);
-                    common.SimpleDither(c.b, x => x > 8388608 ? 16777215 : 0);
+                    Common.SimpleDither(c.r, x => x > 8388608 ? 16777215 : 0);
+                    Common.SimpleDither(c.g, x => x > 8388608 ? 16777215 : 0);
+                    Common.SimpleDither(c.b, x => x > 8388608 ? 16777215 : 0);
 
                     var k = 0;
                     for (int i = 0; i < height; i++)
@@ -2866,9 +2866,9 @@ public static class imageGenerate
     //        gif.AddFrame(pixelsToBitmap(pixels), quality: GifQuality.Grayscale);
     //    }
     //}
-    public static common.Color24[,] W2560H1440()
+    public static Common.Color24[,] W2560H1440()
     {
-        var pixels = new common.Color24[1440, 2560];
+        var pixels = new Common.Color24[1440, 2560];
         Parallel.For(0, 2560, i =>
         {
             for (var j = 0; j < 1440; j++)
@@ -2877,7 +2877,7 @@ public static class imageGenerate
                 pixels[j, i].r = k;
                 pixels[j, i].g = k;
                 pixels[j, i].b = k;
-                //pixels[j, i] = common.PsuedoGreyPlus24((9*i + 16*j) / 32);
+                //pixels[j, i] = Common.PsuedoGreyPlus24((9*i + 16*j) / 32);
             }
         });
 
@@ -2893,22 +2893,22 @@ public static class imageGenerate
             for (int j = 0; j < w; j++)
                 a[i, j] = (i * 16 + j * 9) << 1;
 
-        common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
-        var a2 = common.Scale(a, 34);
+        Common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+        var a2 = Common.Scale(a, 34);
 
         for (int i = 0; i < h; i++)
             for (int j = 0; j < w; j++)
                 a[i, j] = (i * 16 + j * 9) << 2;
 
-        common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
-        var a3 = common.Scale(a, 34);
+        Common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+        var a3 = Common.Scale(a, 34);
 
         for (int i = 0; i < h; i++)
             for (int j = 0; j < w; j++)
                 a[i, j] = (i * 16 + j * 9) << 3;
 
-        common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
-        var a4 = common.Scale(a, 34);
+        Common.MinimizedAverageError(a, x => x > 8388608 ? 16777215 : 0);
+        var a4 = Common.Scale(a, 34);
 
         var c = new channelBasedImage96(w / 34, h / 34);
 
@@ -2935,7 +2935,7 @@ public static class imageGenerate
 
         var max = a[h - 1, w - 1];
 
-        common.MinimizedAverageError(a, x => x > (max >> 1) ? max : 0);
+        Common.MinimizedAverageError(a, x => x > (max >> 1) ? max : 0);
         var w8 = w / 8;
         var b = new byte[h * w8];
         int k = 0, p = 0;
@@ -2952,7 +2952,7 @@ public static class imageGenerate
                 }
             }
 
-        var bitmap = common.bitsToBitmap(b, w, h);
+        var bitmap = Common.bitsToBitmap(b, w, h);
         bitmap.Save("3.pbm");
     }
     public static void MultiLevel()
@@ -3048,7 +3048,6 @@ public static class imageGenerate
     public static void MultiLevelLine()
     {
         var w = 1044480;
-        var h = 1;
         var inputArgs = $"-y -f rawvideo -pix_fmt gray16 -s:v {w}x1 -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset veryfast -x265-params lossless=1 -vf scale=16384:9216 vertfast_lossless.mp4";
         var p = new Process
@@ -3291,7 +3290,7 @@ public static class imageGenerate
         ffmpegIn.Close();
         p.WaitForExit();
     }
-    public static common.Color24[,] ViewfinityS9()
+    public static Common.Color24[,] ViewfinityS9()
     {
         var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
         var w = 5120;
@@ -3303,7 +3302,7 @@ public static class imageGenerate
             for (int i = 0; i < w * n; i++)
                 a[j, i] = (short)((j * 16 + i * 9) / 90.34);
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         for (int j = 0; j < h; j++)
         {
@@ -3327,7 +3326,7 @@ public static class imageGenerate
         }
         return pixels;
     }
-    public static common.Color24[,] ViewfinityS9Simple()
+    public static Common.Color24[,] ViewfinityS9Simple()
     {
         var n = 13;
         var w = 5120;
@@ -3341,7 +3340,7 @@ public static class imageGenerate
             for (int i = 0; i < w * n; i++)
                 a[j / n, i / n] += ((j * 16 + i * 9) / d) % 4;
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         for (int j = 0; j < h; j++)
         {
@@ -3356,14 +3355,14 @@ public static class imageGenerate
         }
         return pixels;
     }
-    public static common.Color24[,] ViewfinityS9Simple2()
+    public static Common.Color24[,] ViewfinityS9Simple2()
     {
         var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
 
         var w = 5120;
         var h = 2880;
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         for (int j = 0; j < h; j++)
         {
@@ -3423,7 +3422,7 @@ public static class imageGenerate
         ffmpegIn.Close();
         p.WaitForExit();
     }
-    public static common.Color24[,] RandomGradient24(int n = 26752)
+    public static Common.Color24[,]? RandomGradient24(int n = 26752)
     {
         var r = new Random();
         var m = n / 256.0;
@@ -3447,13 +3446,13 @@ public static class imageGenerate
                 }
             }
 
-        return common.bytesToPixels24(a, n, n);
+        return Common.bytesToPixels24(a, n, n);
     }
-    public static common.Color48[,] RandomGradient48(int n = 12800)
+    public static Common.Color48[,] RandomGradient48(int n = 12800)
     {
         var r = new Random();
         var m = n / 65536.0;
-        var a = new common.Color48[n, n];
+        var a = new Common.Color48[n, n];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
             {
@@ -3516,14 +3515,14 @@ public static class imageGenerate
         ffmpegIn.Close();
         p.WaitForExit();
     }
-    public static common.Color24[,] Hat()
+    public static Common.Color24[,] Hat()
     {
         var p = Enumerable.Range(0, 4081).Select(x => PsuedoGreyPlus24(x)).ToArray();
 
         var w = 5248;
         var h = 2880;
 
-        var pixels = new common.Color24[h, w];
+        var pixels = new Common.Color24[h, w];
 
         var k = 0;
         for (int i = 0; i < 100; i++)

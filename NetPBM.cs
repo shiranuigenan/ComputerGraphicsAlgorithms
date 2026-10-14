@@ -16,7 +16,7 @@ public class NetPBM
     public int Width;
     public int Height;
     public byte[] Pixels;
-    public byte[] Palette;
+    public byte[]? Palette;
     public NetPBMFormat Format;
     public int MaxValue;
 
@@ -49,7 +49,7 @@ public class NetPBM
         return 0;
     }
 
-    public NetPBM(NetPBMFormat format, byte[] pixels, int width, int height, byte[] palette = null)
+    public NetPBM(NetPBMFormat format, byte[] pixels, int width, int height, byte[]? palette = null)
     {
         Format = format;
         Width = width;
@@ -72,7 +72,7 @@ public class NetPBM
                 Pixels[k++] = pixels[i, j];
     }
 
-    public NetPBM(common.Color24[,] pixels)
+    public NetPBM(Common.Color24[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);
@@ -89,7 +89,7 @@ public class NetPBM
             }
     }
 
-    public NetPBM(common.Color32[,] pixels)
+    public NetPBM(Common.Color32[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);
@@ -106,7 +106,7 @@ public class NetPBM
             }
     }
 
-    public NetPBM(common.Color48[,] pixels)
+    public NetPBM(Common.Color48[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);
@@ -126,7 +126,7 @@ public class NetPBM
             }
     }
 
-    public NetPBM(common.Color64[,] pixels)
+    public NetPBM(Common.Color64[,] pixels)
     {
         Width = pixels.GetLength(1);
         Height = pixels.GetLength(0);
@@ -254,7 +254,7 @@ public class NetPBM
     {
         using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
         var magic = new byte[2];
-        fs.Read(magic, 0, 2);
+        fs.ReadExactly(magic, 0, 2);
         int type = magic[1];
         int c;
         while ((c = fs.ReadByte()) != '\n' && c != '\r' && c != -1) ;
@@ -278,7 +278,7 @@ public class NetPBM
             throw new NotSupportedException("P1 (ASCII) not supported");
         }
         var pixels = new byte[w * h * bpp];
-        fs.Read(pixels, 0, pixels.Length);
+        fs.ReadExactly(pixels, 0, pixels.Length);
         return new NetPBM(format, pixels, w, h);
     }
 

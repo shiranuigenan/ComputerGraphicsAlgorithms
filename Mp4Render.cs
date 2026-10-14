@@ -24,7 +24,7 @@ public class Mp4Render
         PixelFormat = pixelFormat;
         PixelBytes = pixelBytes;
     }
-    public event FrameRenderEvent OnFrameRender;
+    public event FrameRenderEvent? OnFrameRender;
     public void RenderToFile(string filePath)
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt {PixelFormat} -s:v {InWidth}x{InHeight} -r {Fps} -i -";
@@ -52,7 +52,7 @@ public class Mp4Render
         var framBuffer = new byte[InWidth * InHeight * PixelBytes];
         for (int f = 0; f < FrameCount; f++)
         {
-            OnFrameRender(f, framBuffer);
+            OnFrameRender?.Invoke(f, framBuffer);
             ffmpegIn.Write(framBuffer);
             ffmpegIn.Flush();
         }
