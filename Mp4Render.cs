@@ -37,13 +37,13 @@ public class Mp4Render
         var p = new Process
         {
             StartInfo =
-    {
-        FileName = "ffmpeg",
-        Arguments = $"{inputArgs} {outputArgs}",
-        UseShellExecute = false,
-        CreateNoWindow = false,
-        RedirectStandardInput = true
-    }
+{
+ FileName = "ffmpeg",
+ Arguments = $"{inputArgs} {outputArgs}",
+ UseShellExecute = false,
+ CreateNoWindow = false,
+ RedirectStandardInput = true
+}
         };
 
         p.Start();

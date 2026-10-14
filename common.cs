@@ -203,25 +203,25 @@ public static class Common
         {
             var ii = i * 16;
             Parallel.For(0, destinationHeight, j =>
-            {
-                var sum = new int[4];
-                var jj = j * 16;
-                for (var x = 0; x < 16; x++)
-                {
-                    var iii = ii + x;
-                    for (var y = 0; y < 16; y++)
-                    {
-                        var jjj = jj + y;
-                        sum[0] += sourcePixels[jjj, iii].r;
-                        sum[1] += sourcePixels[jjj, iii].g;
-                        sum[2] += sourcePixels[jjj, iii].b;
-                    }
-                }
-                destinationPixels[j, i].r = (ushort)(257 * sum[0] / 256);
-                destinationPixels[j, i].g = (ushort)(257 * sum[1] / 256);
-                destinationPixels[j, i].b = (ushort)(257 * sum[2] / 256);
-            });
-        }); 
+     {
+           var sum = new int[4];
+           var jj = j * 16;
+           for (var x = 0; x < 16; x++)
+           {
+               var iii = ii + x;
+               for (var y = 0; y < 16; y++)
+               {
+                   var jjj = jj + y;
+                   sum[0] += sourcePixels[jjj, iii].r;
+                   sum[1] += sourcePixels[jjj, iii].g;
+                   sum[2] += sourcePixels[jjj, iii].b;
+               }
+           }
+           destinationPixels[j, i].r = (ushort)(257 * sum[0] / 256);
+           destinationPixels[j, i].g = (ushort)(257 * sum[1] / 256);
+           destinationPixels[j, i].b = (ushort)(257 * sum[2] / 256);
+       });
+        });
 
         return destinationPixels;
     }
@@ -239,30 +239,30 @@ public static class Common
         {
             var ii = i * 16;
             Parallel.For(0, destinationHeight, j =>
-            {
-                var sum = new int[4];
-                var jj = j * 16;
-                for (var x = 0; x < 16; x++)
-                {
-                    var iii = ii + x;
-                    for (var y = 0; y < 16; y++)
-                    {
-                        var jjj = jj + y;
-                        sum[0] += sourcePixels[jjj, iii].r;
-                        sum[1] += sourcePixels[jjj, iii].g;
-                        sum[2] += sourcePixels[jjj, iii].b;
-                        sum[3] += sourcePixels[jjj, iii].a;
-                    }
-                }
-                destinationPixels[j, i].r = (ushort)(257 * sum[0] / 256);
-                destinationPixels[j, i].g = (ushort)(257 * sum[1] / 256);
-                destinationPixels[j, i].b = (ushort)(257 * sum[2] / 256);
-                destinationPixels[j, i].a = (ushort)(257 * sum[3] / 256);
-            });
-        }); 
+     {
+           var sum = new int[4];
+           var jj = j * 16;
+           for (var x = 0; x < 16; x++)
+           {
+               var iii = ii + x;
+               for (var y = 0; y < 16; y++)
+               {
+                   var jjj = jj + y;
+                   sum[0] += sourcePixels[jjj, iii].r;
+                   sum[1] += sourcePixels[jjj, iii].g;
+                   sum[2] += sourcePixels[jjj, iii].b;
+                   sum[3] += sourcePixels[jjj, iii].a;
+               }
+           }
+           destinationPixels[j, i].r = (ushort)(257 * sum[0] / 256);
+           destinationPixels[j, i].g = (ushort)(257 * sum[1] / 256);
+           destinationPixels[j, i].b = (ushort)(257 * sum[2] / 256);
+           destinationPixels[j, i].a = (ushort)(257 * sum[3] / 256);
+       });
+        });
 
         return destinationPixels;
-    } 
+    }
 
     public static int[,] Scale(int[,] source, byte ratio)
     {
@@ -278,20 +278,20 @@ public static class Common
         {
             var ii = i * ratio;
             Parallel.For(0, destinationHeight, j =>
-            {
-                var sum = 0L;
-                var jj = j * ratio;
-                for (var x = 0; x < ratio; x++)
-                {
-                    var iii = ii + x;
-                    for (var y = 0; y < ratio; y++)
-                    {
-                        var jjj = jj + y;
-                        sum += source[jjj, iii];
-                    }
-                }
-                destination[j, i] = (int)(sum / (ratio * ratio));
-            });
+     {
+           var sum = 0L;
+           var jj = j * ratio;
+           for (var x = 0; x < ratio; x++)
+           {
+               var iii = ii + x;
+               for (var y = 0; y < ratio; y++)
+               {
+                   var jjj = jj + y;
+                   sum += source[jjj, iii];
+               }
+           }
+           destination[j, i] = (int)(sum / (ratio * ratio));
+       });
         });
 
         return destination;
@@ -465,7 +465,7 @@ public static class Common
                     b = (byte)Math.Clamp(b + f * p8[i % 16, j % 16], 0, 255);
 
                     a[k++] = ImageGenerate.Palette666(r, g, b);
-                } 
+                }
 
             using var gif = new AnimatedGif(f.ToString("D3") + ".gif", 256, 256, palette, 2, 8);
             gif.AddFrame(a);
