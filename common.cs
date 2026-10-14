@@ -399,7 +399,7 @@ public static class Common
 
         int k = 0;
         for (int i = 0; i < height; i++)
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < width; j++)
                 result[k++] = ImageGenerate.Palette666(pixels[i, j].r, pixels[i, j].g, pixels[i, j].b);
 
         return result;
