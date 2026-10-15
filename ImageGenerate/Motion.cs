@@ -1,5 +1,4 @@
 ﻿// Çizgisel hareket, ivme ve çok seviyeli (multi-level) video akışları.
-using System.Diagnostics;
 using static ComputerGraphicsAlgorithms.Common;
 
 namespace ComputerGraphicsAlgorithms;
@@ -14,19 +13,7 @@ public static partial class ImageGenerate
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
         var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 1.mp4";
-        var p = new Process
-        {
-            StartInfo =
-{
- FileName = "ffmpeg.exe",
- Arguments = $"{inputArgs} {outputArgs}",
- UseShellExecute = false,
- CreateNoWindow = false,
- RedirectStandardInput = true
-}
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var t = 0;
         var a = new int[54000];
@@ -60,8 +47,7 @@ public static partial class ImageGenerate
             ffmpegIn.Write(Data);
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void AccelerationLine()
     {
@@ -70,19 +56,7 @@ public static partial class ImageGenerate
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
         var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 -vf scale=16384:9216 2.mp4";
-        var p = new Process
-        {
-            StartInfo =
-{
- FileName = "ffmpeg.exe",
- Arguments = $"{inputArgs} {outputArgs}",
- UseShellExecute = false,
- CreateNoWindow = false,
- RedirectStandardInput = true
-}
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var a = new byte[8400 * 3];
         Array.Fill(a, (byte)255);
@@ -126,27 +100,14 @@ public static partial class ImageGenerate
 
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void LinearMovementX()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 131072x1 -r 60 -i -";
         var outputArgs = "-c:v libx265 -preset ultrafast -vf scale=16384:9216 -x265-params lossless=1 lossless_16k_ultrafast.mp4";
 
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
         var a = new byte[131072];
@@ -157,27 +118,14 @@ public static partial class ImageGenerate
             ffmpegIn.Write(a);
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void LinearMovementVertical()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 16384x9216 -r 60 -i -";
         var outputArgs = "-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless_16k_ultrafast.mp4";
 
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
         var a = new byte[16384 * 9216];
@@ -199,8 +147,7 @@ public static partial class ImageGenerate
             ffmpegIn.Write(a);
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void MultiLevel()
     {
@@ -210,19 +157,7 @@ public static partial class ImageGenerate
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
         var outputArgs = "-c:v libx265 -preset ultrafast -crf 0 crf0.mp4";
-        var p = new Process
-        {
-            StartInfo =
-{
- FileName = "ffmpeg.exe",
- Arguments = $"{inputArgs} {outputArgs}",
- UseShellExecute = false,
- CreateNoWindow = false,
- RedirectStandardInput = true
-}
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var rnd = new Random();
         var a = new List<ushort[,,]>();
@@ -289,27 +224,14 @@ public static partial class ImageGenerate
                 ffmpegIn.Flush();
             }
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void MultiLevelLine()
     {
         var w = 1044480;
         var inputArgs = $"-y -f rawvideo -pix_fmt gray16 -s:v {w}x1 -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset veryfast -x265-params lossless=1 -vf scale=16384:9216 vertfast_lossless.mp4";
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
 
@@ -324,8 +246,7 @@ public static partial class ImageGenerate
 
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
 
     }
 }

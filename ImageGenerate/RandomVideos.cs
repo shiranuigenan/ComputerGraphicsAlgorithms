@@ -1,5 +1,4 @@
 ﻿// ffmpeg'e ham piksel akıtarak üretilen rastgelelik, renk yağmuru ve Brownian hareket videoları.
-using System.Diagnostics;
 using static ComputerGraphicsAlgorithms.Common;
 
 namespace ComputerGraphicsAlgorithms;
@@ -14,19 +13,7 @@ public static partial class ImageGenerate
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v {w}x{h} -r 60 -i -";
         var outputArgs = $"-c:v flashsv2 -vf scale=3840:2160 -sws_flags neighbor flashsv2.mkv";
 
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
 
@@ -49,26 +36,13 @@ public static partial class ImageGenerate
             }
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void PerfectRandom16Gray()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
         var outputArgs = $"-sws_flags gauss -c:v libx265 -preset ultrafast -vf scale=16384:9216 -crf 0 gauss_crf0_16k.mp4";
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
 
@@ -91,8 +65,7 @@ public static partial class ImageGenerate
             }
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void PerfectRandom8()
     {
@@ -101,19 +74,7 @@ public static partial class ImageGenerate
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
         var outputArgs = $"-c:v libsvtav1 -preset 12 -vf scale=7680:4320 -crf 31 crf31_8k.mp4";
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
 
@@ -136,8 +97,7 @@ public static partial class ImageGenerate
             }
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void PerfectRandom24()
     {
@@ -146,19 +106,7 @@ public static partial class ImageGenerate
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 9x5 -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 -sws_flags neighbor -vf scale=240:135 1.mp4";
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
 
@@ -176,27 +124,14 @@ public static partial class ImageGenerate
             ffmpegIn.Write(a);
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void ColorRain()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset ultrafast -vf scale=2430:1350 -x265-params lossless=1 9.mp4";
 
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
         var a = new ushort[84];
@@ -219,27 +154,14 @@ public static partial class ImageGenerate
 
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void ColorRainHDR()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
         var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=144:80 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
 
-        var p = new Process
-        {
-            StartInfo =
-     {
-       FileName = "ffmpeg.exe",
-       Arguments = $"{inputArgs} {outputArgs}",
-       UseShellExecute = false,
-       CreateNoWindow = false,
-       RedirectStandardInput = true
-     }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
         var a = new ushort[135];
@@ -261,26 +183,13 @@ public static partial class ImageGenerate
 
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void BrownianMotion()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 36x64 -r 60 -i -";
         var outputArgs = "-c:v libx265 -sws_flags neighbor -preset ultrafast -vf scale=4320:7680 -x265-params lossless=1 1.mp4";
-        var p = new Process
-        {
-            StartInfo =
-     {
-       FileName = "ffmpeg.exe",
-       Arguments = $"{inputArgs} {outputArgs}",
-       UseShellExecute = false,
-       CreateNoWindow = false,
-       RedirectStandardInput = true
-     }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
         var a = new byte[2304];
@@ -302,27 +211,14 @@ public static partial class ImageGenerate
             ffmpegIn.Write(a);
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void Bound()
     {
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb48 -s:v 9x5 -r 60 -i -";
         var outputArgs = $"-c:v libaom-av1 -colorspace bt2020nc -color_trc smpte2084 -color_primaries bt2020 -preset ultrafast -vf scale=1280:720 -pix_fmt yuv420p10le -crf 0 -sws_flags gauss 8.mp4";
 
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-      CreateNoWindow = false,
-       RedirectStandardInput = true
-     }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
         var a = new ushort[135];
@@ -344,7 +240,6 @@ public static partial class ImageGenerate
 
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
 }

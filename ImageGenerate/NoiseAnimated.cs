@@ -1,5 +1,4 @@
 ﻿// Pink noise piramitinin büyük ölçekli ve animasyonlu varyantları (ffmpeg ham video akışı).
-using System.Diagnostics;
 using static ComputerGraphicsAlgorithms.Common;
 
 namespace ComputerGraphicsAlgorithms;
@@ -108,18 +107,7 @@ public static partial class ImageGenerate
 
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v {w}x{h} -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset veryslow -crf 0 4.mp4";
-        var p = new Process
-        {
-            StartInfo =
-  {
-   FileName = "ffmpeg.exe",
-   Arguments = $"{inputArgs} {outputArgs}",
-   UseShellExecute = false,
-   CreateNoWindow = false,
-   RedirectStandardInput = true
-  }
-        };
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
         var d = Enumerable.Range(0, 4081).Select(x => PseudoGreyPlus24(x)).ToArray();
@@ -146,7 +134,6 @@ public static partial class ImageGenerate
                 }
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
 }

@@ -1,5 +1,4 @@
 ﻿// Damalı desen üretimi, ölçekleme ve bu desenin video çıktıları.
-using System.Diagnostics;
 using static ComputerGraphicsAlgorithms.Common;
 
 namespace ComputerGraphicsAlgorithms;
@@ -48,19 +47,7 @@ public static partial class ImageGenerate
         var inputArgs = $"-y -f rawvideo -pix_fmt gray -s:v 4608x8192 -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 1.mp4";
 
-        var p = new Process
-        {
-            StartInfo =
-     {
-       FileName = "ffmpeg.exe",
-       Arguments = $"{inputArgs} {outputArgs}",
-       UseShellExecute = false,
-       CreateNoWindow = false,
-       RedirectStandardInput = true
-     }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
 
@@ -72,8 +59,7 @@ public static partial class ImageGenerate
 
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void CheckerVideo169()
     {
@@ -108,19 +94,7 @@ public static partial class ImageGenerate
         var inputArgs = $"-y -f rawvideo -pix_fmt rgb24 -s:v 8192x4608 -r 60 -i -";
         var outputArgs = $"-c:v libx265 -preset ultrafast -x265-params lossless=1 lossless.mp4";
 
-        var p = new Process
-        {
-            StartInfo =
-     {
-       FileName = "ffmpeg.exe",
-       Arguments = $"{inputArgs} {outputArgs}",
-       UseShellExecute = false,
-       CreateNoWindow = false,
-       RedirectStandardInput = true
-     }
-        };
-
-        p.Start();
+        var p = Ffmpeg.Start(inputArgs, outputArgs);
 
         var ffmpegIn = p.StandardInput.BaseStream;
 
@@ -139,8 +113,7 @@ public static partial class ImageGenerate
 
             ffmpegIn.Flush();
         }
-        ffmpegIn.Close();
-        p.WaitForExit();
+        Ffmpeg.Finish(p);
     }
     public static void Izgara()
     {
